@@ -48,7 +48,7 @@ ButtonSayHello = NativeUI:CreateButton
   width = FILL_PARENT,
   height = WRAP_CONTENT,
   text = "Say Hello",
-  eventFun = function(self, widgetEvent)
+  eventFun = function(widget, widgetEvent)
     MessageLabel:SetProp("text", "Hello World!")
   end
 }
@@ -59,7 +59,7 @@ ButtonSayHi = NativeUI:CreateButton
   width = FILL_PARENT,
   height = WRAP_CONTENT,
   text = "Say Hi",
-  eventFun = function(self, widgetEvent)
+  eventFun = function(widget, widgetEvent)
     MessageLabel:SetProp("text", "Hi there!")
   end
 }
