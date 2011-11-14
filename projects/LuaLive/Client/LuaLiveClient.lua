@@ -24,7 +24,6 @@
 
   File: LuaLiveClient.lua
   Author: Mikael Kindborg
-  Date Created: 2011-09-27
 
   LuaLive Client written in Lua.
 
@@ -52,93 +51,86 @@
 
 --]]
 
--- Command constants.
+LuaLive = (function()
 
--- Run Lua code on the client. After this command follows
--- a length int and a string of byte-size characters.
-COMMAND_RUN_LUA_SCRIPT = 1
+  -- The LuaLive object.
+  self = {}
+  
+  -- Command constants.
+  
+  -- Run Lua code on the client. After this command follows
+  -- a length int and a string of byte-size characters.
+  self.COMMAND_RUN_LUA_SCRIPT = 1
+  
+  -- Reset the interpreter state.
+  self.COMMAND_RESET = 2
+  
+  -- Reply from client to server. After this command follows
+  -- a length int and a string of byte-size characters.
+  self.COMMAND_REPLY = 3
+  
+  -- Server address and port.
+  -- TODO: Change the server address to the one used on your machine.
+  -- When running in the Android emulator, use 10.0.2.2 for localhost.
+  self.SERVER_DEFAULT_ADDRESS = "192.168.1.100"
+  --self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
+  self.SERVER_PORT = ":55555"
+  
+  -- The connection object.
+  self.Connection = nil
+  
+  -- Global references to widgets.
+  self.WebView = nil
+  self.Screen = nil
+  
+  -- Set to false to connect directly using the
+  -- hard-coded server ip-address. This is useful on
+  -- platforms that do not have NativeUI, or if you
+  -- use the same ip-address every time.
+  -- Default is to use NativeUI to display a start
+  -- screen where you can enter the ip-address.
+  self.USE_NATIVE_UI = true
+  
+  self.Main = function()
+    print("Welcome to the LuaLive client!")
+    print("Press BACK or Key 0 to exit.")
+    EventMonitor:OnKeyDown(self.OnKeyDown)
 
--- Reset the interpreter state.
-COMMAND_RESET = 2
-
--- Reply from client to server. After this command follows
--- a length int and a string of byte-size characters.
-COMMAND_REPLY = 3
-
--- Server address and port.
--- TODO: Change the server address to the one used on your machine.
--- When running in the Android emulator, use 10.0.2.2 for localhost.
---local SERVER_DEFAULT_ADDRESS = "192.168.0.114"
-SERVER_DEFAULT_ADDRESS = "10.0.2.2"
-SERVER_PORT = ":55555"
-
--- The connection object.
-Connection = nil
-
--- Global references to widgets.
-LuaLiveWebView = nil
-LuaLiveScreen = nil
-
--- Set to false to connect directly using the
--- hard-coded server ip-address. This is useful on
--- platforms that do not have NativeUI, or if you
--- use the same ip-address every time.
--- Default is to use NativeUI to display a start
--- screen where you can enter the ip-address.
-USE_NATIVE_UI = true
-
-function Main()
-  print("Welcome to the LuaLive client!")
-  print("Press BACK or Key 0 to exit.")
-  EventMonitor:OnKeyDown(OnKeyDown)
-  if USE_NATIVE_UI then
-    CreateGraphicalUI()
-  else
-    ConnectToServer(SERVER_DEFAULT_ADDRESS)
+    if self.USE_NATIVE_UI then
+      self.CreateGraphicalUI()
+      self.CreateHTML()
+      NativeUI:ShowScreen(self.Screen)
+    else
+      self.ConnectToServer(self.SERVER_DEFAULT_ADDRESS)
+    end
   end
-end
+  
+  -- Create a UI with a WebView for the start-up screen
+  -- of the client. This will work on platforms that
+  -- support NativeUI.
+  self.CreateGraphicalUI = function()
+    self.Screen = NativeUI:CreateWidget
+    {
+      type = "Screen"
+    }
 
--- Create a UI with a WebView for the start-up screen
--- of the client. This will work on platforms that
--- support NativeUI.
-function CreateGraphicalUI()
-  -- Enable to use back key on Android to exit app.
-  EventMonitor:OnKeyDown(OnKeyDown)
+    self.WebView = NativeUI:CreateWidget 
+    {
+      type = "WebView",
+      parent = self.Screen,
+      width = FILL_PARENT,
+      height = FILL_PARENT,
+      enableZoom = "true",
+      hardHook = "lua://.*",
+      eventFun = function(widget, widgetEvent)
+        self.HandleWebViewEvent(widgetEvent)
+      end
+    }
+  end
   
-  -- Create and show a WebView widget.
-  local webview = maWidgetCreate(MAW_WEB_VIEW)
-  
-  -- Set global reference to the WebView.
-  LuaLiveWebView = webview
-  
-  -- Set widget properties. "-1" means fill parent space.
-  maWidgetSetProperty(webview, MAW_WIDGET_WIDTH, "-1")
-  maWidgetSetProperty(webview, MAW_WIDGET_HEIGHT, "-1")
-  maWidgetSetProperty(webview, MAW_WEB_VIEW_ENABLE_ZOOM, "true")
-  
-  -- Set hook pattern.
-  maWidgetSetProperty(webview, MAW_WEB_VIEW_HARD_HOOK, "lua://.*")
-  
-  -- Set the function to process hook events.
-  EventMonitor:OnWidget(HandleWidgetEvent)
-  
-  -- Create a Screen widget.
-  local screen = maWidgetCreate(MAW_SCREEN)
-  
-  -- Set global reference to the Screen.
-  LuaLiveScreen = screen
-  
-  -- Display the WebView.
-  maWidgetAddChild(screen, webview)
-  maWidgetScreenShow(screen)
-
-  -- Set the HTML of the WebView.
-  CreateHTML(webview)
-end
-
-function CreateHTML(webview)
-  -- HTML for the WebView.
-  maWidgetSetProperty(webview, MAW_WEB_VIEW_HTML,
+  self.CreateHTML = function()
+    -- HTML for the WebView.
+    maWidgetSetProperty(self.WebView:GetHandle(), MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
@@ -164,7 +156,10 @@ function CreateHTML(webview)
 <script>
 function Connect()
 {
-  EvalLua("SaveServerIPAddressAndConnect('" + GetServerIPAddress() + "')")
+  EvalLua(
+    "LuaLive.SaveServerIPAddressAndConnect('"
+    + GetServerIPAddress() 
+    + "')")
 }
 
 function GetServerIPAddress()
@@ -183,179 +178,182 @@ function EvalLua(script)
 }
 
 // Call Lua to read and set the server ip address text box.
-EvalLua("ReadServerIPAddressAndSetTextBox()")
+EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
 </script>
 </body>
 </html>
 ]==])
-end
-
-function OnKeyDown(key)
-  if MAK_BACK == key or MAK_0 == key then
-    maExit(0)
   end
-end
-
--- Process the HOOK_INVOKED event.
-function HandleWidgetEvent(widgetEvent)
-  if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == SysWidgetEventGetType(widgetEvent) then
-    -- Get the url string.
-    local urlData = SysWidgetEventGetUrlData(widgetEvent)
-    local url = SysLoadStringResource(urlData)
-    -- Get the Lua script.
-    local start,stop = url:find("lua://")
-    if nil ~= start then
-      local script = url:sub(stop + 1)
-      log("@@@ LuaScript: " .. script)
-      local fun = loadstring(script)
-      if nil ~= fun then
-        pcall(fun)
-      end
+  
+  self.OnKeyDown = function(key)
+    if MAK_BACK == key or MAK_0 == key then
+      maExit(0)
     end
-    maDestroyObject(urlData)
   end
-end
-
-function EvalJS(script)
-  log("@@@ EvalJS: "..script)
-  maWidgetSetProperty(LuaLiveWebView, MAW_WEB_VIEW_URL, "javascript:"..script)
-end
-
-function SaveServerIPAddressAndConnect(serverAddress)
-  -- TODO: Save serverAddress to file
-  EvalJS("alert('Connecting...')")
-  ConnectToServer(serverAddress)
-end
-
-function ReadServerIPAddressAndSetTextBox()
-  EvalJS("SetServerIPAddress('"..ReadServerIPAddress().."')")
-end
-
-function ReadServerIPAddress()
-  -- TODO: Read serverAddress from file
-  return "10.0.2.2"
-end
-
-function ConnectToServer(serverAddress)
-  print("Connecting to: "..serverAddress)
-  Connection = SysConnectionCreate()
-  Connection:Connect(
-    "socket://"..serverAddress..SERVER_PORT,
-    ConnectionEstablished)
-end
-
-function ConnectionEstablished(result)
-  if result > 0 then
-    print("Successfully connected.")
+  
+  -- Process the HOOK_INVOKED event.
+  self.HandleWebViewEvent = function(widgetEvent)
+    if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == SysWidgetEventGetType(widgetEvent) then
+      -- Get the url string.
+      local urlData = SysWidgetEventGetUrlData(widgetEvent)
+      local url = SysLoadStringResource(urlData)
+      -- Get the Lua script.
+      local start,stop = url:find("lua://")
+      if nil ~= start then
+        local script = url:sub(stop + 1)
+        -- log("@@@ LuaScript: " .. script)
+        local fun = loadstring(script)
+        if nil ~= fun then
+          pcall(fun)
+        end
+      end
+      maDestroyObject(urlData)
+    end
+  end
+  
+  self.EvalJS = function(script)
+    log("@@@ EvalJS: "..script)
+    maWidgetSetProperty(self.WebView:GetHandle(), MAW_WEB_VIEW_URL, "javascript:"..script)
+  end
+  
+  self.SaveServerIPAddressAndConnect = function(serverAddress)
+    -- TODO: Save serverAddress to file
+    self.EvalJS("alert('Connecting...')")
+    self.ConnectToServer(serverAddress)
+  end
+  
+  self.ReadServerIPAddressAndSetTextBox = function()
+    self.EvalJS("SetServerIPAddress('"..self.ReadServerIPAddress().."')")
+  end
+  
+  self.ReadServerIPAddress = function()
+    -- TODO: Read serverAddress from file
+    return self.SERVER_DEFAULT_ADDRESS
+  end
+  
+  self.ConnectToServer = function(serverAddress)
+    print("Connecting to: "..serverAddress)
+    self.connection = Connection:Create()
+    self.connection:Connect(
+      "socket://"..serverAddress..self.SERVER_PORT,
+      self.ConnectionEstablished)
+  end
+  
+  self.ConnectionEstablished = function(result)
+    if result > 0 then
+      print("Successfully connected.")
+      -- Read from server.
+      self.ReadCommand()
+    else
+      print("Failed to connect - error: "..result)
+    end
+    if self.USE_NATIVE_UI then
+      -- Hide the WebView.
+      maWidgetScreenShow(MAW_CONSTANT_MOSYNC_SCREEN_HANDLE)
+    end
+  end
+  
+  self.ReadCommand = function()
     -- Read from server.
-    ReadCommand()
-  else
-    print("Failed to connect - error: "..result)
+    log("ReadCommand")
+    self.connection:Read(8, self.MessageHeaderReceived)
   end
-  if USE_NATIVE_UI then
-    -- Hide the WebView.
-    maWidgetScreenShow(MAW_CONSTANT_MOSYNC_SCREEN_HANDLE)
-  end
-end
-
-function ReadCommand()
-  -- Read from server.
-  log("ReadCommand")
-  Connection:Read(8, MessageHeaderReceived)
-end
-
-function MessageHeaderReceived(buffer, result)
-  -- Process the result.
-  log("MessageHeaderReceived")
-  if result > 0 then
-    local command = BufferReadInt(buffer, 0)
-    local dataSize = BufferReadInt(buffer, 4)
-    if COMMAND_RUN_LUA_SCRIPT == command then
-      -- Read script and evaluate it when recieved.
-      Connection:Read(dataSize, ScriptReceived)
-    end
-  end
-  -- Free the result buffer.
-  if nil ~= buffer then
-    SysFree(buffer)
-  end
-end
-
-function ScriptReceived(buffer, result)
-  -- Process the result.
-  log("ScriptReceived")
-  if result > 0 then
-    -- Convert buffer to string.
-    local script = SysBufferToString(buffer)
-    local fun
-    local resultOrErrorMessage
-    local success = false
-    -- Parse script.
-    fun, resultOrErrorMessage = loadstring(script)
-    if nil ~= fun then
-      -- Parsing succeeded, evaluate script.
-      success, resultOrErrorMessage = pcall(fun)
-      if not success then
-        resultOrErrorMessage = "Error: "..resultOrErrorMessage
-        log("Failed to evaluate script. "..resultOrErrorMessage)
+  
+  self.MessageHeaderReceived = function(buffer, result)
+    -- Process the result.
+    log("MessageHeaderReceived")
+    if result > 0 then
+      local command = self.BufferReadInt(buffer, 0)
+      local dataSize = self.BufferReadInt(buffer, 4)
+      if self.COMMAND_RUN_LUA_SCRIPT == command then
+        -- Read script and evaluate it when recieved.
+        self.connection:Read(dataSize, self.ScriptReceived)
       end
     end
-    -- Write response.
-    WriteResponse(resultOrErrorMessage)
+    -- Free the result buffer.
+    if nil ~= buffer then
+      SysFree(buffer)
+    end
   end
-  -- Free the result buffer.
-  if nil ~= buffer then
-    SysFree(buffer)
+  
+  self.ScriptReceived = function(buffer, result)
+    -- Process the result.
+    log("ScriptReceived")
+    if result > 0 then
+      -- Convert buffer to string.
+      local script = SysBufferToString(buffer)
+      local fun
+      local resultOrErrorMessage
+      local success = false
+      -- Parse script.
+      fun, resultOrErrorMessage = loadstring(script)
+      if nil ~= fun then
+        -- Parsing succeeded, evaluate script.
+        success, resultOrErrorMessage = pcall(fun)
+        if not success then
+          resultOrErrorMessage = "Error: "..resultOrErrorMessage
+          log("Failed to evaluate script. "..resultOrErrorMessage)
+        end
+      end
+      -- Write response.
+      self.WriteResponse(resultOrErrorMessage)
+    end
+    -- Free the result buffer.
+    if nil ~= buffer then
+      SysFree(buffer)
+    end
   end
-end
-
-function WriteResponse(value)
-  log("WriteResponse")
-  if nil == value then
-    value = "Undefined"
+  
+  self.WriteResponse = function(value)
+    log("WriteResponse")
+    if nil == value then
+      value = "Undefined"
+    end
+    local response = "Lua Result: "..value
+    -- Allocate buffer for the reply, reader plus string data.
+    local dataSize = response:len()
+    local buffer = SysAlloc(8 + dataSize)
+    self.BufferWriteInt(buffer, 0, self.COMMAND_REPLY)
+    self.BufferWriteInt(buffer, 4, dataSize)
+    self.BufferWriteString(buffer, 8, response)
+    self.connection:Write(buffer, 8 + dataSize, self.WriteResponseDone)
   end
-  local response = "Lua Result: "..value
-  -- Allocate buffer for the reply, reader plus string data.
-  local dataSize = response:len()
-  local buffer = SysAlloc(8 + dataSize)
-  BufferWriteInt(buffer, 0, COMMAND_REPLY)
-  BufferWriteInt(buffer, 4, dataSize)
-  BufferWriteString(buffer, 8, response)
-  Connection:Write(buffer, 8 + dataSize, WriteResponseDone)
-end
-
-function WriteResponseDone(buffer, result)
-  log("Response written - result: "..result)
-  if nil ~= buffer then SysFree(buffer) end
-  ReadCommand()
-end
-
-function BufferReadInt(buffer, index)
-  return SysBufferGetInt(buffer, index / 4)
-end
-
-function BufferWriteInt(buffer, index, value)
-  SysBufferSetByte(buffer, index, SysBitAnd(value, 255));
-  SysBufferSetByte(buffer, index + 1, SysBitAnd(SysBitShiftRight(value, 8), 255));
-  SysBufferSetByte(buffer, index + 2, SysBitAnd(SysBitShiftRight(value, 16), 255));
-  SysBufferSetByte(buffer, index + 3, SysBitAnd(SysBitShiftRight(value, 24), 255));
-end
-
--- Write a Lua string to a buffer.
--- Note that in Lua first element has index one,
--- in a C buffer first byte has index zero.
-function BufferWriteString(buffer, index, theString)
-  local bufferIndex = index
-  local stringIndex = 1
-  for c in theString:gmatch(".") do
-    local b = theString:byte(stringIndex)
-    --log("Char: "..c)
-    --log("Byte: "..b)
-    SysBufferSetByte(buffer, bufferIndex, b)
-    bufferIndex = bufferIndex + 1
-    stringIndex = stringIndex + 1
+  
+  self.WriteResponseDone = function(buffer, result)
+    log("Response written - result: "..result)
+    if nil ~= buffer then SysFree(buffer) end
+    self.ReadCommand()
   end
-end
+  
+  self.BufferReadInt = function(buffer, index)
+    return SysBufferGetInt(buffer, index / 4)
+  end
+  
+  self.BufferWriteInt = function(buffer, index, value)
+    SysBufferSetByte(buffer, index, SysBitAnd(value, 255));
+    SysBufferSetByte(buffer, index + 1, SysBitAnd(SysBitShiftRight(value, 8), 255));
+    SysBufferSetByte(buffer, index + 2, SysBitAnd(SysBitShiftRight(value, 16), 255));
+    SysBufferSetByte(buffer, index + 3, SysBitAnd(SysBitShiftRight(value, 24), 255));
+  end
+  
+  -- Write a Lua string to a buffer.
+  -- Note that in Lua first element has index one,
+  -- in a C buffer first byte has index zero.
+  self.BufferWriteString = function(buffer, index, theString)
+    local bufferIndex = index
+    local stringIndex = 1
+    for c in theString:gmatch(".") do
+      local b = theString:byte(stringIndex)
+      --log("Char: "..c)
+      --log("Byte: "..b)
+      SysBufferSetByte(buffer, bufferIndex, b)
+      bufferIndex = bufferIndex + 1
+      stringIndex = stringIndex + 1
+    end
+  end
+  
+  return self
+end)()
 
 -- Start the program
-Main()
+LuaLive.Main()
