@@ -30,7 +30,9 @@ extern "C"
 }
 
 #include <maapi.h>
+#include <mastdlib.h>
 #include <MAUtil/Geometry.h>
+#include <MAUtil/String.h>
 #include <conprint.h>
 
 #include "inc/LuaEngine.h"
@@ -204,6 +206,58 @@ static int luaToString(lua_State *L)
 }
 
 /**
+ * Helper function that unescapes a string.
+ */
+static MAUtil::String UnescapeHelper(const MAUtil::String& url)
+{
+	// The decoded string.
+	MAUtil::String result = "";
+
+	for (int i = 0; i < url.length(); ++i)
+	{
+		// If the current character is the '%' escape char...
+		if ('%' == (char) url[i])
+		{
+			// Get the char value of the two digit hex value.
+			MAUtil::String hex = url.substr(i + 1, 2);
+			long charValue = strtol(
+				hex.c_str(),
+				NULL,
+				16);
+			// Append to result.
+			result += (char) charValue;
+
+			// Skip over the hex chars.
+			i += 2;
+		}
+		else
+		{
+			// Not encoded, just copy the character.
+			result += url[i];
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Decodes a "percent encoded" Lua string (like
+ * the Javascript unescape function).
+ */
+static int luaUnescapeString(lua_State *L)
+{
+	// Get string param (escaped url).
+	const char* escapedString = luaL_checkstring(L, 1);
+
+	MAUtil::String unescapedString = UnescapeHelper(escapedString);
+
+	// This copies the string to a Lua string.
+	lua_pushstring(L, unescapedString.c_str());
+
+	return 1; // Number of results
+}
+
+/**
  * Create a new Lua engine instance.
  * Currently does no error checking (update
  * this comment if that is added).
@@ -269,6 +323,7 @@ static void registerNativeFunctions(lua_State* L)
 	RegFun(L, "print", luaPrint);
 	RegFun(L, "log", luaLog);
 	RegFun(L, "SysBufferToString", luaToString);
+	RegFun(L, "SysStringUnescape", luaUnescapeString);
 	RegFun(L, "SysLuaEngineCreate", luaEngineCreate);
 	RegFun(L, "SysLuaEngineDelete", luaEngineDelete);
 	RegFun(L, "SysLuaEngineEval", luaEngineEval);
