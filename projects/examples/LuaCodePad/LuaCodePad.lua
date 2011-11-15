@@ -37,6 +37,19 @@ from JavaScript to Lua, and jujst evaluate the Lua code.
 LuaCodePad = (function()
 
   local self = {}
+  
+  -- Table that hold scripts.
+  self.Scripts = {}
+
+  -- Add some scripts.
+  self.Scripts["Workspace 1"] =
+[==[maVibrate(500)
+]==]
+
+  self.Scripts["Workspace 2"] =
+[==[maVibrate(1000)
+log("Hello World")
+]==]
 
   self.Main = function(self)
     self:CreateUI()
@@ -59,15 +72,21 @@ LuaCodePad = (function()
       enableZoom = "true",
       hardHook = "lua://.*",
       eventFun = function(widget, widgetEvent)
-        self:HandleWebViewEvent(widgetEvent)
+        local success, result = widget:EvalLuaOnHookInvoked(widgetEvent)
+        if nil == result then
+          result = "undefined"
+        end
+        if success then
+          self:ShowResult("RESULT: "..result)
+        else
+          self:ShowResult("ERROR: "..result)
+        end
       end
     }
   end
 
   self.CreateHTML = function(self)
-    maWidgetSetProperty(
-      self.WebView:GetHandle(),
-      MAW_WEB_VIEW_HTML,
+    self.WebView:SetProp(MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
@@ -76,31 +95,37 @@ LuaCodePad = (function()
 <body>
 <div id="MainUI">
   <div>
+    <input value="Run" type="button" onmousedown="CodeEditorRunAll()" />
+    <input value="Eval" type="button" onmousedown="CodeEditorEvalSelection()" />
+    <select id="ScriptMenu" onchange="ScriptMenuSelected(this)">
+    </select>
+    <br />
     <textarea id="CodeEditor" rows="10" cols="32">log("@@@Hello World")
     </textarea>
-  <br />
-  <input value="Run" type="button" onmousedown="CodeEditorRunAll()" />
-  <input value="Eval" type="button" onmousedown="CodeEditorEvalSelection()" />
   </div>
   <div>
     <input id="UrlField" value="http://" type="text" size="30"/>
     <br />
-    <input value="Download" type="button" onmousedown="DownloadScript()" />
+    <input value="New Script" type="button" onmousedown="DownloadScript()" />
+    <input value="Download Script" type="button" onmousedown="DownloadScript()" />
+    <br />
+    <input type="checkbox" name="CheckboxDeleteScript" value="" />
+    <input value="Delete Script" type="button" onmousedown="DeleteScript()" />
   </div>
   <div id="StatusMessage"></div>
 </div>
 <script>
 function CodeEditorRunAll()
 {
-  EvalLuaScript(CodeEditorGetText())
+  EvalLua(CodeEditorGetText())
 }
 
 function CodeEditorEvalSelection()
 {
-  EvalLuaScript(CodeEditorGetSelection())
+  EvalLua(CodeEditorGetSelection())
 }
 
-function EvalLuaScript(script)
+function EvalLua(script)
 {
   if (script.length > 0)
   {
@@ -108,10 +133,11 @@ function EvalLuaScript(script)
   }
 }
 
+// The text is escaped.
 function CodeEditorSetText(text)
 {
   var textarea = document.getElementById("CodeEditor")
-  textarea.value = text
+  textarea.value = unescape(text)
 }
 
 function CodeEditorGetText()
@@ -133,60 +159,67 @@ function ShowStatusMessage(message)
   var status = document.getElementById("StatusMessage")
   status.innerHTML = message
 }
+
+function ScriptMenuClear()
+{
+  var menu = document.getElementById("ScriptMenu")
+  while (menu.hasChildNodes())
+  {
+    menu.removeChild(menu.firstChild)
+  }
+}
+
+function ScriptMenuAddItem(title)
+{
+  var menu = document.getElementById("ScriptMenu")
+  var item = document.createElement('option')
+  item.innerHTML = title
+  menu.appendChild(item)
+}
+
+function ScriptMenuSelected(menu)
+{
+  var scriptKey = menu.options[menu.selectedIndex].value
+  EvalLua("LuaCodePad:LoadScript('" + scriptKey + "')")
+}
+
 // MobileLua Interactive Tour
+EvalLua("LuaCodePad:PageLoaded()")
 </script>
 </body>
 </html>
 ]==])
   end
 
-  self.HandleWebViewEvent = function(widget, widgetEvent)
-    if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == SysWidgetEventGetType(widgetEvent) then
-      -- Get the url string.
-      local urlData = SysWidgetEventGetUrlData(widgetEvent)
-      local url = SysLoadStringResource(urlData)
-
-      -- Parse out the Lua script.
-      local start,stop = url:find("lua://")
-      if nil ~= start then
-        -- Get the script string and unescape it.
-        local script = SysStringUnescape(url:sub(stop + 1))
-
-        -- Parse script.
-        local result = nil
-        local resultOrErrorMessage = nil
-        result, resultOrErrorMessage = loadstring(script)
-
-        -- Run script.
-        if nil ~= result then
-          result, resultOrErrorMessage = pcall(result)
-        end
-
-        -- Display result
-        if nil ~= resultOrErrorMessage then
-          self:ShowResult(resultOrErrorMessage)
-        end
-      end
-
-      -- Release the url data handle.
-      maDestroyObject(urlData)
+  self.PageLoaded = function(self)
+    -- Populate script menu.
+    self.WebView:EvalJS("ScriptMenuClear()");
+    for key,value in pairs(self.Scripts) do
+      self.WebView:EvalJS("ScriptMenuAddItem(".."'"..key.."')");
     end
   end
-
+  
+  self.LoadScript = function(self, scriptKey)
+    --log("@@@"..scriptKey)
+    local script = self.Scripts[scriptKey]
+    if nil ~= script then
+      --log(script)
+      local js = "CodeEditorSetText('"..SysStringEscape(script).."')"
+      --log(js)
+      LuaCodePad.WebView:EvalJS(js)
+    end
+  end
+  
   self.ShowResult = function(self, message)
     log("@@@ ShowResult: "..message)
-    self:EvalJS("ShowStatusMessage('"..message.."')");
-  end
-
-  self.EvalJS = function(self, script)
-    log("@@@ EvalJS: "..script)
-    maWidgetSetProperty(
-      self.WebView:GetHandle(),
-      MAW_WEB_VIEW_URL,
-      "javascript:"..script)
+    self.WebView:EvalJS("ShowStatusMessage('"..message.."')");
   end
 
   return self
 end)()
 
 LuaCodePad:Main()
+
+--[[
+LuaCodePad.WebView:EvalJS("CodeEditorSetText(\"maVibrate(500)\")")
+--]]
