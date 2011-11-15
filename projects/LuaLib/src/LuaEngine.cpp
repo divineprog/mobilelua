@@ -186,9 +186,10 @@ static int luaPrint(lua_State *L)
 }
 
 /**
- * Convert the contents of a string pointer (char*) to a Lua string.
+ * Convert the contents of a zero terminated
+ * string pointer (char*) to a Lua string.
  */
-static int luaToString(lua_State *L)
+static int luaBufferToString(lua_State *L)
 {
 	// First param is pointer to text buffer, must not
 	// be nil and must be light user data.
@@ -206,20 +207,70 @@ static int luaToString(lua_State *L)
 }
 
 /**
+ * Convert a Lua string to a string pointer (char*).
+ */
+static int luaStringToBuffer(lua_State *L)
+{
+	// Get pointer to Lua string.
+	const char* s = luaL_checkstring(L, 1);
+
+	// Allocate new string buffer.
+	int size = strlen(s);
+	char* s2 = (char*) malloc(sizeof(char) * size);
+
+	// Copy to buffer.
+	strcpy(s2, s);
+
+	// Return buffer pointer to Lua.
+	lua_pushlightuserdata(L, s2);
+
+	return 1; // Number of results
+}
+
+/**
+ * Helper function that escapes a string.
+ */
+static MAUtil::String EscapeHelper(const MAUtil::String& str)
+{
+	// The encoded string.
+	MAUtil::String result = "";
+    char buf[8];
+
+    for (int i = 0; i < str.length(); ++i)
+    {
+    	char c = str[i];
+        if ((48 <= c && c <= 57) ||  // 0-9
+            (65 <= c && c <= 90) ||  // a..z
+            (97 <= c && c <= 122))   // A..Z
+        {
+        	result.append(&str[i], 1);
+        }
+        else
+        {
+        	result += "%";
+            sprintf(buf, "%02X", str[i]);
+            result += buf;
+        }
+    }
+
+    return result;
+}
+
+/**
  * Helper function that unescapes a string.
  */
-static MAUtil::String UnescapeHelper(const MAUtil::String& url)
+static MAUtil::String UnescapeHelper(const MAUtil::String& str)
 {
 	// The decoded string.
 	MAUtil::String result = "";
 
-	for (int i = 0; i < url.length(); ++i)
+	for (int i = 0; i < str.length(); ++i)
 	{
 		// If the current character is the '%' escape char...
-		if ('%' == (char) url[i])
+		if ('%' == (char) str[i])
 		{
 			// Get the char value of the two digit hex value.
-			MAUtil::String hex = url.substr(i + 1, 2);
+			MAUtil::String hex = str.substr(i + 1, 2);
 			long charValue = strtol(
 				hex.c_str(),
 				NULL,
@@ -233,7 +284,7 @@ static MAUtil::String UnescapeHelper(const MAUtil::String& url)
 		else
 		{
 			// Not encoded, just copy the character.
-			result += url[i];
+			result += str[i];
 		}
 	}
 
@@ -244,7 +295,7 @@ static MAUtil::String UnescapeHelper(const MAUtil::String& url)
  * Decodes a "percent encoded" Lua string (like
  * the Javascript unescape function).
  */
-static int luaUnescapeString(lua_State *L)
+static int luaStringUnescape(lua_State *L)
 {
 	// Get string param (escaped url).
 	const char* escapedString = luaL_checkstring(L, 1);
@@ -253,6 +304,23 @@ static int luaUnescapeString(lua_State *L)
 
 	// This copies the string to a Lua string.
 	lua_pushstring(L, unescapedString.c_str());
+
+	return 1; // Number of results
+}
+
+/**
+ * Encodes a Lua string using "percent encoding" (like
+ * the Javascript escape function).
+ */
+static int luaStringEscape(lua_State *L)
+{
+	// Get string param (escaped url).
+	const char* unescapedString = luaL_checkstring(L, 1);
+
+	MAUtil::String escapedString = EscapeHelper(unescapedString);
+
+	// This copies the string to a Lua string.
+	lua_pushstring(L, escapedString.c_str());
 
 	return 1; // Number of results
 }
@@ -322,8 +390,10 @@ static void registerNativeFunctions(lua_State* L)
 {
 	RegFun(L, "print", luaPrint);
 	RegFun(L, "log", luaLog);
-	RegFun(L, "SysBufferToString", luaToString);
-	RegFun(L, "SysStringUnescape", luaUnescapeString);
+	RegFun(L, "SysBufferToString", luaBufferToString);
+	RegFun(L, "SysStringToBuffer", luaStringToBuffer);
+	RegFun(L, "SysStringUnescape", luaStringUnescape);
+	RegFun(L, "SysStringEscape", luaStringEscape);
 	RegFun(L, "SysLuaEngineCreate", luaEngineCreate);
 	RegFun(L, "SysLuaEngineDelete", luaEngineDelete);
 	RegFun(L, "SysLuaEngineEval", luaEngineEval);
