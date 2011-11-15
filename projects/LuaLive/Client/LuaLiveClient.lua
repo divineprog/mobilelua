@@ -123,14 +123,14 @@ LuaLive = (function()
       enableZoom = "true",
       hardHook = "lua://.*",
       eventFun = function(widget, widgetEvent)
-        self.HandleWebViewEvent(widgetEvent)
+        widget:EvalLuaOnHookInvoked(widgetEvent)
       end
     }
   end
   
   self.CreateHTML = function()
     -- HTML for the WebView.
-    maWidgetSetProperty(self.WebView:GetHandle(), MAW_WEB_VIEW_HTML,
+    self.WebView:SetProp(MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
@@ -191,39 +191,13 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     end
   end
   
-  -- Process the HOOK_INVOKED event.
-  self.HandleWebViewEvent = function(widgetEvent)
-    if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == SysWidgetEventGetType(widgetEvent) then
-      -- Get the url string.
-      local urlData = SysWidgetEventGetUrlData(widgetEvent)
-      local url = SysLoadStringResource(urlData)
-      -- Get the Lua script.
-      local start,stop = url:find("lua://")
-      if nil ~= start then
-        local script = url:sub(stop + 1)
-        -- log("@@@ LuaScript: " .. script)
-        local fun = loadstring(script)
-        if nil ~= fun then
-          pcall(fun)
-        end
-      end
-      maDestroyObject(urlData)
-    end
-  end
-  
-  self.EvalJS = function(script)
-    log("@@@ EvalJS: "..script)
-    maWidgetSetProperty(self.WebView:GetHandle(), MAW_WEB_VIEW_URL, "javascript:"..script)
-  end
-  
   self.SaveServerIPAddressAndConnect = function(serverAddress)
-    -- TODO: Save serverAddress to file
-    self.EvalJS("alert('Connecting...')")
+    -- TODO: Save serverAddress to file.
     self.ConnectToServer(serverAddress)
   end
   
   self.ReadServerIPAddressAndSetTextBox = function()
-    self.EvalJS("SetServerIPAddress('"..self.ReadServerIPAddress().."')")
+    self.WebView:EvalJS("SetServerIPAddress('"..self.ReadServerIPAddress().."')")
   end
   
   self.ReadServerIPAddress = function()
