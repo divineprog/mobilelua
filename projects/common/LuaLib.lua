@@ -214,7 +214,7 @@ end)()
 -- Global Connection object. Data that is read is zero terminated.
 Connection = {}
 
-Connection.Create = function(notUsed)
+Connection.Create = function(selfIsNotUsed)
   -- Table holding the object's methods.
   local self = {}
 
@@ -404,6 +404,51 @@ NativeUI = (function()
       maWidgetSetProperty(self:GetHandle(), property, ""..value)
     end
 
+    -- Evaluate JavaScript in a WebView widget.
+    -- Only valid for WebView widgets!
+    widget.EvalJS = function(self, script)
+      --log("@@@ EvalJS: "..script)
+      self:SetProp(MAW_WEB_VIEW_URL, "javascript:"..script)
+    end
+
+    -- Evaluate a Lua script in respose to a HOOK_INVOKED event.
+    -- Only valid for WebView widgets!
+    widget.EvalLuaOnHookInvoked = function(self, widgetEvent)
+      if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == 
+        SysWidgetEventGetType(widgetEvent) then
+
+        -- Get the url data handle.
+        local urlData = SysWidgetEventGetUrlData(widgetEvent)
+        
+        -- Convert handle to a Lua string (will be GC:ed).
+        local url = SysLoadStringResource(urlData)
+
+        -- Release the url data handle.
+        maDestroyObject(urlData)
+        
+        -- Parse out the Lua script.
+        local start,stop = url:find("lua://")
+        if nil == start then
+          return false, "url is missing lua:// scheme specifier"
+        end
+        
+        -- Get the script string and unescape it.
+        local script = SysStringUnescape(url:sub(stop + 1))
+
+        -- Parse script.
+        local result = nil
+        local resultOrErrorMessage = nil
+        result, resultOrErrorMessage = loadstring(script)
+        if nil == result then
+          return false, resultOrErrorMessage
+        end
+          
+        -- Run script and return result.
+        result, resultOrErrorMessage = pcall(result)
+        return result, resultOrErrorMessage
+      end
+    end
+
     -- Set properties of the widget. Properties "parent", "type",
     -- "eventFun", and "data" are handled as special cases.
     for prop,value in pairs(proplist) do
@@ -484,12 +529,12 @@ NativeUI = (function()
         local widget = mWidgetHandleToWidgetObject[widgetHandle]
         if nil ~= eventFun and nil ~= widget then
           -- We have both an event function and a widget object.
-		  -- Call the function with the object and the widget
-		  -- event as parameters.
+          -- Call the function with the object and the widget
+          -- event as parameters.
           eventFun(widget, widgetEvent)
         elseif nil ~= eventFun then
           -- We have an event function.
-		  -- Call the function.
+          -- Call the function.
           eventFun(widgetEvent)
         end
       end)
@@ -498,4 +543,131 @@ NativeUI = (function()
   
   return uiManager
   
+end)()
+
+-- Create the global File System object.
+FileSys = (function()
+
+  local fileObj = {}
+  
+  -- Get the path to the local file system.
+  -- Returns path that ends with a slash,
+  -- empty string on error.
+  fileObj.GetLocalPath = function(self)
+    local bufferSize = 1024
+    local buffer = SysAlloc(bufferSize)
+    local size = maGetSystemProperty(
+      "mosync.path.local",
+      buffer,
+      bufferSize);
+    -- If there was an error, return empty string.
+    if size < 0 or size > bufferSize then
+      return ""
+    end
+    local path = SysBufferToString(buffer);
+    SysFree(buffer)
+    return path
+  end
+  
+  
+  -- Open a file for writing.
+  -- Create the file if it does not exist.
+  -- Note: Will truncate the file if it exists.
+  -- Returns handle to the open file, false on error.
+  fileObj.OpenFileForWriting = function(self, filePath)
+    local file = maFileOpen(filePath, MA_ACCESS_READ_WRITE)
+    if file < 0 then
+      return false
+    end
+
+    if maFileExists(file) == 1 then
+      -- If the file exists, truncate it to zero size.
+      -- We do this to prevent problems with old data
+      -- at the end of the file if the new file is
+      -- shorter than the old file.
+      maFileTruncate(file, 0)
+    else
+      -- If the file does not exist, create it.
+      local result = maFileCreate(file)
+      if result < 0 then
+        return false
+      end
+    end
+
+    return file
+  end
+
+  -- Open a file for reading.
+  -- Returns handle to the open file, false on error.
+  fileObj.OpenFileForReading = function(self, filePath)
+    local file = maFileOpen(filePath, MA_ACCESS_READ)
+    if file < 0 then
+      return false
+    end
+
+    if not maFileExists(file) then
+      return false
+    end
+
+    return file
+  end
+  
+  -- Write a data object to a file.
+  -- Returns true on success, false on error.
+  fileObj.WriteDataToFile = function(self, filePath, dataHandle)
+    local file = self:OpenFileForWriting(filePath)
+    if file < 0 then
+      return false
+    end
+
+    local result = maFileWriteFromData(
+      file,
+      dataHandle,
+      0,
+      maGetDataSize(dataHandle));
+
+    maFileClose(file)
+
+    if result < 0 then
+      return false
+    end
+    
+    return true
+  end
+  
+  -- Read a data object from a file.
+  -- Returns handle to data, false on error
+  fileObj.ReadDataFromFile = function(self, filePath)
+    local file = self:OpenFileForReading(filePath)
+    if file < 0 then
+      return false
+    end
+
+    local size = maFileSize(file);
+    if size < 1 then
+      return false
+    end
+
+    local dataHandle = maCreatePlaceholder()
+    if dataHandle < 0 then
+      return false
+    end
+    
+    local result = maCreateData(dataHandle, size)
+    if RES_OK ~= result then
+      return false
+    end
+
+    result = maFileReadToData(file, dataHandle, 0, size);
+
+    maFileClose(file)
+    
+    if result < 0 then
+      return false
+    end
+
+    return dataHandle;
+  end
+  
+  return fileObj
 end)()
