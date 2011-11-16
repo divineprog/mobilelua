@@ -181,7 +181,7 @@ static int luaLog(lua_State *L)
 static int luaPrint(lua_State *L)
 {
 	const char* message = luaL_checkstring(L, 1);
-	printf("%s", message);
+	printf("%s\n", message);
 	return 0; // Number of results
 }
 
