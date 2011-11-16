@@ -1,0 +1,7 @@
+.res LUALIB
+.bin
+.include "../../common/LuaLib.lua"
+
+.res LUACOUNTDOWN
+.bin
+.include "LuaCountDown.lua"
