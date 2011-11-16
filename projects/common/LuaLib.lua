@@ -42,6 +42,7 @@ EventMonitor = (function ()
   local keyDownFun = nil
   local keyUpFun = nil
   local sensorFun = nil
+  local locationFun = nil
   local widgetFun = nil
   local anyFun = nil
   local connectionFuns = {}
@@ -75,6 +76,10 @@ EventMonitor = (function ()
     sensorFun = fun
   end
 
+  self.OnLocation = function(self, fun)
+    locationFun = fun
+  end
+  
   self.OnWidget = function(self, fun)
     widgetFun = fun
   end
@@ -155,6 +160,15 @@ EventMonitor = (function ()
               SysEventSensorGetValue1(event),
               SysEventSensorGetValue2(event),
               SysEventSensorGetValue3(event))
+          end
+        elseif EVENT_TYPE_LOCATION == eventType then
+          if nil ~= locationFun then
+            locationFun(
+              SysEventLocationGetLat(event),
+              SysEventLocationGetLon(event),
+              SysEventLocationGetAlt(event),
+              SysEventLocationGetHorzAcc(event),
+              SysEventLocationGetVertAcc(event))
           end
         elseif EVENT_TYPE_WIDGET == eventType then
           if nil ~= widgetFun then
@@ -643,7 +657,7 @@ FileSys = (function()
       return false
     end
 
-    local size = maFileSize(file);
+    local size = maFileSize(file)
     if size < 1 then
       return false
     end
