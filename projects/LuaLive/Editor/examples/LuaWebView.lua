@@ -1,12 +1,61 @@
-webview = maWidgetCreate(MAW_WEB_VIEW)
-maWidgetSetProperty(webview, "width", "-1")
-maWidgetSetProperty(webview, "height", "-1")
-maWidgetSetProperty(webview, "enableZoom", "true")
-screen = maWidgetCreate(MAW_SCREEN)
-maWidgetAddChild(screen, webview)
-maWidgetScreenShow(screen)
+--[[
+ * Copyright (c) 2011 MoSync AB
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+--]]
 
-maWidgetSetProperty(webview, "html",
+--[[
+File: LuaWebView.lua
+Author: Mikael Kindborg
+
+Demonstration of using a WebView in Lua. Shows how to call 
+Lua code from JavaScript.
+]]
+
+function Main()
+  CreateUI()
+  CreateHTML()
+  NativeUI:ShowScreen(Screen)
+end
+
+function CreateUI()
+  Screen = NativeUI:CreateWidget
+  {
+    type = "Screen"
+  }
+
+  WebView = NativeUI:CreateWidget
+  {
+    type = "WebView",
+    parent = Screen,
+    width = FILL_PARENT,
+    height = FILL_PARENT,
+    enableZoom = "true",
+    hardHook = "lua://.*",
+    eventFun = function(widget, widgetEvent)
+      widget:EvalLuaOnHookInvoked(widgetEvent)
+    end
+  }
+end
+
+function CreateHTML()
+  WebView:SetProp(MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
@@ -14,195 +63,41 @@ maWidgetSetProperty(webview, "html",
 <style>
 html
 {
-	/* Set page attributes. */
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #FFFFFF;
-
-	/* Disable text selection in all browsers. */
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
-	user-select: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #FFFFFF;
 }
-
-#LogoBox
+#TouchArea
 {
-	/* Center element horizontally. */
-	display: table;
-	margin: auto auto;
-
-	/* Set width of box. */
-	width: 16em;
-
-	/* Use a hand pointer. */
-	cursor: pointer;
-}
-
-#TextBox
-{
-	/* Text attributes. */
-	font-size: 2.5em;
-	font-family: sans-serif;
-	font-weight: bold;
-	text-align: center;
-}
-</style>
-
-<script>
-function OnTouch()
-{
-	var textBox = document.getElementById("TextBox");
-	textBox.innerHTML = "Hello!";
-}
-</script>
-</head>
-
-<body>
-<div id="LogoBox" onclick="OnTouch()">
-	<div id="TextBox">Click Me!</div>
-</div>
-</body>
-</html>
-]==])
-
-
-
-maWidgetSetProperty(webview, "url", 
-[=[javascript:
-	var textBox = document.getElementById("TextBox");
-	textBox.innerHTML = "Click Me!";
-]=])
-
-maWidgetRemoveChild(webview)
-
-maWidgetSetProperty(webview, 
-  MAW_WEB_VIEW_URL, 
-  "javascript:alert('Hello\\nWorld')")
-
-maWidgetSetProperty(webview, 
-  "url", 
-  "javascript:alert('Hello\\nWorld')")
+  font-size: 2.0em;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: center;
   
-maWidgetSetProperty(webview,"url",
-   "javascript:document.location=\"lua://log('Hello')\"")
+  padding: 0.3em 0.5em;
+  border-radius: 0.3em;
+  -webkit-border-radius: 0.3em;
+  margin: 1em 0.5em;
 
-maWidgetSetProperty(webview,MAW_WEB_VIEW_HARD_HOOK,
-				"lua://.*")
-EventMonitor:OnWidget(function(widgetEvent)
-  log("OnWidget1 "..SysWidgetEventGetType(widgetEvent))
-  if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == SysWidgetEventGetType(widgetEvent) then 
-    log("OnWidget2 "..SysWidgetEventGetUrlData(widgetEvent))
-    maDestroyObject(SysWidgetEventGetUrlData(widgetEvent))
-  end
-end)
-
-
-
-maWidgetSetProperty(webview, "url", "javascript:"..js)
-
-
-maWidgetSetProperty(webview, "html",
-[==[
-<!DOCTYPE html>
-<!--
-	This application shows how to communicate from JavaScript to C++.
-	When the LogoBox is touched, a call is made to C++ to make the
-	device vibrate. The C++ code that gets called is in main.cpp.
--->
-<html>
-<head>
-<style>
-html
-{
-	/* Set page attributes. */
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	height: 100%;
-	background-color: #FFFFFF;
-
-	/* Disable text selection in all browsers. */
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-o-user-select: none;
-	user-select: none;
-}
-
-#LogoBox
-{
-	/* Center element horizontally. */
-	display: table;
-	margin: auto auto;
-
-	/* Set width of box. */
-	width: 16em;
-
-	/* Use a hand pointer. */
-	cursor: pointer;
-}
-
-#TextBox
-{
-	/* Text attributes. */
-	font-size: 2.5em;
-	font-family: sans-serif;
-	font-weight: bold;
-	text-align: center;
+  color: white;
+  background-color: #99CF00;
 }
 </style>
-
-<!--
-	Import the bridge library for communication between
-	JavaScript and C++.
--->
-<script src="js/bridge.js"></script>
-
 <script>
-/**
- * Array with texts for the TextBox.
- */
-var TextArray = ["Hello World! Touch Me!", "Welcome to MoSync and HTML5!"];
-
-/**
- * Change the text in the TextBox. Swaps between array elements.
- */
-function SwapText()
+function EvalLua(script)
 {
-	var textBox = document.getElementById("TextBox");
-	if (textBox.innerHTML == TextArray[0])
-	{
-		textBox.innerHTML = TextArray[1];
-	}
-	else
-	{
-		textBox.innerHTML = TextArray[0];
-	}
-}
-
-/**
- * Make device vibrate and update the text shown
- * in the user interface.
- */
-function OnTouch()
-{
-	SwapText();
+  window.location = "lua://" + escape(script)
 }
 </script>
 </head>
-
 <body>
-<div id="LogoBox" onclick="OnTouch()">
-	<div id="TextBox"></div>
-</div>
+<div id="TouchArea" ontouchstart="EvalLua('maVibrate(500)')">Touch Me!</div>
 </body>
-<script>
-	// Page elements has loaded, show initial text.
-	SwapText();
-</script>
 </html>
 ]==])
+end
+
+-- Start the program.
+Main()
