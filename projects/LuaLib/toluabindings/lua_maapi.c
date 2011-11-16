@@ -1,6 +1,6 @@
 /*
 ** Lua binding: lua_maapi
-** Generated automatically by tolua 5.1.4 on Mon Oct 31 11:47:48 2011.
+** Generated automatically by tolua 5.1.4 on Wed Nov 16 14:06:33 2011.
 */
 
 #include "tolua.h"
@@ -4141,7 +4141,7 @@ static int tolua_lua_maapi_maGetSystemProperty00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isstring(tolua_S,1,0,&tolua_err) || 
- !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
@@ -4150,7 +4150,7 @@ static int tolua_lua_maapi_maGetSystemProperty00(lua_State* tolua_S)
 #endif
  {
   const char* key = ((const char*)  tolua_tostring(tolua_S,1,0));
-  char* buf = ((char*)  tolua_tostring(tolua_S,2,0));
+  void* buf = ((void*)  tolua_touserdata(tolua_S,2,0));
   int size = ((int)  tolua_tonumber(tolua_S,3,0));
  {
   int tolua_ret = (int)  maGetSystemProperty(key,buf,size);
