@@ -41,16 +41,6 @@ LuaCodePad = (function()
   -- Table that hold scripts.
   self.Scripts = {}
 
-  -- Add some scripts.
-  self.Scripts["Workspace 1"] =
-[==[maVibrate(500)
-]==]
-
-  self.Scripts["Workspace 2"] =
-[==[maVibrate(1000)
-log("Hello World")
-]==]
-
   self.Main = function(self)
     self:CreateUI()
     self:CreateHTML()
@@ -85,6 +75,44 @@ log("Hello World")
     }
   end
 
+  self.PageLoaded = function(self)
+    -- Populate script menu.
+    -- TODO: Load scripts from file.
+    self:CreateInitialScripts()
+    self.WebView:EvalJS("ScriptMenuClear()");
+    for key,value in pairs(self.Scripts) do
+      self.WebView:EvalJS("ScriptMenuAddItem(".."'"..key.."')");
+    end
+  end
+  
+  self.LoadScript = function(self, scriptKey)
+    --log("@@@"..scriptKey)
+    local script = self.Scripts[scriptKey]
+    if nil ~= script then
+      --log(script)
+      local js = "CodeEditorSetText('"..SysStringEscape(script).."')"
+      --log(js)
+      LuaCodePad.WebView:EvalJS(js)
+    end
+  end
+  
+  self.ShowResult = function(self, message)
+    log("@@@ ShowResult: "..message)
+    self.WebView:EvalJS("ShowStatusMessage('"..message.."')");
+  end
+
+  self.CreateInitialScripts = function(self)
+    -- Add some scripts.
+    self.Scripts["Workspace 1"] =
+[==[maVibrate(500)
+]==]
+
+    self.Scripts["Workspace 2"] =
+[==[maVibrate(1000)
+log("Hello World")
+]==]
+  end
+  
   self.CreateHTML = function(self)
     self.WebView:SetProp(MAW_WEB_VIEW_HTML,
 [==[
@@ -189,30 +217,6 @@ EvalLua("LuaCodePad:PageLoaded()")
 </body>
 </html>
 ]==])
-  end
-
-  self.PageLoaded = function(self)
-    -- Populate script menu.
-    self.WebView:EvalJS("ScriptMenuClear()");
-    for key,value in pairs(self.Scripts) do
-      self.WebView:EvalJS("ScriptMenuAddItem(".."'"..key.."')");
-    end
-  end
-  
-  self.LoadScript = function(self, scriptKey)
-    --log("@@@"..scriptKey)
-    local script = self.Scripts[scriptKey]
-    if nil ~= script then
-      --log(script)
-      local js = "CodeEditorSetText('"..SysStringEscape(script).."')"
-      --log(js)
-      LuaCodePad.WebView:EvalJS(js)
-    end
-  end
-  
-  self.ShowResult = function(self, message)
-    log("@@@ ShowResult: "..message)
-    self.WebView:EvalJS("ShowStatusMessage('"..message.."')");
   end
 
   return self
