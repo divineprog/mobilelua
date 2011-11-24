@@ -222,7 +222,7 @@ public class MainWindow extends JFrame
 			+ "Screen:SetColor(255, 255, 255)\n"
 			+ "Screen:Fill()\n"
 			+ "Screen:SetColor(200, 0, 0)\n"
-			+ "Screen:Fill(0, 0, 300, 300)\n"
+			+ "Screen:FillRect(0, 0, 300, 300)\n"
 			+ "Screen:Update()\n");
 		mEditor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
 		mEditor.setRoundedSelectionEdges(false);
