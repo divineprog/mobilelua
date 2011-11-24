@@ -45,6 +45,12 @@ LuaCodePad = (function()
     self:CreateUI()
     self:CreateHTML()
     NativeUI:ShowScreen(self.Screen)
+    -- Exit when Android back key is pressed.
+    EventMonitor:OnKeyDown(function(key)
+      if MAK_BACK == key then
+        EventMonitor:ExitEventLoop()
+      end
+    end)
   end
 
   self.CreateUI = function(self)
