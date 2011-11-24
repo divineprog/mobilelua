@@ -102,12 +102,12 @@ public class MainWindow extends JFrame
 		// Create the Run menu.
 		JMenu runMenu = new JMenu("Run");
 
-		JMenuItem runProgramItem = runMenu.add("Run program");
+		JMenuItem runProgramItem = runMenu.add("Run all");
 		runProgramItem.addActionListener(new CommandRunProgram());
 		runProgramItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_R, InputEvent.CTRL_MASK));
 
-		JMenuItem runSelectionItem = runMenu.add("Do selection");
+		JMenuItem runSelectionItem = runMenu.add("Run selection");
 		runSelectionItem.addActionListener(new CommandRunSelection());
 		runSelectionItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_D, InputEvent.CTRL_MASK));
@@ -158,12 +158,12 @@ public class MainWindow extends JFrame
 		// Create buttons.
 		JButton button;
 
-		button = new JButton("Run program");
+		button = new JButton("Run all");
 		button.addActionListener(new CommandRunProgram());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
 
-		button = new JButton("Do selection");
+		button = new JButton("Run selection");
 		button.addActionListener(new CommandRunSelection());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
@@ -216,14 +216,13 @@ public class MainWindow extends JFrame
 		mEditor.setText(""
 			+ "---------------------------------------------------\n"
 			+ "-- Welcome to the Wonderful World of Mobile Lua! --\n"
-			+ "--                                               --\n"
-			+ "-- Read file ReadMe.txt for instructions.        --\n"
-			+ "-- Have fun!                                     --\n"
 			+ "---------------------------------------------------\n"
 			+ "\n"
 			+ "-- Run this code to display a coloured rectangle.\n"
 			+ "Screen:SetColor(255, 255, 255)\n"
 			+ "Screen:Fill()\n"
+			+ "Screen:SetColor(200, 0, 0)\n"
+			+ "Screen:Fill(0, 0, 300, 300)\n"
 			+ "Screen:Update()\n");
 		mEditor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
 		mEditor.setRoundedSelectionEdges(false);
