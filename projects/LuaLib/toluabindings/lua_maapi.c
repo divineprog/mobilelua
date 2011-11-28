@@ -1,6 +1,6 @@
 /*
 ** Lua binding: lua_maapi
-** Generated automatically by tolua 5.1.4 on Wed Nov 16 14:06:33 2011.
+** Generated automatically by tolua 5.1.4 on Mon Nov 28 16:56:11 2011.
 */
 
 #include "tolua.h"
@@ -203,7 +203,7 @@ static int tolua_lua_maapi_strcpy00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_Error tolua_err;
  if (
- !tolua_isstring(tolua_S,1,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,1,0,&tolua_err) || 
  !tolua_isstring(tolua_S,2,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,3,&tolua_err)
  )
@@ -211,7 +211,7 @@ static int tolua_lua_maapi_strcpy00(lua_State* tolua_S)
  else
 #endif
  {
-  char* dst = ((char*)  tolua_tostring(tolua_S,1,0));
+  void* dst = ((void*)  tolua_touserdata(tolua_S,1,0));
   const char* src = ((const char*)  tolua_tostring(tolua_S,2,0));
  {
   char* tolua_ret = (char*)  strcpy(dst,src);
@@ -2205,7 +2205,7 @@ static int tolua_lua_maapi_maHttpGetResponseHeader00(lua_State* tolua_S)
  if (
  !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
  !tolua_isstring(tolua_S,2,0,&tolua_err) || 
- !tolua_isstring(tolua_S,3,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,3,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,4,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,5,&tolua_err)
  )
@@ -2215,7 +2215,7 @@ static int tolua_lua_maapi_maHttpGetResponseHeader00(lua_State* tolua_S)
  {
   MAHandle conn = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
   const char* key = ((const char*)  tolua_tostring(tolua_S,2,0));
-  char* buffer = ((char*)  tolua_tostring(tolua_S,3,0));
+  void* buffer = ((void*)  tolua_touserdata(tolua_S,3,0));
   int bufSize = ((int)  tolua_tonumber(tolua_S,4,0));
  {
   int tolua_ret = (int)  maHttpGetResponseHeader(conn,key,buffer,bufSize);
@@ -2762,7 +2762,7 @@ static int tolua_lua_maapi_maFontGetName00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
- !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
@@ -2771,7 +2771,7 @@ static int tolua_lua_maapi_maFontGetName00(lua_State* tolua_S)
 #endif
  {
   int index = ((int)  tolua_tonumber(tolua_S,1,0));
-  char* buffer = ((char*)  tolua_tostring(tolua_S,2,0));
+  void* buffer = ((void*)  tolua_touserdata(tolua_S,2,0));
   int bufferLen = ((int)  tolua_tonumber(tolua_S,3,0));
  {
   int tolua_ret = (int)  maFontGetName(index,buffer,bufferLen);
@@ -3898,7 +3898,7 @@ static int tolua_lua_maapi_maFileListNext00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
- !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
@@ -3907,7 +3907,7 @@ static int tolua_lua_maapi_maFileListNext00(lua_State* tolua_S)
 #endif
  {
   MAHandle list = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
-  char* nameBuf = ((char*)  tolua_tostring(tolua_S,2,0));
+  void* nameBuf = ((void*)  tolua_touserdata(tolua_S,2,0));
   int bufSize = ((int)  tolua_tonumber(tolua_S,3,0));
  {
   int tolua_ret = (int)  maFileListNext(list,nameBuf,bufSize);
@@ -4440,7 +4440,7 @@ static int tolua_lua_maapi_maCameraGetProperty00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isstring(tolua_S,1,0,&tolua_err) || 
- !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,4,&tolua_err)
  )
@@ -4449,7 +4449,7 @@ static int tolua_lua_maapi_maCameraGetProperty00(lua_State* tolua_S)
 #endif
  {
   const char* property = ((const char*)  tolua_tostring(tolua_S,1,0));
-  char* value = ((char*)  tolua_tostring(tolua_S,2,0));
+  void* value = ((void*)  tolua_touserdata(tolua_S,2,0));
   int bufSize = ((int)  tolua_tonumber(tolua_S,3,0));
  {
   int tolua_ret = (int)  maCameraGetProperty(property,value,bufSize);
@@ -8314,7 +8314,7 @@ static int tolua_lua_maapi_maWidgetGetProperty00(lua_State* tolua_S)
  if (
  !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
  !tolua_isstring(tolua_S,2,0,&tolua_err) || 
- !tolua_isstring(tolua_S,3,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,3,0,&tolua_err) || 
  !tolua_isnumber(tolua_S,4,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,5,&tolua_err)
  )
@@ -8324,7 +8324,7 @@ static int tolua_lua_maapi_maWidgetGetProperty00(lua_State* tolua_S)
  {
   MAWidgetHandle widget = ((MAWidgetHandle)  tolua_tonumber(tolua_S,1,0));
   const char* property = ((const char*)  tolua_tostring(tolua_S,2,0));
-  char* value = ((char*)  tolua_tostring(tolua_S,3,0));
+  void* value = ((void*)  tolua_touserdata(tolua_S,3,0));
   int bufSize = ((int)  tolua_tonumber(tolua_S,4,0));
  {
   int tolua_ret = (int)  maWidgetGetProperty(widget,property,value,bufSize);
@@ -8554,7 +8554,7 @@ static int tolua_lua_maapi_SysTextSetString00(lua_State* tolua_S)
  tolua_Error tolua_err;
  if (
  !tolua_isuserdata(tolua_S,1,0,&tolua_err) || 
- !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
  !tolua_isnoobj(tolua_S,3,&tolua_err)
  )
  goto tolua_lerror;
@@ -8562,7 +8562,7 @@ static int tolua_lua_maapi_SysTextSetString00(lua_State* tolua_S)
 #endif
  {
   void* textObj = ((void*)  tolua_touserdata(tolua_S,1,0));
-  char* str = ((char*)  tolua_tostring(tolua_S,2,0));
+  void* str = ((void*)  tolua_touserdata(tolua_S,2,0));
  {
   SysTextSetString(textObj,str);
  }

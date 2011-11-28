@@ -43,7 +43,9 @@ filesToConcatenate =
 
 File.open("lua_maapi.pkg", "w") do |outFile|
   outFile.puts filesToConcatenate.map { |fileName| 
-    convertPointerTypesToVoid(IO.read(fileName))
+    convertCharPointerTypeToVoid(
+      convertPointerTypesToVoid(
+        IO.read(fileName)))
   }
 end
 
