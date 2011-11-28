@@ -683,5 +683,48 @@ FileSys = (function()
     return dataHandle;
   end
   
+  -- Get a list of files. Root path must be full path
+  -- and end with a slash (/).
+  -- Returns table (array) with file entries. Each
+  -- entry is a table with the fields: name, path, type,
+  -- where type is "F" for file and "D" for directory.
+  -- Example: list = FileSys:GetFileList("/sdcard/")
+  fileObj.GetFileList = function(self, rootPath)
+  
+    local fileList = {}
+    
+    --local order = SysBitOr(MA_FL_SORT_NAME, MA_FL_ORDER_ASCENDING)
+    local handle = maFileListStart(rootPath, "*", MA_FL_SORT_NONE)
+    if handle < 0 then
+      return fileList
+    end
+    
+    local fileNameBufSize = 2048
+    local fileNameBuf = SysAlloc(fileNameBufSize)
+    
+    while true do
+      local result = maFileListNext(handle, fileNameBuf, fileNameBufSize)
+      if result < 1 then
+        print("Error: "..result)
+        break
+      end
+      local fileName = SysBufferToString(fileNameBuf)
+      local fileType = "F"
+      if "/" == fileName:sub(fileName:len()) then
+        fileType = "D"
+      end
+      table.insert(fileList, { 
+        name = fileName, 
+        path = rootPath..fileName,
+        type = fileType })
+    end
+
+    maFileListClose(handle)
+    SysFree(fileNameBuf)
+    
+    return fileList
+  end
+  
+  -- Return the file system object.
   return fileObj
 end)()
