@@ -192,17 +192,24 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   self.SaveServerIPAddressAndConnect = function(serverAddress)
-    -- TODO: Save serverAddress to file.
+    -- Save serverAddress to file.
+    FileSys:WriteStoreText("ServerAddress", serverAddress)
     self.ConnectToServer(serverAddress)
   end
   
   self.ReadServerIPAddressAndSetTextBox = function()
-    self.WebView:EvalJS("SetServerIPAddress('"..self.ReadServerIPAddress().."')")
+    self.WebView:EvalJS(
+      "SetServerIPAddress('"..self.ReadServerIPAddress().."')")
   end
   
   self.ReadServerIPAddress = function()
-    -- TODO: Read serverAddress from file
-    return self.SERVER_DEFAULT_ADDRESS
+    -- Read serverAddress from file.
+    local serverAddress = FileSys:ReadStoreText("ServerAddress")
+    if nil == serverAddress then
+      return self.SERVER_DEFAULT_ADDRESS
+    else
+      return serverAddress
+    end
   end
   
   self.ConnectToServer = function(serverAddress)

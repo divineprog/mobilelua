@@ -47,7 +47,7 @@ EventMonitor = (function ()
   local anyFun = nil
   local connectionFuns = {}
   local isRunning = false
-  
+
   -- The time to wait in maWait. Can be changed by the
   -- application by setting EventMonitor.WaitTime = <value>
   self.WaitTime = 0
@@ -79,7 +79,7 @@ EventMonitor = (function ()
   self.OnLocation = function(self, fun)
     locationFun = fun
   end
-  
+
   self.OnWidget = function(self, fun)
     widgetFun = fun
   end
@@ -95,7 +95,7 @@ EventMonitor = (function ()
   self.RemoveConnectionFun = function(self, connection)
     connectionFuns[connection] = nil
   end
-  
+
   self.ExitEventLoop = function(self)
     isRunning = false
   end
@@ -107,7 +107,7 @@ EventMonitor = (function ()
 
     -- Set isRunning flag to true.
     isRunning = true
-    
+
     -- This is the event loop.
     while isRunning do
       maWait(self.WaitTime)
@@ -247,7 +247,7 @@ Connection.Create = function(selfIsNotUsed)
 
   -- Output buffer.
   local mOutBuffer
-  
+
   -- Is the connection open flag.
   local mOpen = false
 
@@ -269,7 +269,7 @@ Connection.Create = function(selfIsNotUsed)
           -- There is more data to read, continue reading bytes
           -- into the input buffer.
           local pointer = SysBufferGetBytePointer(
-            mInBuffer, 
+            mInBuffer,
             mNumberOfBytesRead)
           maConnRead(mConnectionHandle, pointer, mNumberOfBytesToRead)
         else
@@ -287,7 +287,7 @@ Connection.Create = function(selfIsNotUsed)
       mWriteDoneFun(mOutBuffer, result)
     end
   end
-  
+
   -- Public protocol.
 
   -- Connect to an address.
@@ -300,7 +300,7 @@ Connection.Create = function(selfIsNotUsed)
     log("maConnect result: " .. mConnectionHandle)
     if mConnectionHandle > 0 then
       EventMonitor:SetConnectionFun(
-        mConnectionHandle, 
+        mConnectionHandle,
         self.__ConnectionListener__)
       return true
     else
@@ -371,11 +371,11 @@ NativeUI = (function()
 
   -- Table that maps widget handles to widget objects.
   local mWidgetHandleToWidgetObject = {}
-  
+
   -- Has the UI manager been initialised?
   local mIsInitialized = false
-  
-  -- Utility method that sets a table field to a value 
+
+  -- Utility method that sets a table field to a value
   -- if the field is nil. Intended for internal use.
   uiManager.__SetPropIfNil__ = function(self, proplist, key, value)
     if nil == proplist[key] then
@@ -383,33 +383,33 @@ NativeUI = (function()
       --log("Setting prop "..key.." to "..value)
     end
   end
-  
+
   -- Function that creates a widget. The parameter
   -- proplist is a table with widget properties.
   -- Valid property names are properties available for
-  -- maWidgetSetProperty, plus "type", "parent", 
+  -- maWidgetSetProperty, plus "type", "parent",
   -- "eventFun", and "data". The "data" property is
   -- user for setting custom data associated with
   -- the widget object. The widget object is a Lua
   -- object (table), it wraps a widhet handle, which
   -- identifies a Native UI widget.
   uiManager.CreateWidget = function(self, proplist)
-  
+
     -- The widget object.
     local widget = {}
-    
+
     -- Create the Native UI widget and check that it went ok.
     local mWidgetHandle = maWidgetCreate(proplist.type)
     if mWidgetHandle < 1 then
       return nil
     end
-  
+
     -- Returns the Native UI widget handle.
     widget.GetHandle = function(self)
       return mWidgetHandle
     end
-    
-    -- Utility method that sets a widget property. The 
+
+    -- Utility method that sets a widget property. The
     -- value can be either a number or a string, it will
     -- be converted to a string since that is what
     -- maWidgetSetProperty wants.
@@ -428,24 +428,24 @@ NativeUI = (function()
     -- Evaluate a Lua script in respose to a HOOK_INVOKED event.
     -- Only valid for WebView widgets!
     widget.EvalLuaOnHookInvoked = function(self, widgetEvent)
-      if MAW_EVENT_WEB_VIEW_HOOK_INVOKED == 
+      if MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
         SysWidgetEventGetType(widgetEvent) then
 
         -- Get the url data handle.
         local urlData = SysWidgetEventGetUrlData(widgetEvent)
-        
+
         -- Convert handle to a Lua string (will be GC:ed).
         local url = SysLoadStringResource(urlData)
 
         -- Release the url data handle.
         maDestroyObject(urlData)
-        
+
         -- Parse out the Lua script.
         local start,stop = url:find("lua://")
         if nil == start then
           return false, "url is missing lua:// scheme specifier"
         end
-        
+
         -- Get the script string and unescape it.
         local script = SysStringUnescape(url:sub(stop + 1))
 
@@ -456,7 +456,7 @@ NativeUI = (function()
         if nil == result then
           return false, resultOrErrorMessage
         end
-          
+
         -- Run script and return result.
         result, resultOrErrorMessage = pcall(result)
         return result, resultOrErrorMessage
@@ -482,7 +482,7 @@ NativeUI = (function()
 
     return widget
   end
-  
+
   -- Method that creates a button widget with some
   -- default property values.
   uiManager.CreateButton = function(self, proplist)
@@ -496,19 +496,19 @@ NativeUI = (function()
   end
 
   -- TODO: Add more convenience methods for creating widgets.
-  
+
   -- Show a screen widget. The screen widget is a Lua object.
   uiManager.ShowScreen = function(self, screen)
     -- Initializes the UI manager if not done.
     self:Init()
     maWidgetScreenShow(screen:GetHandle())
   end
-  
+
   -- Show the deafult MoSync screen.
   uiManager.ShowDefaultScreen = function(self)
     maWidgetScreenShow(0)
   end
-  
+
   -- Register an event function for the supplied widget handle.
   -- This method is useful if you wish to use the bare MoSync
   -- Widget API and still have the benefit of attaching event
@@ -522,7 +522,7 @@ NativeUI = (function()
     -- Add function as event handler for this widget.
     mWidgetHandleToEventFun[widgetHandle] = eventFun
   end
-  
+
   -- Call this method to start listening for Widget events.
   -- This could have been done right when creating the
   -- UI manager object, but since we have only one widget event
@@ -554,16 +554,16 @@ NativeUI = (function()
       end)
     end
   end
-  
+
   return uiManager
-  
+
 end)()
 
 -- Create the global File System object.
 FileSys = (function()
 
   local fileObj = {}
-  
+
   -- Get the path to the local file system.
   -- Returns path that ends with a slash,
   -- empty string on error.
@@ -582,8 +582,8 @@ FileSys = (function()
     SysFree(buffer)
     return path
   end
-  
-  
+
+
   -- Open a file for writing.
   -- Create the file if it does not exist.
   -- Note: Will truncate the file if it exists.
@@ -625,7 +625,7 @@ FileSys = (function()
 
     return file
   end
-  
+
   -- Write a data object to a file.
   -- Returns true on success, false on error.
   fileObj.WriteDataToFile = function(self, filePath, dataHandle)
@@ -645,10 +645,10 @@ FileSys = (function()
     if result < 0 then
       return false
     end
-    
+
     return true
   end
-  
+
   -- Read a data object from a file.
   -- Returns handle to data, false on error
   fileObj.ReadDataFromFile = function(self, filePath)
@@ -666,7 +666,7 @@ FileSys = (function()
     if dataHandle < 0 then
       return false
     end
-    
+
     local result = maCreateData(dataHandle, size)
     if RES_OK ~= result then
       return false
@@ -675,14 +675,14 @@ FileSys = (function()
     result = maFileReadToData(file, dataHandle, 0, size);
 
     maFileClose(file)
-    
+
     if result < 0 then
       return false
     end
 
     return dataHandle;
   end
-  
+
   -- Get a list of files. Root path must be full path
   -- and end with a slash (/).
   -- Returns table (array) with file entries. Each
@@ -690,18 +690,18 @@ FileSys = (function()
   -- where type is "F" for file and "D" for directory.
   -- Example: list = FileSys:GetFileList("/sdcard/")
   fileObj.GetFileList = function(self, rootPath)
-  
+
     local fileList = {}
-    
+
     --local order = SysBitOr(MA_FL_SORT_NAME, MA_FL_ORDER_ASCENDING)
     local handle = maFileListStart(rootPath, "*", MA_FL_SORT_NONE)
     if handle < 0 then
       return fileList
     end
-    
+
     local fileNameBufSize = 2048
     local fileNameBuf = SysAlloc(fileNameBufSize)
-    
+
     while true do
       local result = maFileListNext(handle, fileNameBuf, fileNameBufSize)
       if result < 1 then
@@ -713,18 +713,116 @@ FileSys = (function()
       if "/" == fileName:sub(fileName:len()) then
         fileType = "D"
       end
-      table.insert(fileList, { 
-        name = fileName, 
+      table.insert(fileList, {
+        name = fileName,
         path = rootPath..fileName,
         type = fileType })
     end
 
     maFileListClose(handle)
     SysFree(fileNameBuf)
-    
+
     return fileList
   end
-  
+
+  -- Open a store (a store is usually implemented as
+  -- a file at the top-level in the local file system).
+  -- Return handle to store on success >0, or <0 on error.
+  fileObj.OpenStore = function(self, storeName)
+    return maOpenStore(storeName, MAS_CREATE_IF_NECESSARY)
+  end
+
+  -- Close a store.
+  fileObj.CloseStore = function(self, store)
+    maCloseStore(store, 0)
+  end
+
+  -- Delete a store.
+  fileObj.DeleteStore = function(self, store)
+    maCloseStore(store, 1)
+  end
+
+  -- Write data to store.
+  -- Return >0 on success, <0 on error.
+  fileObj.WriteStore = function(self, store, handle)
+    return maWriteStore(store, handle)
+  end
+
+  -- Read data from store.
+  -- Return handle to data on success >0, <0 on error.
+  fileObj.ReadStore = function(self, store)
+    local handle = maCreatePlaceholder()
+    local result = maReadStore(store, handle)
+    if result < 0 then
+      -- maDestroyPlaceholder(handle) - not implemented yet
+      return -1
+    else
+      return handle
+    end
+  end
+
+  -- Write a text string to a store.
+  -- Return >0 on success, <0 on error.
+  fileObj.WriteStoreText = function(self, storeName, text)
+    -- Open the store.
+    local store = self:OpenStore(storeName)
+    if store < 0 then
+      return -1
+    end
+
+    -- Create data object.
+    local handle = maCreatePlaceholder()
+    local size = text:len()
+    local result = maCreateData(handle, size)
+    if result < 0 then
+      -- maDestroyPlaceholder(handle) - not implemented yet
+      return -1
+    end
+
+    -- Create string buffer.
+    local buffer = SysStringToBuffer(text)
+
+    -- Copy buffer contents to data object.
+    maWriteData(handle, buffer, 0, size)
+
+    -- Write string to store.
+    result = self:WriteStore(store, handle)
+
+    -- Close store and free temporary objects.
+    self:CloseStore(store)
+    SysFree(buffer)
+    maDestroyObject(handle)
+    -- maDestroyPlaceholder(handle) - not implemented yet
+
+    return result
+  end
+
+  -- Read the contents of a store as a text string.
+  -- Return text string on success, nil on error.
+  fileObj.ReadStoreText = function(self, storeName)
+    -- Open the store.
+    local store = self:OpenStore(storeName)
+    if store < 0 then
+      return nil
+    end
+
+    -- Read data from the store.
+    local handle = self:ReadStore(store)
+    if handle < 0 then
+      return nil
+    end
+
+    -- Create Lua string from the data handle.
+    local text = SysLoadStringResource(handle)
+
+    -- Close store and free temporary objects.
+    self:CloseStore(store)
+    maDestroyObject(handle)
+    -- maDestroyPlaceholder(handle) - not implemented yet
+
+    return text
+  end
+
   -- Return the file system object.
   return fileObj
 end)()
