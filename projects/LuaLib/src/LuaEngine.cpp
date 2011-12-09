@@ -528,8 +528,26 @@ int LuaEngine::eval(const char* script)
 {
 	lua_State* L = (lua_State*) mLuaState;
 
+	// Create temporary script string with an ending space.
+	// There seems to be a bug in Lua when evaluating
+	// statements like:
+	//   "return 10"
+	//   "x = 10"
+	// But this works:
+	//   "return 10 "
+	//   "return (10)"
+	//   "x = 10 "
+	int length = strlen(script);
+	char* s = (char*) malloc(length + 2);
+	strcpy(s, script);
+	s[length] = ' ';
+	s[length + 1] = 0;
+
 	// Evaluate Lua script.
-	int result = luaL_dostring(L, script);
+	int result = luaL_dostring(L, s);
+
+	// Free temporary script string.
+	free(s);
 
 	// Was there an error?
 	if (0 != result)

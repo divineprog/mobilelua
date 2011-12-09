@@ -449,6 +449,11 @@ NativeUI = (function()
         -- Get the script string and unescape it.
         local script = SysStringUnescape(url:sub(stop + 1))
 
+        -- Add ending space as a fix for the bug that
+        -- causes statements like "return 10" to fail.
+        -- "return 10 " will succeed.
+        script = script .. " "
+      
         -- Parse script.
         local result = nil
         local resultOrErrorMessage = nil

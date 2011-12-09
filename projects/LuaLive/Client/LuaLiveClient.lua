@@ -263,6 +263,10 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     if result > 0 then
       -- Convert buffer to string.
       local script = SysBufferToString(buffer)
+      -- Add ending space as a fix for the bug that
+      -- causes statements like "return 10" to fail.
+      -- "return 10 " will succeed.
+      script = script .. " "
       local fun
       local resultOrErrorMessage
       local success = false
