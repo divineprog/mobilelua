@@ -28,7 +28,7 @@ Author: Mikael Kindborg
 
 This is a Lua library built directly on top of the MoSync API.
 
-Call EventMonitor:RunEventLoop() to enter the MoSync event loop.
+Call mosync.EventMonitor:RunEventLoop() to enter the MoSync event loop.
 This can be done from Lua or from C/C++ by evaluating Lua code.
 ]]
 
@@ -38,7 +38,7 @@ if nil == mosync then
   mosync = {}
 end
 
--- Create the global EventMonitor object.
+-- Create the global mosync.EventMonitor object.
 mosync.EventMonitor = (function ()
 
   local self = {}
@@ -55,7 +55,7 @@ mosync.EventMonitor = (function ()
   local isRunning = false
 
   -- The time to wait in mosync.maWait. Can be changed by the
-  -- application by setting EventMonitor.WaitTime = <value>
+  -- application by setting mosync.EventMonitor.WaitTime = <value>
   self.WaitTime = 0
 
   self.OnTouchDown = function(self, fun)
@@ -198,7 +198,7 @@ mosync.EventMonitor = (function ()
 
 end)()
 
--- Create the global Screen object
+-- Create the global mosync.Screen object
 mosync.Screen = (function()
 
   local self = {}
@@ -231,7 +231,7 @@ mosync.Screen = (function()
 
 end)()
 
--- Global Connection object. Data that is read is zero terminated.
+-- Global mosync.Connection object. Data that is read is zero terminated.
 mosync.Connection = {}
 
 mosync.Connection.Create = function(selfIsNotUsed)
@@ -305,7 +305,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
     mConnectedFun = connectedFun
     log("mosync.maConnect result: " .. mConnectionHandle)
     if mConnectionHandle > 0 then
-      EventMonitor:SetConnectionFun(
+      mosync.EventMonitor:SetConnectionFun(
         mConnectionHandle,
         self.__ConnectionListener__)
       return true
@@ -321,7 +321,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
     -- The connection must be open.
     if not mOpen then return false end
     mOpen = false
-    EventMonitor:RemoveConnectionFun(mConnectionHandle)
+    mosync.EventMonitor:RemoveConnectionFun(mConnectionHandle)
     mosync.maConnClose(mConnectionHandle)
     return true
   end
@@ -537,7 +537,7 @@ mosync.NativeUI = (function()
   -- Call this method to start listening for Widget events.
   -- This could have been done right when creating the
   -- UI manager object, but since we have only one widget event
-  -- listener function in EventMonitor, it will ve overwritten
+  -- listener function in mosync.EventMonitor, it will be overwritten
   -- by the widget event listener in the LuaLive client. Then
   -- the application using NativeUI will not work.
   -- TODO: Fix this.
@@ -546,7 +546,7 @@ mosync.NativeUI = (function()
       mIsInitialized = true
       -- Create widget event handler that dispatches to
       -- the registered widget event functions.
-      EventMonitor:OnWidget(function(widgetEvent)
+      mosync.EventMonitor:OnWidget(function(widgetEvent)
         -- Get the widget handle of the event.
         local widgetHandle = mosync.SysWidgetEventGetHandle(widgetEvent)
         -- Get the event function and the widget object.
