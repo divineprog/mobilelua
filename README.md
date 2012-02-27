@@ -5,35 +5,53 @@ MobileLua is a port of Lua to [MoSync](http://mosync.com/), a C/C++
 cross-platform development system for mobile devices. This enables Lua 
 to be used on a wide range of mobile devices.
 
+News
+----
+
+MobileLua now wraps all functions and constants in the "mosync" namespace.
+
+For example, when you previously wrote:
+
+    Screen:SetColor(255, 255, 255)
+    
+You now write:
+    
+    mosync.Screen:SetColor(255, 255, 255)
+
+Example programs are being updated to use this
+
+Error handling
+--------------
+
 MoSync does not yet support exceptions or setjmp/longjmp, so Lua error handling 
 is replaced with return in case of errors and check for error status. 
 This is not implemented for all error conditions, so for some errors you can 
-get incomplete error information, or in the worst case the program may crash.
+get incomplete error information, or in the worst case the program may hang or crash.
 
-Example program
----------------
+Example code
+------------
 
 The following is a very simple paint application. Supports multi-touch.
     
     -- Fill screen with background color.
-    Screen:SetColor(255, 255, 255)
-    Screen:Fill()
-    Screen:Update()
+    mosync.Screen:SetColor(255, 255, 255)
+    mosync.Screen:Fill()
+    mosync.Screen:Update()
     
     -- Function that paints a "brush stamp" on the screen.
     function Paint(x, y, touchId)
       if touchId == 0 then 
-        Screen:SetColor(0, 0, 0) 
+        mosync.Screen:SetColor(0, 0, 0) 
       else
-        Screen:SetColor(0, 200, 0) 
+        mosync.Screen:SetColor(0, 200, 0) 
       end    
-      Screen:FillRect(x - 20, y - 20, 40, 40)
-      Screen:Update()
+      mosync.Screen:FillRect(x - 20, y - 20, 40, 40)
+      mosync.Screen:Update()
     end    
     
     -- Bind the Paint function to touch events.
-    EventMonitor:OnTouchDown(Paint)
-    EventMonitor:OnTouchDrag(Paint)
+    mosync.EventMonitor:OnTouchDown(Paint)
+    mosync.EventMonitor:OnTouchDrag(Paint)
 
 Contact
 -------
