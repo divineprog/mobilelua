@@ -30,27 +30,27 @@ Very simple paint demo application. Supports multi-touch.
 Tested in MoRE and on Android.
 ]]
 
--- Fill screen with background color.
-Screen:SetColor(255, 255, 255)
-Screen:Fill()
-Screen:Update()
+-- Fill mosync.Screen with background color.
+mosync.Screen:SetColor(255, 255, 255)
+mosync.Screen:Fill()
+mosync.Screen:Update()
 
--- Function that paints a "brush stamp" on the screen.
+-- Function that paints a "brush stamp" on the mosync.Screen.
 function Paint(x, y, touchId)
   if touchId == 0 then 
-    Screen:SetColor(0, 0, 0) 
+    mosync.Screen:SetColor(0, 0, 0) 
   else
-    Screen:SetColor(0, 200, 0) 
+    mosync.Screen:SetColor(0, 200, 0) 
   end
-  Screen:FillRect(x - 20, y - 20, 40, 40)
-  Screen:Update()
+  mosync.Screen:FillRect(x - 20, y - 20, 40, 40)
+  mosync.Screen:Update()
 end
 
 -- Bind the Paint function to touch events.
-EventMonitor:OnTouchDown(Paint)
-EventMonitor:OnTouchDrag(Paint)
+mosync.EventMonitor:OnTouchDown(Paint)
+mosync.EventMonitor:OnTouchDrag(Paint)
 
 -- Exit when any key is pressed.
-EventMonitor:OnKeyDown(function(keyCode)
-  EventMonitor:ExitEventLoop()
+mosync.EventMonitor:OnKeyDown(function(keyCode)
+  mosync.EventMonitor:ExitEventLoop()
 end)
