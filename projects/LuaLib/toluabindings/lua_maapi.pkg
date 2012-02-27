@@ -1,3 +1,5 @@
+module mosync
+{
 typedef unsigned short wchar;
 typedef wchar wchar_t;
 typedef unsigned short ushort;
@@ -10,6 +12,10 @@ typedef int MAHandle;
 typedef int MAExtent;
 typedef unsigned char byte;
 typedef unsigned long ulong;
+typedef int MAExtensionModule;
+typedef int MAExtensionFunction;
+typedef int MAAudioData;
+typedef int MAAudioInstance;
 // End of typedefs.
 #define TRANS_NONE 0
 #define TRANS_ROT90 5
@@ -60,6 +66,8 @@ typedef unsigned long ulong;
 #define HTTP_HEAD 3
 #define HTTP_PUT 4
 #define HTTP_DELETE 5
+#define MA_RESOURCE_OPEN 0x1
+#define MA_RESOURCE_CLOSE 0x2
 #define MAK_UNKNOWN 0
 #define MAK_FIRST 0
 #define MAK_BACKSPACE 8
@@ -212,6 +220,8 @@ typedef unsigned long ulong;
 #define EVENT_TYPE_FOCUS_GAINED 14
 #define EVENT_TYPE_LOCATION 16
 #define EVENT_TYPE_LOCATION_PROVIDER 17
+#define EVENT_TYPE_AUDIO_PREPARED 19
+#define EVENT_TYPE_AUDIO_COMPLETED 20
 #define EVENT_TYPE_SCREEN_CHANGED 21
 #define EVENT_TYPE_CHAR 22
 #define EVENT_TYPE_TEXTBOX 23
@@ -233,6 +243,12 @@ typedef unsigned long ulong;
 #define EVENT_TYPE_NFC_TAG_AUTH_COMPLETE 39
 #define EVENT_TYPE_NFC_TAG_READ_ONLY 40
 #define EVENT_TYPE_OPTIONS_BOX_BUTTON_CLICKED 41
+#define EVENT_TYPE_ADS_BANNER 42
+#define EVENT_TYPE_LOCAL_NOTIFICATION 43
+#define EVENT_TYPE_PUSH_NOTIFICATION_REGISTRATION 44
+#define EVENT_TYPE_PUSH_NOTIFICATION_UNREGISTRATION 45
+#define EVENT_TYPE_PUSH_NOTIFICATION 46
+#define EVENT_TYPE_CAPTURE 47
 #define RUNTIME_MORE 1
 #define RUNTIME_JAVA 2
 #define RUNTIME_SYMBIAN 3
@@ -242,6 +258,8 @@ typedef unsigned long ulong;
 #define REPORT_PLATFORM_CODE 3
 #define REPORT_USER_PANIC 4
 #define REPORT_TIMEOUT 5
+#define MA_EXTENSION_MODULE_UNAVAILABLE -1
+#define MA_EXTENSION_FUNCTION_UNAVAILABLE -1
 #define FONT_TYPE_SERIF 0
 #define FONT_TYPE_SANS_SERIF 1
 #define FONT_TYPE_MONOSPACE 2
@@ -337,6 +355,7 @@ typedef unsigned long ulong;
 #define SENSOR_TYPE_ORIENTATION 3
 #define SENSOR_TYPE_GYROSCOPE 4
 #define SENSOR_TYPE_PROXIMITY 5
+#define SENSOR_TYPE_COMPASS 6
 #define SENSOR_RATE_FASTEST 0
 #define SENSOR_RATE_GAME -1
 #define SENSOR_RATE_NORMAL -2
@@ -380,6 +399,143 @@ typedef unsigned long ulong;
 #define MA_NFC_NDEF_TNF_RESERVED 7
 #define MA_NFC_MIFARE_KEY_A 1
 #define MA_NFC_MIFARE_KEY_B 2
+#define MA_DB_TYPE_NULL 1
+#define MA_DB_TYPE_INT 2
+#define MA_DB_TYPE_INT64 3
+#define MA_DB_TYPE_DOUBLE 4
+#define MA_DB_TYPE_BLOB 5
+#define MA_DB_TYPE_DATA 6
+#define MA_DB_TYPE_TEXT 7
+#define MA_DB_OK 0
+#define MA_DB_ERROR -2
+#define MA_DB_NO_ROW -3
+#define MA_DB_NULL -4
+#define MA_AUDIO_DATA_STREAM 1
+#define MA_AUDIO_ERR_OK 0
+#define MA_AUDIO_ERR_INVALID_INSTANCE -2
+#define MA_AUDIO_ERR_INVALID_DATA -3
+#define MA_AUDIO_ERR_INVALID_FILENAME -4
+#define MA_AUDIO_ERR_INVALID_FILE -5
+#define MA_AUDIO_ERR_STREAMING_NOT_SUPPORTED -6
+#define MA_AUDIO_ERR_VOLUME_OUT_OF_RANGE -7
+#define MA_AUDIO_ERR_POSITION_OUT_OF_RANGE -8
+#define MA_AUDIO_ERR_INVALID_SOUND_FORMAT -9
+#define MA_AUDIO_ERR_OUT_OF_MEMORY -10
+#define MA_AUDIO_ERR_ALREADY_PREPARED -11
+#define MA_AUDIO_ERR_PREPARE_FAILED -12
+#define MA_AUDIO_ERR_IS_PLAYING -13
+#define MA_AUDIO_ERR_GENERIC -14
+#define MA_ADS_RES_OK 0
+#define MA_ADS_RES_INVALID_LAYOUT_HANDLE -1
+#define MA_ADS_RES_INVALID_BANNER_HANDLE -2
+#define MA_ADS_RES_INVALID_PROPERTY_NAME -3
+#define MA_ADS_RES_INVALID_PROPERTY_VALUE -4
+#define MA_ADS_RES_INVALID_STRING_BUFFER_SIZE -5
+#define MA_ADS_RES_ERROR -6
+#define MA_ADS_RES_UNSUPPORTED -7
+#define MA_ADS_ERROR_INTERNAL -1
+#define MA_ADS_ERROR_INVALID_REQUEST -2
+#define MA_ADS_ERROR_NETWORK -3
+#define MA_ADS_ERROR_NO_FILL -4
+#define MA_ADS_ERROR_CONFIGURATION -5
+#define MA_ADS_ERROR_NO_CONTENT -6
+#define MA_ADS_ERROR_APPLICATION_INACTIVE -7
+#define MA_ADS_HEIGHT "height"
+#define MA_ADS_WIDTH "width"
+#define MA_ADS_VISIBLE "visible"
+#define MA_ADS_ENABLED "enabled"
+#define MA_ADS_TEST_DEVICE "testDevice"
+#define MA_ADS_REQUEST_CONTENT "requestContent"
+#define MA_ADS_IS_READY "isReady"
+#define MA_ADS_COLOR_BG "colorBg"
+#define MA_ADS_COLOR_BG_TOP "colorBgTop"
+#define MA_ADS_COLOR_BORDER "colorBorder"
+#define MA_ADS_COLOR_LINK "colorLink"
+#define MA_ADS_COLOR_TEXT "colorText"
+#define MA_ADS_COLOR_URL "colorUrl"
+#define MA_ADS_SIZE_BANNER 0
+#define MA_ADS_SIZE_RECT 1
+#define MA_ADS_SIZE_IAB_BANNER 2
+#define MA_ADS_SIZE_LEADERBOARD 3
+#define MA_ADS_EVENT_FAILED 0
+#define MA_ADS_EVENT_LOADED 1
+#define MA_ADS_EVENT_ON_DISMISS 2
+#define MA_ADS_EVENT_ON_LEAVE_APPLICATION 3
+#define MA_NOTIFICATION_RES_OK 0
+#define MA_NOTIFICATION_RES_INVALID_HANDLE -1
+#define MA_NOTIFICATION_RES_INVALID_PROPERTY_NAME -3
+#define MA_NOTIFICATION_RES_INVALID_PROPERTY_VALUE -4
+#define MA_NOTIFICATION_RES_INVALID_STRING_BUFFER_SIZE -5
+#define MA_NOTIFICATION_RES_UNSUPPORTED -6
+#define MA_NOTIFICATION_RES_ALREADY_SCHEDULED -7
+#define MA_NOTIFICATION_RES_CANNOT_UNSCHEDULE -8
+#define MA_NOTIFICATION_RES_ALREADY_REGISTERED -9
+#define MA_NOTIFICATION_RES_NOT_REGISTERED -10
+#define MA_NOTIFICATION_RES_REGISTRATION_IN_PROGRESS -11
+#define MA_NOTIFICATION_RES_REGISTRATION_SERVICE_NOT_AVAILABLE -12
+#define MA_NOTIFICATION_RES_REGISTRATION_ACCOUNT_MISSING -13
+#define MA_NOTIFICATION_RES_REGISTRATION_AUTHENTICATION_FAILED -14
+#define MA_NOTIFICATION_RES_REGISTRATION_TOO_MANY_REGISTRATIONS -15
+#define MA_NOTIFICATION_RES_REGISTRATION_INVALID_SENDER -16
+#define MA_NOTIFICATION_RES_REGISTRATION_PHONE_REGISTRATION_ERROR -17
+#define MA_NOTIFICATION_RES_REGISTRATION_MESSAGE_BUF_TOO_SMALL -18
+#define MA_NOTIFICATION_RES_REGISTRATION_NOT_CALLED -19
+#define MA_NOTIFICATION_RES_ERROR -20
+#define MA_NOTIFICATION_FLAG_INSISTENT 4
+#define MA_NOTIFICATION_FLAG_NO_CLEAR 32
+#define MA_NOTIFICATION_FLAG_HIGH_PRIORITY 128
+#define MA_NOTIFICATION_FLAG_AUTO_CANCEL 16
+#define MA_NOTIFICATION_DISPLAY_FLAG_DEFAULT 0
+#define MA_NOTIFICATION_DISPLAY_FLAG_ANYTIME 1
+#define MA_NOTIFICATION_PUSH_TYPE_BADGE 1
+#define MA_NOTIFICATION_PUSH_TYPE_SOUND 2
+#define MA_NOTIFICATION_PUSH_TYPE_ALERT 4
+#define MA_NOTIFICATION_LOCAL_BADGE_NUMBER "badge_number"
+#define MA_NOTIFICATION_LOCAL_FIRE_DATE "fire_date"
+#define MA_NOTIFICATION_LOCAL_CONTENT_BODY "content_body"
+#define MA_NOTIFICATION_LOCAL_ALERT_ACTION "alert_action"
+#define MA_NOTIFICATION_LOCAL_PLAY_SOUND "play_sound"
+#define MA_NOTIFICATION_LOCAL_SOUND_PATH "soundPath"
+#define MA_NOTIFICATION_LOCAL_CONTENT_TITLE "contentTitle"
+#define MA_NOTIFICATION_LOCAL_TICKER_TEXT "tickerText"
+#define MA_NOTIFICATION_LOCAL_FLAG "flag"
+#define MA_NOTIFICATION_LOCAL_DISPLAY_FLAG "displayFlag"
+#define MA_NOTIFICATION_LOCAL_VIBRATE "vibrate"
+#define MA_NOTIFICATION_LOCAL_VIBRATE_DURATION "vibrateDuration"
+#define MA_NOTIFICATION_LOCAL_FLASH_LIGHTS "flashLights"
+#define MA_NOTIFICATION_LOCAL_FLASH_LIGHTS_PATTERN "flashLightsPattern"
+#define MA_CAPTURE_RES_OK 0
+#define MA_CAPTURE_RES_FILE_INVALID_NAME -1
+#define MA_CAPTURE_RES_FILE_ALREADY_EXISTS -2
+#define MA_CAPTURE_RES_INVALID_PROPERTY -3
+#define MA_CAPTURE_RES_INVALID_PROPERTY_VALUE -4
+#define MA_CAPTURE_RES_INVALID_STRING_BUFFER_SIZE -5
+#define MA_CAPTURE_RES_INVALID_ACTION -6
+#define MA_CAPTURE_RES_INVALID_HANDLE -7
+#define MA_CAPTURE_RES_UNSUPPORTED -8
+#define MA_CAPTURE_RES_CAMERA_NOT_AVAILABLE -9
+#define MA_CAPTURE_RES_VIDEO_NOT_SUPPORTED -10
+#define MA_CAPTURE_RES_PICTURE_NOT_SUPPORTED -11
+#define MA_CAPTURE_RES_FLASH_NOT_SUPPORTED -12
+#define MA_CAPTURE_RES_MAX_DURATION_NOT_SUPPORTED -13
+#define MA_CAPTURE_RES_PROPERTY_VALUE_UNDEFINED -14
+#define MA_CAPTURE_MAX_DURATION "maxDuration"
+#define MA_CAPTURE_VIDEO_QUALITY "videoQuality"
+#define MA_CAPTURE_CAMERA_ROLL "cameraRoll"
+#define MA_CAPTURE_FLASH "flash"
+#define MA_CAPTURE_CAMERA_CONTROLS "cameraControls"
+#define MA_CAPTURE_VIDEO_QUALITY_LOW 0
+#define MA_CAPTURE_VIDEO_QUALITY_HIGH 1
+#define MA_CAPTURE_VIDEO_QUALITY_MEDIUM 2
+#define MA_CAPTURE_ACTION_RECORD_VIDEO 0
+#define MA_CAPTURE_ACTION_STOP_RECORDING 1
+#define MA_CAPTURE_ACTION_TAKE_PICTURE 2
+#define MA_CAPTURE_EVENT_TYPE_IMAGE 0
+#define MA_CAPTURE_EVENT_TYPE_VIDEO 1
+#define MA_CAPTURE_EVENT_TYPE_CANCEL 2
+#define MA_CAPTURE_FLASH_AUTO 0
+#define MA_CAPTURE_FLASH_ON 1
+#define MA_CAPTURE_FLASH_OFF 2
 #define IOCTL_UNAVAILABLE -1
 //End of defines.
 int maCheckInterfaceVersion(int hash);
@@ -440,6 +596,7 @@ int maCreateImageRaw(MAHandle placeholder, const void* src, MAExtent size, int a
 int maCreateDrawableImage(MAHandle placeholder, int width, int height);
 int maCreateData(MAHandle placeholder, int size);
 MAHandle maCreatePlaceholder(void);
+void maDestroyPlaceholder(MAHandle handle);
 void maDestroyObject(MAHandle handle);
 int maGetDataSize(MAHandle data);
 void maReadData(MAHandle data, void* dst, int offset, int size);
@@ -461,6 +618,8 @@ void maHttpSetRequestHeader(MAHandle conn, const char* key, const char* value);
 int maHttpGetResponseHeader(MAHandle conn, const char* key, void* buffer, int bufSize);
 void maHttpFinish(MAHandle conn);
 int maLoadResources(MAHandle data);
+int maLoadResource(MAHandle handle, MAHandle placeholder, int flag);
+int maCountResources(void);
 void maLoadProgram(MAHandle data, int reload);
 int maGetKeys(void);
 int maGetEvent(void* event);
@@ -476,7 +635,10 @@ void maSoundStop(void);
 int maSoundIsPlaying(void);
 int maSoundGetVolume(void);
 void maSoundSetVolume(int vol);
+longlong maExtensionFunctionInvoke(int function, int a, int b, int c);
 // End of header functions.
+MAExtensionModule maExtensionModuleLoad(const char* id, int hash);
+MAExtensionFunction maExtensionFunctionLoad(MAExtensionModule module, int index);
 MAHandle maFontLoadDefault(int type, int style, int size);
 MAHandle maFontSetCurrent(MAHandle font);
 int maFontGetCount(void);
@@ -582,8 +744,8 @@ int maNFCReadNDEFMessage(MAHandle tag);
 int maNFCWriteNDEFMessage(MAHandle tag, MAHandle ndefMessage);
 MAHandle maNFCCreateNDEFMessage(int recordCount);
 int maNFCGetNDEFMessage(MAHandle tag);
-MAHandle maNFCGetNDEFRecord(MAHandle ndef, int ix);
-int maNFCGetNDEFRecordCount(MAHandle ndef);
+MAHandle maNFCGetNDEFRecord(MAHandle ndefMessage, int ix);
+int maNFCGetNDEFRecordCount(MAHandle ndefMessage);
 int maNFCGetNDEFId(MAHandle ndefRecord, void* /* void* */ dst, int len);
 int maNFCGetNDEFPayload(MAHandle ndefRecord, void* /* void* */ dst, int len);
 int maNFCGetNDEFTnf(MAHandle ndefRecord);
@@ -600,8 +762,61 @@ int maNFCReadMifareBlocks(MAHandle tagHandle, int firstBlock, void* /* void* */ 
 int maNFCWriteMifareBlocks(MAHandle tagHandle, int firstBlock, const void* /* void* */ dst, int len);
 int maNFCReadMifarePages(MAHandle tagHandle, int firstPage, void* /* void* */ dst, int len);
 int maNFCWriteMifarePages(MAHandle tagHandle, int firstPage, const void* /* void* */ dst, int len);
+MAHandle maDBOpen(const char* path);
+int maDBClose(MAHandle databaseHandle);
+MAHandle maDBExecSQL(MAHandle databaseHandle, const char* sql);
+MAHandle maDBExecSQLParams(MAHandle databaseHandle, const char* sql, const void* /* MADBValue* */ params, int paramCount);
+int maDBCursorDestroy(MAHandle cursorHandle);
+int maDBCursorNext(MAHandle cursorHandle);
+int maDBCursorGetColumnData(MAHandle cursorHandle, int columnIndex, MAHandle placeholder);
+int maDBCursorGetColumnText(MAHandle cursorHandle, int columnIndex, void* /* void* */ buffer, int bufferSize);
+int maDBCursorGetColumnInt(MAHandle cursorHandle, int columnIndex, int* value);
+int maDBCursorGetColumnDouble(MAHandle cursorHandle, int columnIndex, double* value);
+MAAudioData maAudioDataCreateFromResource(const char* mime, MAHandle data, int offset, int length, int flags);
+MAAudioData maAudioDataCreateFromURL(const char* mime, const char* url, int flags);
+int maAudioDataDestroy(MAAudioData audioData);
+MAAudioInstance maAudioInstanceCreate(MAAudioData audioData);
+int maAudioInstanceDestroy(MAAudioInstance audioInstance);
+int maAudioGetLength(MAAudioInstance audio);
+int maAudioSetNumberOfLoops(MAAudioInstance audio, int loops);
+int maAudioPrepare(MAAudioInstance audio, int async);
+int maAudioPlay(MAAudioInstance audio);
+int maAudioSetPosition(MAAudioInstance audio, int milliseconds);
+int maAudioGetPosition(MAAudioInstance audio);
+int maAudioSetVolume(MAAudioInstance audio, float volume);
+int maAudioPause(MAAudioInstance audio);
+int maAudioStop(MAAudioInstance audio);
 int maSyscallPanicsEnable(void);
 int maSyscallPanicsDisable(void);
+int maAdsBannerCreate(int bannerSize, const char* publisherID);
+int maAdsBannerDestroy(MAHandle bannerHandle);
+int maAdsAddBannerToLayout(MAHandle bannerHandle, MAHandle layoutHandle);
+int maAdsRemoveBannerFromLayout(MAHandle bannerHandle, MAHandle layoutHandle);
+int maAdsBannerSetProperty(MAHandle bannerHandle, const char* property, const char* value);
+int maAdsBannerGetProperty(MAHandle bannerHandle, const char* property, void* value, int bufSize);
+MAHandle maNotificationLocalCreate(void);
+int maNotificationLocalDestroy(MAHandle notificationHandle);
+int maNotificationLocalSetProperty(MAHandle notificationHandle, const char* property, const char* value);
+int maNotificationLocalGetProperty(MAHandle notificationHandle, const char* property, void* value, int bufSize);
+int maNotificationLocalSchedule(MAHandle notificationHandle);
+int maNotificationLocalUnschedule(MAHandle notificationHandle);
+int maNotificationPushRegister(MAHandle pushNotificationTypes, const char* accountID);
+int maNotificationPushUnregister(void);
+int maNotificationPushGetRegistration(void* registrationMesssage, int registrationMessageSize);
+int maNotificationPushGetData(MAHandle pushNotificationHandle, void* /* MAPushNotificationData* */ pushNotificationData);
+int maNotificationPushDestroy(MAHandle notificationHandle);
+void maNotificationSetIconBadge(int applicationIconBadgeNumber);
+int maNotificationGetIconBadge(void);
+int maNotificationPushSetTickerText(const char* tickerText);
+int maNotificationPushSetMessageTitle(const char* messageTitle);
+int maNotificationPushSetDisplayFlag(int displayFlag);
+int maCaptureSetProperty(const char* property, const char* value);
+int maCaptureGetProperty(const char* property, void* value, int bufSize);
+int maCaptureAction(int action);
+int maCaptureWriteImage(MAHandle handle, const char* fullPath, int fullPathBufSize);
+int maCaptureGetImagePath(MAHandle handle, void* buffer, int bufferSize);
+int maCaptureGetVideoPath(MAHandle handle, void* buffer, int bufferSize);
+int maCaptureDestroyData(MAHandle handle);
 // End of IOCtls.
 typedef signed char khronos_int8_t;
 typedef unsigned char khronos_uint8_t;
@@ -740,6 +955,7 @@ typedef int MAWidgetHandle;
 #define MAW_CONSTANT_ERROR -1
 #define MAW_CONSTANT_SOFT 5
 #define MAW_CONSTANT_HARD 6
+#define MAW_CONSTANT_MESSAGE 7
 #define MAW_CONSTANT_ARROW_UP 1
 #define MAW_CONSTANT_ARROW_DOWN 2
 #define MAW_CONSTANT_ARROW_LEFT 4
@@ -801,6 +1017,7 @@ typedef int MAWidgetHandle;
 #define MAW_VIDEO_VIEW "VideoView"
 #define MAW_TOGGLE_BUTTON "ToggleButton"
 #define MAW_MODAL_DIALOG "ModalDialog"
+#define MAW_PANORAMA_VIEW "PanoramaView"
 #define MAW_WIDGET_LEFT "left"
 #define MAW_WIDGET_TOP "top"
 #define MAW_WIDGET_WIDTH "width"
@@ -815,6 +1032,9 @@ typedef int MAWidgetHandle;
 #define MAW_TAB_SCREEN_TITLE "title"
 #define MAW_TAB_SCREEN_ICON "icon"
 #define MAW_TAB_SCREEN_CURRENT_TAB "currentTab"
+#define MAW_PANORAMA_VIEW_TITLE "title"
+#define MAW_PANORAMA_VIEW_CURRENT_SCREEN "currentScreen"
+#define MAW_PANORAMA_VIEW_BACKGROUND_IMAGE "backgroundImage"
 #define MAW_STACK_SCREEN_TITLE "title"
 #define MAW_STACK_SCREEN_ICON "icon"
 #define MAW_STACK_SCREEN_BACK_BUTTON_ENABLED "backButtonEnabled"
@@ -841,10 +1061,30 @@ typedef int MAWidgetHandle;
 #define MAW_IMAGE_BUTTON_FONT_HANDLE "fontHandle"
 #define MAW_IMAGE_IMAGE "image"
 #define MAW_IMAGE_SCALE_MODE "scaleMode"
+#define MAW_EDIT_BOX_TYPE_ANY 0
+#define MAW_EDIT_BOX_TYPE_EMAILADDR 1
+#define MAW_EDIT_BOX_TYPE_NUMERIC 2
+#define MAW_EDIT_BOX_TYPE_PHONENUMBER 3
+#define MAW_EDIT_BOX_TYPE_URL 4
+#define MAW_EDIT_BOX_TYPE_DECIMAL 5
+#define MAW_EDIT_BOX_TYPE_SINGLE_LINE 6
+#define MAW_EDIT_BOX_FLAG_PASSWORD 0
+#define MAW_EDIT_BOX_FLAG_SENSITIVE 1
+#define MAW_EDIT_BOX_FLAG_INITIAL_CAPS_WORD 2
+#define MAW_EDIT_BOX_FLAG_INITIAL_CAPS_SENTENCE 3
+#define MAW_EDIT_BOX_FLAG_INITIAL_CAPS_ALL_CHARACTERS 4
 #define MAW_EDIT_BOX_TEXT "text"
 #define MAW_EDIT_BOX_PLACEHOLDER "placeholder"
 #define MAW_EDIT_BOX_SHOW_KEYBOARD "showKeyboard"
 #define MAW_EDIT_BOX_EDIT_MODE "editMode"
+#define MAW_EDIT_BOX_INPUT_MODE "inputMode"
+#define MAW_EDIT_BOX_INPUT_FLAG "inputFlag"
+#define MAW_EDIT_BOX_FONT_COLOR "fontColor"
+#define MAW_EDIT_BOX_LINES_NUMBER "linesNumber"
+#define MAW_EDIT_BOX_MAX_LINES "maxLines"
+#define MAW_EDIT_BOX_MIN_LINES "minLines"
+#define MAW_EDIT_BOX_MAX_LENGTH "maxLength"
+#define MAW_EDIT_BOX_PLACEHOLDER_FONT_COLOR "placeholderFontColor"
 #define MAW_LIST_VIEW_ITEM_TEXT "text"
 #define MAW_LIST_VIEW_ITEM_ICON "icon"
 #define MAW_LIST_VIEW_ITEM_ACCESSORY_TYPE "accessoryType"
@@ -905,6 +1145,7 @@ typedef int MAWidgetHandle;
 #define MAW_VIDEO_VIEW_DURATION "duration"
 #define MAW_VIDEO_VIEW_BUFFER_PERCENTAGE "bufferPercentage"
 #define MAW_VIDEO_VIEW_CURRENT_POSITION "currentPosition"
+#define MAW_VIDEO_VIEW_CONTROL "control"
 #define MAW_NAV_BAR_TITLE "title"
 #define MAW_NAV_BAR_ICON "icon"
 #define MAW_NAV_BAR_BACK_BTN "backBtn"
@@ -1221,3 +1462,4 @@ SysLuaEngineDelete(engine) -> none
 -- Evaluate Lua code. Param code is a string.
 SysLuaEngineEval(engine, code) -> boolean
 */
+}

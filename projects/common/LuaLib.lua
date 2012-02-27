@@ -32,8 +32,14 @@ Call EventMonitor:RunEventLoop() to enter the MoSync event loop.
 This can be done from Lua or from C/C++ by evaluating Lua code.
 ]]
 
+-- Create the global "mosync" object if it does not exist.
+-- (It should exist, but still in case...)
+if nil == mosync then
+  mosync = {}
+end
+
 -- Create the global EventMonitor object.
-EventMonitor = (function ()
+mosync.EventMonitor = (function ()
 
   local self = {}
   local touchDownFun = nil
@@ -48,7 +54,7 @@ EventMonitor = (function ()
   local connectionFuns = {}
   local isRunning = false
 
-  -- The time to wait in maWait. Can be changed by the
+  -- The time to wait in mosync.maWait. Can be changed by the
   -- application by setting EventMonitor.WaitTime = <value>
   self.WaitTime = 0
 
@@ -103,76 +109,76 @@ EventMonitor = (function ()
   self.RunEventLoop = function(self)
 
     -- Create a MoSync event object.
-    local event = SysEventCreate()
+    local event = mosync.SysEventCreate()
 
     -- Set isRunning flag to true.
     isRunning = true
 
     -- This is the event loop.
     while isRunning do
-      maWait(self.WaitTime)
-      while isRunning and 0 ~= maGetEvent(event) do
-        local eventType = SysEventGetType(event)
-        if EVENT_TYPE_CLOSE == eventType then
+      --mosync.maWait(self.WaitTime)
+      while isRunning and 0 ~= mosync.maGetEvent(event) do
+        local eventType = mosync.SysEventGetType(event)
+        if mosync.EVENT_TYPE_CLOSE == eventType then
           isRunning = false
           break -- Exit inner while loop.
-        elseif EVENT_TYPE_KEY_PRESSED == eventType then
+        elseif mosync.EVENT_TYPE_KEY_PRESSED == eventType then
           if nil ~= keyDownFun then
-            keyDownFun(SysEventGetKey(event))
+            keyDownFun(mosync.SysEventGetKey(event))
           end
-        elseif EVENT_TYPE_KEY_RELEASED == eventType then
+        elseif mosync.EVENT_TYPE_KEY_RELEASED == eventType then
           if nil ~= keyUpFun then
-            keyUpFun(SysEventGetKey(event))
+            keyUpFun(mosync.SysEventGetKey(event))
           end
-        elseif EVENT_TYPE_POINTER_PRESSED == eventType then
+        elseif mosync.EVENT_TYPE_POINTER_PRESSED == eventType then
           if nil ~= touchDownFun then
             touchDownFun(
-              SysEventGetX(event),
-              SysEventGetY(event),
-              SysEventGetTouchId(event))
+              mosync.SysEventGetX(event),
+              mosync.SysEventGetY(event),
+              mosync.SysEventGetTouchId(event))
           end
-        elseif EVENT_TYPE_POINTER_RELEASED == eventType then
+        elseif mosync.EVENT_TYPE_POINTER_RELEASED == eventType then
           if nil ~= touchUpFun then
             touchUpFun(
-              SysEventGetX(event),
-              SysEventGetY(event),
-              SysEventGetTouchId(event))
+              mosync.SysEventGetX(event),
+              mosync.SysEventGetY(event),
+              mosync.SysEventGetTouchId(event))
           end
-        elseif EVENT_TYPE_POINTER_DRAGGED == eventType then
+        elseif mosync.EVENT_TYPE_POINTER_DRAGGED == eventType then
           if nil ~= touchDragFun then
             touchDragFun(
-              SysEventGetX(event),
-              SysEventGetY(event),
-              SysEventGetTouchId(event))
+              mosync.SysEventGetX(event),
+              mosync.SysEventGetY(event),
+              mosync.SysEventGetTouchId(event))
           end
-        elseif EVENT_TYPE_CONN == eventType then
-          local connectionFun = connectionFuns[SysEventGetConnHandle(event)]
+        elseif mosync.EVENT_TYPE_CONN == eventType then
+          local connectionFun = connectionFuns[mosync.SysEventGetConnHandle(event)]
           if nil ~= connectionFun then
             connectionFun(
-              SysEventGetConnHandle(event),
-              SysEventGetConnOpType(event),
-              SysEventGetConnResult(event))
+              mosync.SysEventGetConnHandle(event),
+              mosync.SysEventGetConnOpType(event),
+              mosync.SysEventGetConnResult(event))
           end
-        elseif EVENT_TYPE_SENSOR == eventType then
+        elseif mosync.EVENT_TYPE_SENSOR == eventType then
           if nil ~= sensorFun then
             sensorFun(
-              SysEventSensorGetType(event),
-              SysEventSensorGetValue1(event),
-              SysEventSensorGetValue2(event),
-              SysEventSensorGetValue3(event))
+              mosync.SysEventSensorGetType(event),
+              mosync.SysEventSensorGetValue1(event),
+              mosync.SysEventSensorGetValue2(event),
+              mosync.SysEventSensorGetValue3(event))
           end
-        elseif EVENT_TYPE_LOCATION == eventType then
+        elseif mosync.EVENT_TYPE_LOCATION == eventType then
           if nil ~= locationFun then
             locationFun(
-              SysEventLocationGetLat(event),
-              SysEventLocationGetLon(event),
-              SysEventLocationGetAlt(event),
-              SysEventLocationGetHorzAcc(event),
-              SysEventLocationGetVertAcc(event))
+              mosync.SysEventLocationGetLat(event),
+              mosync.SysEventLocationGetLon(event),
+              mosync.SysEventLocationGetAlt(event),
+              mosync.SysEventLocationGetHorzAcc(event),
+              mosync.SysEventLocationGetVertAcc(event))
           end
-        elseif EVENT_TYPE_WIDGET == eventType then
+        elseif mosync.EVENT_TYPE_WIDGET == eventType then
           if nil ~= widgetFun then
-            widgetFun(SysEventGetData(event))
+            widgetFun(mosync.SysEventGetData(event))
           end
         end -- End of ifs
 
@@ -184,7 +190,7 @@ EventMonitor = (function ()
     end -- End of outer event loop
 
     -- Free the event object.
-    SysFree(event)
+    mosync.SysFree(event)
 
   end -- End of function runEventLoop
 
@@ -193,24 +199,24 @@ EventMonitor = (function ()
 end)()
 
 -- Create the global Screen object
-Screen = (function()
+mosync.Screen = (function()
 
   local self = {}
 
   self.Width = function(self)
-    return EXTENT_X(maGetScrSize())
+    return mosync.EXTENT_X(mosync.maGetScrSize())
   end
 
   self.Height = function(self)
-    return EXTENT_Y(maGetScrSize())
+    return mosync.EXTENT_Y(mosync.maGetScrSize())
   end
 
   self.SetColor = function(self, red, green, blue)
-    maSetColor(blue + (green * 256) + (red * 65536))
+    mosync.maSetColor(blue + (green * 256) + (red * 65536))
   end
 
   self.FillRect = function(self, top, left, width, height)
-    maFillRect(top, left, width, height)
+    mosync.maFillRect(top, left, width, height)
   end
 
   self.Fill = function(self)
@@ -218,7 +224,7 @@ Screen = (function()
   end
 
   self.Update = function(self)
-    maUpdateScreen()
+    mosync.maUpdateScreen()
   end
 
   return self
@@ -226,9 +232,9 @@ Screen = (function()
 end)()
 
 -- Global Connection object. Data that is read is zero terminated.
-Connection = {}
+mosync.Connection = {}
 
-Connection.Create = function(selfIsNotUsed)
+mosync.Connection.Create = function(selfIsNotUsed)
   -- Table holding the object's methods.
   local self = {}
 
@@ -268,18 +274,18 @@ Connection.Create = function(selfIsNotUsed)
         if mNumberOfBytesToRead > 0 then
           -- There is more data to read, continue reading bytes
           -- into the input buffer.
-          local pointer = SysBufferGetBytePointer(
+          local pointer = mosync.SysBufferGetBytePointer(
             mInBuffer,
             mNumberOfBytesRead)
-          maConnRead(mConnectionHandle, pointer, mNumberOfBytesToRead)
+          mosync.maConnRead(mConnectionHandle, pointer, mNumberOfBytesToRead)
         else
           -- Done reading, zero terminate buffer and call callback function.
-          SysBufferSetByte(mInBuffer, mNumberOfBytesRead, 0)
+          mosync.SysBufferSetByte(mInBuffer, mNumberOfBytesRead, 0)
           mReadDoneFun(mInBuffer, result)
         end
       else
         -- There was an error, free input buffer and report it.
-        SysFree(mInBuffer)
+        mosync.SysFree(mInBuffer)
         mReadDoneFun(nil, result)
       end
     elseif CONNOP_WRITE == opType then
@@ -295,9 +301,9 @@ Connection.Create = function(selfIsNotUsed)
     -- The connection must not be open.
     if mOpen then return false end
     mOpen = true
-    mConnectionHandle = maConnect(connectString)
+    mConnectionHandle = mosync.maConnect(connectString)
     mConnectedFun = connectedFun
-    log("maConnect result: " .. mConnectionHandle)
+    log("mosync.maConnect result: " .. mConnectionHandle)
     if mConnectionHandle > 0 then
       EventMonitor:SetConnectionFun(
         mConnectionHandle,
@@ -316,7 +322,7 @@ Connection.Create = function(selfIsNotUsed)
     if not mOpen then return false end
     mOpen = false
     EventMonitor:RemoveConnectionFun(mConnectionHandle)
-    maConnClose(mConnectionHandle)
+    mosync.maConnClose(mConnectionHandle)
     return true
   end
 
@@ -331,9 +337,9 @@ Connection.Create = function(selfIsNotUsed)
     -- Allocate input buffer. This will be handed to the readDoneFun
     -- on success. That function is responsible for deallocating it.
     -- We add one byte for a zero termination character.
-    mInBuffer = SysAlloc(mNumberOfBytesToRead + 1)
+    mInBuffer = mosync.SysAlloc(mNumberOfBytesToRead + 1)
     -- Start reading bytes into the input buffer.
-    maConnRead(mConnectionHandle, mInBuffer, mNumberOfBytesToRead)
+    mosync.maConnRead(mConnectionHandle, mInBuffer, mNumberOfBytesToRead)
     return true
   end
 
@@ -345,7 +351,7 @@ Connection.Create = function(selfIsNotUsed)
     mOutBuffer = buffer
     mWriteDoneFun = writeDoneFun
     -- Start writing bytes.
-    maConnWrite(mConnectionHandle, buffer, numberOfBytesToWrite)
+    mosync.maConnWrite(mConnectionHandle, buffer, numberOfBytesToWrite)
     return true
   end
 
@@ -353,15 +359,15 @@ Connection.Create = function(selfIsNotUsed)
 end
 
 -- For backwards compatibility.
-SysConnectionCreate = Connection.Create
+mosync.SysConnectionCreate = mosync.Connection.Create
 
--- Widget size values as strings (the MAW_CONSTANT_* values
--- are integers and cannot be used with maWidgetSetProperty).
-FILL_PARENT = ""..MAW_CONSTANT_FILL_AVAILABLE_SPACE
-WRAP_CONTENT = ""..MAW_CONSTANT_WRAP_CONTENT
+-- Widget size values as strings (the mosync.MAW_CONSTANT_* values
+-- are integers and cannot be used with mosync.maWidgetSetProperty).
+mosync.FILL_PARENT = ""..mosync.MAW_CONSTANT_FILL_AVAILABLE_SPACE
+mosync.WRAP_CONTENT = ""..mosync.MAW_CONSTANT_WRAP_CONTENT
 
 -- Create the global NativeUI manager object.
-NativeUI = (function()
+mosync.NativeUI = (function()
 
   -- The UI manager object.
   local uiManager = {}
@@ -387,7 +393,7 @@ NativeUI = (function()
   -- Function that creates a widget. The parameter
   -- proplist is a table with widget properties.
   -- Valid property names are properties available for
-  -- maWidgetSetProperty, plus "type", "parent",
+  -- mosync.maWidgetSetProperty, plus "type", "parent",
   -- "eventFun", and "data". The "data" property is
   -- user for setting custom data associated with
   -- the widget object. The widget object is a Lua
@@ -399,7 +405,7 @@ NativeUI = (function()
     local widget = {}
 
     -- Create the Native UI widget and check that it went ok.
-    local mWidgetHandle = maWidgetCreate(proplist.type)
+    local mWidgetHandle = mosync.maWidgetCreate(proplist.type)
     if mWidgetHandle < 1 then
       return nil
     end
@@ -412,33 +418,33 @@ NativeUI = (function()
     -- Utility method that sets a widget property. The
     -- value can be either a number or a string, it will
     -- be converted to a string since that is what
-    -- maWidgetSetProperty wants.
+    -- mosync.maWidgetSetProperty wants.
     widget.SetProp = function(self, property, value)
       -- Make sure value is always a string.
-      maWidgetSetProperty(self:GetHandle(), property, ""..value)
+      mosync.maWidgetSetProperty(self:GetHandle(), property, ""..value)
     end
 
     -- Evaluate JavaScript in a WebView widget.
     -- Only valid for WebView widgets!
     widget.EvalJS = function(self, script)
       --log("@@@ EvalJS: "..script)
-      self:SetProp(MAW_WEB_VIEW_URL, "javascript:"..script)
+      self:SetProp(mosync.MAW_WEB_VIEW_URL, "javascript:"..script)
     end
 
     -- Evaluate a Lua script in respose to a HOOK_INVOKED event.
     -- Only valid for WebView widgets!
     widget.EvalLuaOnHookInvoked = function(self, widgetEvent)
-      if MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
-        SysWidgetEventGetType(widgetEvent) then
+      if mosync.MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
+        mosync.SysWidgetEventGetType(widgetEvent) then
 
         -- Get the url data handle.
-        local urlData = SysWidgetEventGetUrlData(widgetEvent)
+        local urlData = mosync.SysWidgetEventGetUrlData(widgetEvent)
 
         -- Convert handle to a Lua string (will be GC:ed).
-        local url = SysLoadStringResource(urlData)
+        local url = mosync.SysLoadStringResource(urlData)
 
         -- Release the url data handle.
-        maDestroyObject(urlData)
+        mosync.maDestroyObject(urlData)
 
         -- Parse out the Lua script.
         local start,stop = url:find("lua://")
@@ -447,7 +453,7 @@ NativeUI = (function()
         end
 
         -- Get the script string and unescape it.
-        local script = SysStringUnescape(url:sub(stop + 1))
+        local script = mosync.SysStringUnescape(url:sub(stop + 1))
 
         -- Add ending space as a fix for the bug that
         -- causes statements like "return 10" to fail.
@@ -472,7 +478,7 @@ NativeUI = (function()
     -- "eventFun", and "data" are handled as special cases.
     for prop,value in pairs(proplist) do
       if "parent" == prop then
-        maWidgetAddChild(value:GetHandle(), mWidgetHandle)
+        mosync.maWidgetAddChild(value:GetHandle(), mWidgetHandle)
       elseif "eventFun" == prop then
         -- Add function as event handler for this widget.
         mWidgetHandleToEventFun[mWidgetHandle] = value
@@ -506,12 +512,12 @@ NativeUI = (function()
   uiManager.ShowScreen = function(self, screen)
     -- Initializes the UI manager if not done.
     self:Init()
-    maWidgetScreenShow(screen:GetHandle())
+    mosync.maWidgetScreenShow(screen:GetHandle())
   end
 
   -- Show the deafult MoSync screen.
   uiManager.ShowDefaultScreen = function(self)
-    maWidgetScreenShow(0)
+    mosync.maWidgetScreenShow(0)
   end
 
   -- Register an event function for the supplied widget handle.
@@ -542,7 +548,7 @@ NativeUI = (function()
       -- the registered widget event functions.
       EventMonitor:OnWidget(function(widgetEvent)
         -- Get the widget handle of the event.
-        local widgetHandle = SysWidgetEventGetHandle(widgetEvent)
+        local widgetHandle = mosync.SysWidgetEventGetHandle(widgetEvent)
         -- Get the event function and the widget object.
         local eventFun = mWidgetHandleToEventFun[widgetHandle]
         local widget = mWidgetHandleToWidgetObject[widgetHandle]
@@ -565,7 +571,7 @@ NativeUI = (function()
 end)()
 
 -- Create the global File System object.
-FileSys = (function()
+mosync.FileSys = (function()
 
   local fileObj = {}
 
@@ -574,8 +580,8 @@ FileSys = (function()
   -- empty string on error.
   fileObj.GetLocalPath = function(self)
     local bufferSize = 1024
-    local buffer = SysAlloc(bufferSize)
-    local size = maGetSystemProperty(
+    local buffer = mosync.SysAlloc(bufferSize)
+    local size = mosync.maGetSystemProperty(
       "mosync.path.local",
       buffer,
       bufferSize);
@@ -583,8 +589,8 @@ FileSys = (function()
     if size < 0 or size > bufferSize then
       return ""
     end
-    local path = SysBufferToString(buffer);
-    SysFree(buffer)
+    local path = mosync.SysBufferToString(buffer);
+    mosync.SysFree(buffer)
     return path
   end
 
@@ -594,20 +600,20 @@ FileSys = (function()
   -- Note: Will truncate the file if it exists.
   -- Returns handle to the open file, false on error.
   fileObj.OpenFileForWriting = function(self, filePath)
-    local file = maFileOpen(filePath, MA_ACCESS_READ_WRITE)
+    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
       return false
     end
 
-    if maFileExists(file) == 1 then
+    if mosync.maFileExists(file) == 1 then
       -- If the file exists, truncate it to zero size.
       -- We do this to prevent problems with old data
       -- at the end of the file if the new file is
       -- shorter than the old file.
-      maFileTruncate(file, 0)
+      mosync.maFileTruncate(file, 0)
     else
       -- If the file does not exist, create it.
-      local result = maFileCreate(file)
+      local result = mosync.maFileCreate(file)
       if result < 0 then
         return false
       end
@@ -619,12 +625,12 @@ FileSys = (function()
   -- Open a file for reading.
   -- Returns handle to the open file, false on error.
   fileObj.OpenFileForReading = function(self, filePath)
-    local file = maFileOpen(filePath, MA_ACCESS_READ)
+    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ)
     if file < 0 then
       return false
     end
 
-    if not maFileExists(file) then
+    if not mosync.maFileExists(file) then
       return false
     end
 
@@ -639,13 +645,13 @@ FileSys = (function()
       return false
     end
 
-    local result = maFileWriteFromData(
+    local result = mosync.maFileWriteFromData(
       file,
       dataHandle,
       0,
-      maGetDataSize(dataHandle));
+      mosync.maGetDataSize(dataHandle));
 
-    maFileClose(file)
+    mosync.maFileClose(file)
 
     if result < 0 then
       return false
@@ -662,24 +668,24 @@ FileSys = (function()
       return false
     end
 
-    local size = maFileSize(file)
+    local size = mosync.maFileSize(file)
     if size < 1 then
       return false
     end
 
-    local dataHandle = maCreatePlaceholder()
+    local dataHandle = mosync.maCreatePlaceholder()
     if dataHandle < 0 then
       return false
     end
 
-    local result = maCreateData(dataHandle, size)
+    local result = mosync.maCreateData(dataHandle, size)
     if RES_OK ~= result then
       return false
     end
 
-    result = maFileReadToData(file, dataHandle, 0, size);
+    result = mosync.maFileReadToData(file, dataHandle, 0, size);
 
-    maFileClose(file)
+    mosync.maFileClose(file)
 
     if result < 0 then
       return false
@@ -698,22 +704,22 @@ FileSys = (function()
 
     local fileList = {}
 
-    --local order = SysBitOr(MA_FL_SORT_NAME, MA_FL_ORDER_ASCENDING)
-    local handle = maFileListStart(rootPath, "*", MA_FL_SORT_NONE)
+    --local order = mosync.SysBitOr(mosync.MA_FL_SORT_NAME, mosync.MA_FL_ORDER_ASCENDING)
+    local handle = mosync.maFileListStart(rootPath, "*", mosync.MA_FL_SORT_NONE)
     if handle < 0 then
       return fileList
     end
 
     local fileNameBufSize = 2048
-    local fileNameBuf = SysAlloc(fileNameBufSize)
+    local fileNameBuf = mosync.SysAlloc(fileNameBufSize)
 
     while true do
-      local result = maFileListNext(handle, fileNameBuf, fileNameBufSize)
+      local result = mosync.maFileListNext(handle, fileNameBuf, fileNameBufSize)
       if result < 1 then
         print("Error: "..result)
         break
       end
-      local fileName = SysBufferToString(fileNameBuf)
+      local fileName = mosync.SysBufferToString(fileNameBuf)
       local fileType = "F"
       if "/" == fileName:sub(fileName:len()) then
         fileType = "D"
@@ -724,8 +730,8 @@ FileSys = (function()
         type = fileType })
     end
 
-    maFileListClose(handle)
-    SysFree(fileNameBuf)
+    mosync.maFileListClose(handle)
+    mosync.SysFree(fileNameBuf)
 
     return fileList
   end
@@ -734,32 +740,32 @@ FileSys = (function()
   -- a file at the top-level in the local file system).
   -- Return handle to store on success >0, or <0 on error.
   fileObj.OpenStore = function(self, storeName)
-    return maOpenStore(storeName, MAS_CREATE_IF_NECESSARY)
+    return mosync.maOpenStore(storeName, mosync.MAS_CREATE_IF_NECESSARY)
   end
 
   -- Close a store.
   fileObj.CloseStore = function(self, store)
-    maCloseStore(store, 0)
+    mosync.maCloseStore(store, 0)
   end
 
   -- Delete a store.
   fileObj.DeleteStore = function(self, store)
-    maCloseStore(store, 1)
+    mosync.maCloseStore(store, 1)
   end
 
   -- Write data to store.
   -- Return >0 on success, <0 on error.
   fileObj.WriteStore = function(self, store, handle)
-    return maWriteStore(store, handle)
+    return mosync.maWriteStore(store, handle)
   end
 
   -- Read data from store.
   -- Return handle to data on success >0, <0 on error.
   fileObj.ReadStore = function(self, store)
-    local handle = maCreatePlaceholder()
-    local result = maReadStore(store, handle)
+    local handle = mosync.maCreatePlaceholder()
+    local result = mosync.maReadStore(store, handle)
     if result < 0 then
-      -- maDestroyPlaceholder(handle) - not implemented yet
+      -- mosync.maDestroyPlaceholder(handle) - not implemented yet
       return -1
     else
       return handle
@@ -776,28 +782,28 @@ FileSys = (function()
     end
 
     -- Create data object.
-    local handle = maCreatePlaceholder()
+    local handle = mosync.maCreatePlaceholder()
     local size = text:len()
-    local result = maCreateData(handle, size)
+    local result = mosync.maCreateData(handle, size)
     if result < 0 then
-      -- maDestroyPlaceholder(handle) - not implemented yet
+      -- mosync.maDestroyPlaceholder(handle) - not implemented yet
       return -1
     end
 
     -- Create string buffer.
-    local buffer = SysStringToBuffer(text)
+    local buffer = mosync.SysStringToBuffer(text)
 
     -- Copy buffer contents to data object.
-    maWriteData(handle, buffer, 0, size)
+    mosync.maWriteData(handle, buffer, 0, size)
 
     -- Write string to store.
     result = self:WriteStore(store, handle)
 
     -- Close store and free temporary objects.
     self:CloseStore(store)
-    SysFree(buffer)
-    maDestroyObject(handle)
-    -- maDestroyPlaceholder(handle) - not implemented yet
+    mosync.SysFree(buffer)
+    mosync.maDestroyObject(handle)
+    -- mosync.maDestroyPlaceholder(handle) - not implemented yet
 
     return result
   end
@@ -818,12 +824,12 @@ FileSys = (function()
     end
 
     -- Create Lua string from the data handle.
-    local text = SysLoadStringResource(handle)
+    local text = mosync.SysLoadStringResource(handle)
 
     -- Close store and free temporary objects.
     self:CloseStore(store)
-    maDestroyObject(handle)
-    -- maDestroyPlaceholder(handle) - not implemented yet
+    mosync.maDestroyObject(handle)
+    -- mosync.maDestroyPlaceholder(handle) - not implemented yet
 
     return text
   end

@@ -354,7 +354,7 @@ static int luaEngineDelete(lua_State *L)
 			delete engine;
 		}
 	}
-	
+
 	return 0; // Number of results
 }
 
@@ -380,7 +380,7 @@ static int luaEngineEval(lua_State *L)
 			}
 		}
 	}
-	
+
 	// Return false to Lua.
 	lua_pushboolean(L, 0);
 	return 1; // Number of results
@@ -390,13 +390,13 @@ static void registerNativeFunctions(lua_State* L)
 {
 	RegFun(L, "print", luaPrint);
 	RegFun(L, "log", luaLog);
-	RegFun(L, "SysBufferToString", luaBufferToString);
-	RegFun(L, "SysStringToBuffer", luaStringToBuffer);
-	RegFun(L, "SysStringUnescape", luaStringUnescape);
-	RegFun(L, "SysStringEscape", luaStringEscape);
-	RegFun(L, "SysLuaEngineCreate", luaEngineCreate);
-	RegFun(L, "SysLuaEngineDelete", luaEngineDelete);
-	RegFun(L, "SysLuaEngineEval", luaEngineEval);
+	RegTableFun(L, "mosync", "SysBufferToString", luaBufferToString);
+	RegTableFun(L, "mosync", "SysStringToBuffer", luaStringToBuffer);
+	RegTableFun(L, "mosync", "SysStringUnescape", luaStringUnescape);
+	RegTableFun(L, "mosync", "SysStringEscape", luaStringEscape);
+	RegTableFun(L, "mosync", "SysLuaEngineCreate", luaEngineCreate);
+	RegTableFun(L, "mosync", "SysLuaEngineDelete", luaEngineDelete);
+	RegTableFun(L, "mosync", "SysLuaEngineEval", luaEngineEval);
 }
 
 // ========== Constructor/Destructor ==========

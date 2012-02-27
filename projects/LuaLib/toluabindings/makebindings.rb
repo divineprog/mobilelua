@@ -42,11 +42,15 @@ filesToConcatenate =
   ]
 
 File.open("lua_maapi.pkg", "w") do |outFile|
-  outFile.puts filesToConcatenate.map { |fileName| 
+  data = filesToConcatenate.map { |fileName| 
     convertCharPointerTypeToVoid(
       convertPointerTypesToVoid(
         IO.read(fileName)))
   }
+  outFile.puts "module mosync"
+  outFile.puts "{"
+  outFile.puts data
+  outFile.puts "}"
 end
 
 sh "../../../tolua/bin/tolua.exe -o lua_maapi.c lua_maapi.pkg"
