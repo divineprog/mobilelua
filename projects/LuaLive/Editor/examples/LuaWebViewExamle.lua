@@ -68,15 +68,7 @@ html
   width: 100%;
   height: 100%;
   background-color: #FFFFFF;
-  
-  /* Disable text selection in all browsers. */
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -o-user-select: none;
-  user-select: none;
 }
-
 #TouchArea
 {
   font-size: 2.0em;

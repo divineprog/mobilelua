@@ -35,17 +35,17 @@ function Main()
 end
 
 function CreateUI()
-  Screen = mosync.NativeUI:CreateWidget
+  Screen =  mosync.NativeUI:CreateWidget
   {
     type = "Screen"
   }
 
-  WebView = mosync.NativeUI:CreateWidget
+  WebView =  mosync.NativeUI:CreateWidget
   {
     type = "WebView",
     parent = Screen,
-    width = mosync.FILL_PARENT,
-    height = mosync.FILL_PARENT,
+    width =  mosync.FILL_PARENT,
+    height =  mosync.FILL_PARENT,
     enableZoom = "true",
     hardHook = "lua://.*",
     eventFun = function(widget, widgetEvent)
@@ -68,15 +68,7 @@ html
   width: 100%;
   height: 100%;
   background-color: #FFFFFF;
-  
-  /* Disable text selection in all browsers. */
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -o-user-select: none;
-  user-select: none;
 }
-
 #TouchArea
 {
   font-size: 2.0em;

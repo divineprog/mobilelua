@@ -26,6 +26,8 @@ Author: Mikael Kindborg
 
 Demonstration of using a WebView in Lua. Shows how to call 
 Lua code from JavaScript.
+
+This is the same program as the LuaCountDown example.
 ]]
 
 function Main()
@@ -54,6 +56,21 @@ function CreateUI()
   }
 end
 
+Counter = 11
+
+function OnTouch()
+  Counter = Counter - 1
+  if Counter > 0 then
+    WebView:EvalJS("AddItem('"..Counter.."')")
+  elseif Counter == 0 then
+    mosync.maVibrate(1000)
+    WebView:EvalJS("AddItem('Take Off!')")
+  else
+    Counter = 11
+    WebView:EvalJS("ClearItems()")
+  end
+end
+
 function CreateHTML()
   WebView:SetProp(mosync.MAW_WEB_VIEW_HTML,
 [==[
@@ -68,15 +85,7 @@ html
   width: 100%;
   height: 100%;
   background-color: #FFFFFF;
-  
-  /* Disable text selection in all browsers. */
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -o-user-select: none;
-  user-select: none;
 }
-
 #TouchArea
 {
   font-size: 2.0em;
@@ -92,16 +101,50 @@ html
   color: white;
   background-color: #99CF00;
 }
+.TextItem
+{
+  font-size: 1.8em;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: center;
+  
+  padding: 0.3em 0.5em;
+  border-radius: 0.3em;
+  -webkit-border-radius: 0.3em;
+  margin: 0.5em 0.5em;
+
+  color: white;
+  background-color: #99CF88;
+}
 </style>
 <script>
 function EvalLua(script)
 {
   window.location = "lua://" + escape(script)
 }
+
+function AddItem(itemText)
+{
+  var itemArea = document.getElementById("ItemArea")
+  var item = document.createElement('div')
+  item.innerHTML = itemText
+  item.className = "TextItem"
+  itemArea.appendChild(item)
+}
+
+function ClearItems()
+{
+  var itemArea = document.getElementById("ItemArea")
+  while (itemArea.hasChildNodes())
+  {
+    itemArea.removeChild(itemArea.firstChild)
+  }
+}
 </script>
 </head>
 <body>
-<div id="TouchArea" ontouchstart="EvalLua('mosync.maVibrate(500)')">Touch Me!</div>
+<div id="TouchArea" ontouchstart="EvalLua('OnTouch()')">Touch Me!</div>
+<div id="ItemArea"></div>
 </body>
 </html>
 ]==])
