@@ -260,13 +260,13 @@ mosync.Connection.Create = function(selfIsNotUsed)
   -- Private connection listener callback function. Used internally by
   -- the connection object. Do not call this function in your code.
   self.__ConnectionListener__ = function(connection, opType, result)
-    if CONNOP_CONNECT == opType then
+    if mosync.CONNOP_CONNECT == opType then
       -- First we get an event that confirms that the connection is created.
-      log("CONNOP_CONNECT result: " .. result)
+      log("mosync.CONNOP_CONNECT result: " .. result)
       mConnectedFun(result)
-    elseif CONNOP_READ == opType then
+    elseif mosync.CONNOP_READ == opType then
       -- This is a confirm of a read or write operation.
-      log("CONNOP_READ result: " .. result)
+      log("mosync.CONNOP_READ result: " .. result)
       if result > 0 then
         -- Update byte counters.
         mNumberOfBytesRead = mNumberOfBytesRead + result
@@ -288,8 +288,8 @@ mosync.Connection.Create = function(selfIsNotUsed)
         mosync.SysFree(mInBuffer)
         mReadDoneFun(nil, result)
       end
-    elseif CONNOP_WRITE == opType then
-      log("CONNOP_WRITE result: " .. result)
+    elseif mosync.CONNOP_WRITE == opType then
+      log("mosync.CONNOP_WRITE result: " .. result)
       mWriteDoneFun(mOutBuffer, result)
     end
   end
@@ -363,8 +363,8 @@ mosync.SysConnectionCreate = mosync.Connection.Create
 
 -- Widget size values as strings (the mosync.MAW_CONSTANT_* values
 -- are integers and cannot be used with mosync.maWidgetSetProperty).
-mosync.FILL_PARENT = ""..mosync.MAW_CONSTANT_FILL_AVAILABLE_SPACE
-mosync.WRAP_CONTENT = ""..mosync.MAW_CONSTANT_WRAP_CONTENT
+mosync.FILL_PARENT = "" .. mosync.MAW_CONSTANT_FILL_AVAILABLE_SPACE
+mosync.WRAP_CONTENT = "" .. mosync.MAW_CONSTANT_WRAP_CONTENT
 
 -- Create the global NativeUI manager object.
 mosync.NativeUI = (function()
@@ -444,9 +444,12 @@ mosync.NativeUI = (function()
         local url = mosync.SysLoadStringResource(urlData)
 
         -- Release the url data handle.
-        mosync.maDestroyObject(urlData)
+        mosync.maDestroyPlaceholder(urlData)
 
         -- Parse out the Lua script.
+        
+        log("url: " .. url)
+        
         local start,stop = url:find("lua://")
         if nil == start then
           return false, "url is missing lua:// scheme specifier"
@@ -498,8 +501,8 @@ mosync.NativeUI = (function()
   -- default property values.
   uiManager.CreateButton = function(self, proplist)
     proplist.type = "Button"
-    self:__SetPropIfNil__(proplist, "width", WRAP_CONTENT)
-    self:__SetPropIfNil__(proplist, "height", WRAP_CONTENT)
+    self:__SetPropIfNil__(proplist, "width", mosync.WRAP_CONTENT)
+    self:__SetPropIfNil__(proplist, "height", mosync.WRAP_CONTENT)
     self:__SetPropIfNil__(proplist, "textHorizontalAlignment", "center")
     self:__SetPropIfNil__(proplist, "textVerticalAlignment", "center")
     self:__SetPropIfNil__(proplist, "fontSize", "24")
@@ -570,7 +573,7 @@ mosync.NativeUI = (function()
 
 end)()
 
--- Create the global File System object.
+-- Create the global mosync.FileSys object.
 mosync.FileSys = (function()
 
   local fileObj = {}
@@ -679,7 +682,7 @@ mosync.FileSys = (function()
     end
 
     local result = mosync.maCreateData(dataHandle, size)
-    if RES_OK ~= result then
+    if mosync.RES_OK ~= result then
       return false
     end
 
@@ -699,7 +702,7 @@ mosync.FileSys = (function()
   -- Returns table (array) with file entries. Each
   -- entry is a table with the fields: name, path, type,
   -- where type is "F" for file and "D" for directory.
-  -- Example: list = FileSys:GetFileList("/sdcard/")
+  -- Example: list = mosync.FileSys:GetFileList("/sdcard/")
   fileObj.GetFileList = function(self, rootPath)
 
     local fileList = {}
@@ -716,7 +719,7 @@ mosync.FileSys = (function()
     while true do
       local result = mosync.maFileListNext(handle, fileNameBuf, fileNameBufSize)
       if result < 1 then
-        print("Error: "..result)
+        print("FileSys:GetFileList error: "..result)
         break
       end
       local fileName = mosync.SysBufferToString(fileNameBuf)
@@ -765,7 +768,7 @@ mosync.FileSys = (function()
     local handle = mosync.maCreatePlaceholder()
     local result = mosync.maReadStore(store, handle)
     if result < 0 then
-      -- mosync.maDestroyPlaceholder(handle) - not implemented yet
+      mosync.maDestroyPlaceholder(handle)
       return -1
     else
       return handle
@@ -786,7 +789,7 @@ mosync.FileSys = (function()
     local size = text:len()
     local result = mosync.maCreateData(handle, size)
     if result < 0 then
-      -- mosync.maDestroyPlaceholder(handle) - not implemented yet
+      mosync.maDestroyPlaceholder(handle)
       return -1
     end
 
@@ -802,8 +805,7 @@ mosync.FileSys = (function()
     -- Close store and free temporary objects.
     self:CloseStore(store)
     mosync.SysFree(buffer)
-    mosync.maDestroyObject(handle)
-    -- mosync.maDestroyPlaceholder(handle) - not implemented yet
+    mosync.maDestroyPlaceholder(handle)
 
     return result
   end
@@ -828,8 +830,7 @@ mosync.FileSys = (function()
 
     -- Close store and free temporary objects.
     self:CloseStore(store)
-    mosync.maDestroyObject(handle)
-    -- mosync.maDestroyPlaceholder(handle) - not implemented yet
+    mosync.maDestroyPlaceholder(handle)
 
     return text
   end
