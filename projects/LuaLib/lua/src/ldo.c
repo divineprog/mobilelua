@@ -497,6 +497,7 @@ int luaD_pcall (lua_State *L, Pfunc func, void *u,
   L->errfunc = ef;
   status = luaD_rawrunprotected(L, func, u);
   if (status != 0) {  /* an error occurred? */
+	lprintfln("luaD_pcall status: %i", status); // MOSYNC: For debugging.
     StkId oldtop = restorestack(L, old_top);
     luaF_close(L, oldtop);  /* close eventual pending closures */
     luaD_seterrorobj(L, status, oldtop);

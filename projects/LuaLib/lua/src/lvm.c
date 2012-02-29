@@ -123,6 +123,7 @@ static void callTM (lua_State *L, const TValue *f, const TValue *p1,
   LUAI_ERRORCHECK()
   L->top += 4;
   luaD_call(L, L->top - 4, 0);
+  LUAI_ERRORCHECK()
 }
 
 
@@ -149,7 +150,7 @@ void luaV_gettable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       callTMres(L, val, tm, t, key);
       return;
     }
-    t = tm;  /* else repeat with `tm' */ 
+    t = tm;  /* else repeat with `tm' */
   }
   LUAI_ERRORCHECK()
   luaG_runerror(L, "loop in gettable");
@@ -182,7 +183,7 @@ void luaV_settable (lua_State *L, const TValue *t, TValue *key, StkId val) {
       callTM(L, tm, t, key, val);
       return;
     }
-    t = tm;  /* else repeat with `tm' */ 
+    t = tm;  /* else repeat with `tm' */
   }
   LUAI_ERRORCHECK()
   luaG_runerror(L, "loop in settable");
