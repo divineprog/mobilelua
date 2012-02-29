@@ -34,24 +34,24 @@ Tested on Android.
 
 -- Start the accelerometer sensor (this sensor has id 1,
 -- the second parameter (-1) gives us a medium-high update frequency.
-local result = maSensorStart(1, -2)
+local result = mosync.maSensorStart(1, -2)
 if 0 ~= result then 
-  maPanic(0, "Sensor failed to start") 
+  mosync.maPanic(0, "Sensor failed to start") 
 end
 
 -- Register sensor listener that draws the screen based
 -- on sensor values.
-EventMonitor:OnSensor(function(type, x, y, z)
+mosync.EventMonitor:OnSensor(function(type, x, y, z)
   local red = ((x * 255) / 10) % 255
   local green = (y * 255) % 255
   local blue = (y * 255) % 255
-  Screen:SetColor(red, green, blue)
-  Screen:Fill()
-  Screen:Update()
+  mosync.Screen:SetColor(red, green, blue)
+  mosync.Screen:Fill()
+  mosync.Screen:Update()
 end)
 
 -- Exit when any key is pressed.
-EventMonitor:OnKeyDown(function(keyCode)
-  maSensorStop(1)
-  EventMonitor:ExitEventLoop()
+mosync.EventMonitor:OnKeyDown(function(keyCode)
+  mosync.maSensorStop(1)
+  mosync.EventMonitor:ExitEventLoop()
 end)

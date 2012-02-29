@@ -2,6 +2,6 @@
 .bin
 .include "../../common/LuaLib.lua"
 
-.res LUAPAINT
+.res LUACODEPAD
 .bin
 .include "LuaCodePad.lua"

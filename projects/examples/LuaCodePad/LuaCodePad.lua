@@ -24,7 +24,7 @@
 File: LuaCodePad.lua
 Author: Mikael Kindborg
 
-Application for programming Lua (and JavaScxript!) directly on the device.
+Application for programming Lua (and JavaScript!) directly on the device.
 
 The program uses the MoSync Wormhole JavaScript to C++ communication
 bridge for evaluating Lua from JavaScript. In this program, C++ is replaced
@@ -44,27 +44,27 @@ LuaCodePad = (function()
   self.Main = function(self)
     self:CreateUI()
     self:CreateHTML()
-    NativeUI:ShowScreen(self.Screen)
+    mosync.NativeUI:ShowScreen(self.Screen)
     -- Exit when Android back key is pressed.
-    EventMonitor:OnKeyDown(function(key)
-      if MAK_BACK == key then
-        EventMonitor:ExitEventLoop()
+    mosync.EventMonitor:OnKeyDown(function(key)
+      if mosync.MAK_BACK == key then
+        mosync.EventMonitor:ExitEventLoop()
       end
     end)
   end
 
   self.CreateUI = function(self)
-    self.Screen = NativeUI:CreateWidget
+    self.Screen = mosync.NativeUI:CreateWidget
     {
       type = "Screen"
     }
 
-    self.WebView = NativeUI:CreateWidget
+    self.WebView = mosync.NativeUI:CreateWidget
     {
       type = "WebView",
       parent = self.Screen,
-      width = FILL_PARENT,
-      height = FILL_PARENT,
+      width = mosync.FILL_PARENT,
+      height = mosync.FILL_PARENT,
       enableZoom = "true",
       hardHook = "lua://.*",
       eventFun = function(widget, widgetEvent)
@@ -96,7 +96,7 @@ LuaCodePad = (function()
     local script = self.Scripts[scriptKey]
     if nil ~= script then
       --log(script)
-      local js = "CodeEditorSetText('"..SysStringEscape(script).."')"
+      local js = "CodeEditorSetText('"..mosync.SysStringEscape(script).."')"
       --log(js)
       LuaCodePad.WebView:EvalJS(js)
     end
@@ -110,17 +110,17 @@ LuaCodePad = (function()
   self.CreateInitialScripts = function(self)
     -- Add some scripts.
     self.Scripts["Workspace 1"] =
-[==[maVibrate(500)
+[==[mosync.maVibrate(500)
 ]==]
 
     self.Scripts["Workspace 2"] =
-[==[maVibrate(1000)
+[==[mosync.maVibrate(1000)
 log("Hello World")
 ]==]
   end
   
   self.CreateHTML = function(self)
-    self.WebView:SetProp(MAW_WEB_VIEW_HTML,
+    self.WebView:SetProp(mosync.MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
@@ -134,7 +134,7 @@ log("Hello World")
     <select id="ScriptMenu" onchange="ScriptMenuSelected(this)">
     </select>
     <br />
-    <textarea id="CodeEditor" rows="10" cols="32">log("@@@Hello World")
+    <textarea id="CodeEditor" rows="10" cols="32">log("@@@ Hello World")
     </textarea>
   </div>
   <div>
@@ -231,5 +231,5 @@ end)()
 LuaCodePad:Main()
 
 --[[
-LuaCodePad.WebView:EvalJS("CodeEditorSetText(\"maVibrate(500)\")")
+LuaCodePad.WebView:EvalJS("CodeEditorSetText(\"mosync.maVibrate(500)\")")
 --]]

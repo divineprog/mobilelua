@@ -40,34 +40,34 @@ Tested in MoRE and on Android.
 function Main()
   print("Touch screen to open a socket connection.")
   print("Press BACK or Key 0 to exit.")
-  EventMonitor:OnTouchUp(OpenSocket)
-  EventMonitor:OnKeyDown(OnKeyDown)
+  mosync.EventMonitor:OnTouchUp(OpenSocket)
+  mosync.EventMonitor:OnKeyDown(OnKeyDown)
 end
 
 function OpenSocket()
-  local connection = maConnect("socket://www.openplay.se:80")
+  local connection = mosync.maConnect("socket://www.openplay.se:80")
   print("maConnect result: " .. connection)
   if connection > 0 then
-    EventMonitor:SetConnectionFun(connection, CreateConnectionListener())
+    mosync.EventMonitor:SetConnectionFun(connection, CreateConnectionListener())
   end
 end
 
 function OnKeyDown(key)
-  if MAK_BACK == key or MAK_0 == key then
-    maExit(0)
+  if mosync.MAK_BACK == key or mosync.MAK_0 == key then
+    mosync.maExit(0)
   end
 end
 
 --[[
 Create function called on a connection event.
   connection The handle to the connection associated with the event.
-  opType One of the \link #CONNOP_READ CONNOP \endlink constants.
+  opType One of the \link #mosync.CONNOP_READ CONNOP \endlink constants.
   result A success value \> 0 or a \link #CONNERR_GENERIC CONNERR \endlink code.
 ]]
 function CreateConnectionListener()
 
-  local outBuffer = SysAlloc(1000)
-  local inBuffer = SysAlloc(1000)
+  local outBuffer = mosync.SysAlloc(1000)
+  local inBuffer = mosync.SysAlloc(1000)
 
   return function(connection, opType, result)
 
@@ -76,33 +76,33 @@ function CreateConnectionListener()
 
     -- First we get an event that confirms that the connection is created,
     -- if this is successful we write a request to get a web page.
-    if CONNOP_CONNECT == opType and result > 0 then
-      print("CONNOP_CONNECT successful, writing request.")
+    if mosync.CONNOP_CONNECT == opType and result > 0 then
+      print("mosync.CONNOP_CONNECT successful, writing request.")
       local numberOfBytes = WriteStringToBuffer(
         "GET /index.html HTTP/1.0\r\nHost: www.openplay.se\r\n\r\n",
         outBuffer)
-      maConnWrite(connection, outBuffer, numberOfBytes)
+      mosync.maConnWrite(connection, outBuffer, numberOfBytes)
 
     -- Next we get a confirm of the write operation, if successful
     -- we read the response.
-    elseif CONNOP_WRITE == opType and result > 0 then
-      print("CONNOP_WRITE successful, reading response.")
-      maConnRead(connection, inBuffer, 1000)
+    elseif mosync.CONNOP_WRITE == opType and result > 0 then
+      print("mosync.CONNOP_WRITE successful, reading response.")
+      mosync.maConnRead(connection, inBuffer, 1000)
 
     -- Finally we the result of the read operation. Note that we
-    -- may need to do several calls to maConnRead to read all
-    -- data you want to get. A call to maConnRead reads between
+    -- may need to do several calls to mosync.maConnRead to read all
+    -- data you want to get. A call to mosync.maConnRead reads between
     -- one and the number of requested bytes. You may not get all
     -- bytes first time.
-    elseif CONNOP_READ == opType and result > 0 then
-      print("CONNOP_READ read " .. result .. " bytes.")
+    elseif mosync.CONNOP_READ == opType and result > 0 then
+      print("mosync.CONNOP_READ read " .. result .. " bytes.")
       -- Print result.
       PrintBuffer(inBuffer, result)
       -- Clean up.
-      SysFree(inBuffer)
-      SysFree(outBuffer)
-      EventMonitor:RemoveConnectionFun(connection)
-      maConnClose(connection)
+      mosync.SysFree(inBuffer)
+      mosync.SysFree(outBuffer)
+      mosync.EventMonitor:RemoveConnectionFun(connection)
+      mosync.maConnClose(connection)
       -- Print message.
       print("Test complete - read data.")
       print("Press BACK or Key 0 to exit.")
@@ -124,7 +124,7 @@ function WriteStringToBuffer(s, buffer)
     local b = s:byte(i)
     --print("Char: " .. c)
     --print("Byte: " .. b)
-    SysBufferSetByte(buffer, i - 1, b)
+    mosync.SysBufferSetByte(buffer, i - 1, b)
   end
   -- Return number of bytes written to buffer.
   return i
@@ -133,7 +133,7 @@ end
 function PrintBuffer(buffer, size)
   local line = ""
   for i = 0, size - 1 do
-    local c = SysBufferGetByte(buffer, i)
+    local c = mosync.SysBufferGetByte(buffer, i)
     -- If we have end-of-line, print the line
     if 10 == c or 13 == c then
       if line:len() > 0 then

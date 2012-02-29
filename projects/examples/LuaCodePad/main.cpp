@@ -41,7 +41,7 @@ extern "C" int MAMain()
 
 	// Enter the MoSync event loop.
 	// RunEventLoop is defined in LuaLib.lua.
-	engine.eval("EventMonitor:RunEventLoop()");
+	engine.eval("mosync.EventMonitor:RunEventLoop()");
 
 	return 0;
 }

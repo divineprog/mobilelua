@@ -39,22 +39,22 @@ nice demonstration of how to Lua and JavaScript interplay.
 function Main()
   CreateUI()
   CreateHTML()
-  NativeUI:ShowScreen(Screen)
+  mosync.NativeUI:ShowScreen(Screen)
   CreateKeyHandler()
 end
 
 function CreateUI()
-  Screen = NativeUI:CreateWidget
+  Screen = mosync.NativeUI:CreateWidget
   {
     type = "Screen"
   }
 
-  WebView = NativeUI:CreateWidget
+  WebView = mosync.NativeUI:CreateWidget
   {
     type = "WebView",
     parent = Screen,
-    width = FILL_PARENT,
-    height = FILL_PARENT,
+    width = mosync.FILL_PARENT,
+    height = mosync.FILL_PARENT,
     enableZoom = "true",
     hardHook = "lua://.*",
     eventFun = function(widget, widgetEvent)
@@ -65,9 +65,9 @@ end
 
 function CreateKeyHandler()
   -- Exit when Android back key is pressed.
-  EventMonitor:OnKeyDown(function(key)
-    if MAK_BACK == key then
-      EventMonitor:ExitEventLoop()
+  mosync.EventMonitor:OnKeyDown(function(key)
+    if mosync.MAK_BACK == key then
+      mosync.EventMonitor:ExitEventLoop()
     end
   end)
 end
@@ -79,7 +79,7 @@ function OnTouch()
   if Counter > 0 then
     WebView:EvalJS("AddItem('"..Counter.."')")
   elseif Counter == 0 then
-    maVibrate(1000)
+    mosync.maVibrate(1000)
     WebView:EvalJS("AddItem('Take Off!')")
   else
     Counter = 11
@@ -88,7 +88,7 @@ function OnTouch()
 end
 
 function CreateHTML()
-  WebView:SetProp(MAW_WEB_VIEW_HTML,
+  WebView:SetProp(mosync.MAW_WEB_VIEW_HTML,
 [==[
 <!DOCTYPE html>
 <html>
