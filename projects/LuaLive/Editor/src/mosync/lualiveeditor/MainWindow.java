@@ -219,11 +219,11 @@ public class MainWindow extends JFrame
 			+ "---------------------------------------------------\n"
 			+ "\n"
 			+ "-- Run this code to display a coloured rectangle.\n"
-			+ "Screen:SetColor(255, 255, 255)\n"
-			+ "Screen:Fill()\n"
-			+ "Screen:SetColor(200, 0, 0)\n"
-			+ "Screen:FillRect(0, 0, 300, 300)\n"
-			+ "Screen:Update()\n");
+			+ "mosync.Screen:SetColor(255, 255, 255)\n"
+			+ "mosync.Screen:Fill()\n"
+			+ "mosync.Screen:SetColor(200, 0, 0)\n"
+			+ "mosync.Screen:FillRect(0, 0, 300, 300)\n"
+			+ "mosync.Screen:Update()\n");
 		mEditor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
 		mEditor.setRoundedSelectionEdges(false);
 		SyntaxScheme syntaxSceheme = mEditor.getDefaultSyntaxScheme();
