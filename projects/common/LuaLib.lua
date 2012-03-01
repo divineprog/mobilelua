@@ -369,6 +369,9 @@ mosync.WRAP_CONTENT = "" .. mosync.MAW_CONSTANT_WRAP_CONTENT
 -- Create the global NativeUI manager object.
 mosync.NativeUI = (function()
 
+  -- Have we checked that NativeUI is supported?
+  local nativeUISupportChecked = false
+
   -- The UI manager object.
   local uiManager = {}
 
@@ -401,6 +404,15 @@ mosync.NativeUI = (function()
   -- identifies a Native UI widget.
   uiManager.CreateWidget = function(self, proplist)
 
+    -- Check that NativeUI is available, abort wil panic message if not.
+    if not nativeUISupportChecked then
+      nativeUISupportChecked = true
+      local result = mosync.maWidgetScreenShow(-1)
+      if -1 == result then
+        mosync.maPanic(0, "NativeUI is not supported on this platform.")
+      end
+    end
+
     -- The widget object.
     local widget = {}
 
@@ -431,6 +443,12 @@ mosync.NativeUI = (function()
       self:SetProp(mosync.MAW_WEB_VIEW_URL, "javascript:"..script)
     end
 
+    --[[
+    
+      This is old code used to evaluate Lua scripts from JavaScript by
+      calling: window.location = "lua://..."; This method is not supported
+      on Windows Phone. Use the new method supported by EnableLuaMessages.
+    
     -- Evaluate a Lua script in respose to a HOOK_INVOKED event.
     -- Only valid for WebView widgets!
     widget.EvalLuaOnHookInvoked = function(self, widgetEvent)
@@ -447,9 +465,9 @@ mosync.NativeUI = (function()
         mosync.maDestroyPlaceholder(urlData)
 
         -- Parse out the Lua script.
-        
+
         log("url: " .. url)
-        
+
         local start,stop = url:find("lua://")
         if nil == start then
           return false, "url is missing lua:// scheme specifier"
@@ -462,7 +480,7 @@ mosync.NativeUI = (function()
         -- causes statements like "return 10" to fail.
         -- "return 10 " will succeed.
         script = script .. " "
-      
+
         -- Parse script.
         local result = nil
         local resultOrErrorMessage = nil
@@ -476,6 +494,7 @@ mosync.NativeUI = (function()
         return result, resultOrErrorMessage
       end
     end
+    --]]
 
     -- Set properties of the widget. Properties "parent", "type",
     -- "eventFun", and "data" are handled as special cases.
@@ -509,7 +528,72 @@ mosync.NativeUI = (function()
     return self:CreateWidget(proplist)
   end
 
+  -- Method that creates a webview widget set up to evaluate Lua code.
+  uiManager.CreateWebView = function(self, proplist)
+    proplist.type = "WebView"
+    self:__SetPropIfNil__(proplist, "width", mosync.FILL_PARENT)
+    self:__SetPropIfNil__(proplist, "height", mosync.FILL_PARENT)
+    self:__SetPropIfNil__(
+      proplist,
+      "eventFun",
+      self:CreateWebViewEventFun(function(success, result)
+        -- Report errors. If you want to display the result from
+        -- the Lua script, set your own "eventFun" when creating the
+        -- web view widget.
+        if not success then
+          log("@@@ Lua error in JavaScript call: "..result)
+        end
+      end
+      )
+    )
+    return self:CreateWidget(proplist)
+  end
+
   -- TODO: Add more convenience methods for creating widgets.
+
+  -- Returns a function that evaluates Lua code sent from JavaScript.
+  -- The function callbackFun will be called with the result from
+  -- evaluating the Lua code.
+  -- The callback function has the form: callbackFun(success, result)
+  -- where success is true/false, and result is either the result value
+  -- or an error message.
+  uiManager.CreateWebViewEventFun = function(unusedSelf, callbackFun)
+    return function(self, widgetEvent)
+      -- If this is a HOOK_INVOKED event then evaluate the
+      -- data as a Lua script.
+      if mosync.MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
+        mosync.SysWidgetEventGetType(widgetEvent) then
+
+        -- Get the url data handle.
+        local dataHandle = mosync.SysWidgetEventGetUrlData(widgetEvent)
+
+        -- Convert data handle to a Lua string (will be GC:ed).
+        local data = mosync.SysLoadStringResource(dataHandle)
+
+        -- Release the data handle.
+        mosync.maDestroyPlaceholder(dataHandle)
+
+        -- Unescape the script data.
+        local script = mosync.SysStringUnescape(data)
+
+        -- Add ending space as a fix for the bug that
+        -- causes statements like "return 10" to fail.
+        -- "return 10 " will succeed.
+        script = script .. " "
+
+        -- Parse script.
+        local fun, errorMessage = loadstring(script)
+        if nil == fun then
+          callbackFun(false, errorMessage)
+        else
+          -- Run script and return result, success will
+          -- be true on success, false on error.
+          local success, resultOrErrorMessage = pcall(fun)
+          callbackFun(success, resultOrErrorMessage)
+        end
+      end
+    end
+  end
 
   -- Show a screen widget. The screen widget is a Lua object.
   uiManager.ShowScreen = function(self, screen)
@@ -569,6 +653,90 @@ mosync.NativeUI = (function()
     end
   end
 
+  -- Returns JavaScript code that creates the global
+  -- mosync object used to send messages to Lua.
+  -- Use this when you dynamically create HTML code in Lua.
+  -- If you load HTML from files, create a file with this code
+  -- and load it in a script tag. Or just paste the code into
+  -- your HTML file ;)
+  --
+  -- Use mosync.bridge.sendRaw(data) to send a message.
+  -- Example call:
+  --
+  --   mosync.bridge.sendRaw("HelloButtonClicked");
+  --
+  uiManager.GetMoSyncBridgeJSScript = function(self)
+    return [==[
+      /**
+       * Create a global instance of the mosync object.
+       */
+      mosync = (function()
+      {
+        var mosync = {};
+
+        // Detect platform.
+
+        mosync.isAndroid =
+          navigator.userAgent.indexOf("Android") != -1;
+
+        mosync.isIOS =
+          (navigator.userAgent.indexOf("iPod") != -1) ||
+          (navigator.userAgent.indexOf("iPhone") != -1) ||
+          (navigator.userAgent.indexOf("iPad") != -1);
+
+        mosync.isWindowsPhone =
+          navigator.userAgent.indexOf("Windows Phone OS") != -1;
+
+        // The bridge submodule.
+
+        mosync.bridge = (function()
+        {
+          var bridge = {};
+          var rawMessageQueue = [];
+
+          /**
+           * Send raw data to the C++ side.
+           */
+          bridge.sendRaw = function(data)
+          {
+            if (mosync.isAndroid)
+            {
+              prompt(data, "");
+            }
+            else if (mosync.isIOS)
+            {
+              rawMessageQueue.push(data);
+              window.location = "mosync://DataAvailable";
+            }
+            else if (mosync.isWindowsPhone)
+            {
+              window.external.notify(data);
+            }
+          };
+
+          /**
+           * Called from iOS runtime to get message.
+           */
+          bridge.getMessageData = function()
+          {
+            if (rawMessageQueue.length == 0)
+            {
+              // Return an empty string so the iOS runtime
+              // knows we don't have any message.
+              return "";
+            }
+            var message = rawMessageQueue.pop();
+            return message;
+          };
+
+          return bridge;
+        })();
+
+        return mosync;
+      })();
+    ]==]
+  end
+    
   return uiManager
 
 end)()
@@ -838,3 +1006,21 @@ mosync.FileSys = (function()
   -- Return the file system object.
   return fileObj
 end)()
+
+-- Add missing functions in the built-in os module.
+-- Thanks to Paul Kulchenko (github.com/pkulchenko)
+-- for this contribution.
+
+if nil == os then
+  os = {}
+end
+
+if nil == os.time then
+  os.time = maTime
+end
+
+if nil == os.clock then
+ os.clock = function ()
+   return maGetMilliSecondCount() / 1000
+ end
+end
