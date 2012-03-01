@@ -18,9 +18,10 @@ You now write:
     
     mosync.Screen:SetColor(255, 255, 255)
 
-The code for the old version of MobileLua that does not have the "mosync" namespace is in branch "VersionOne".
+    
+The downloadable files for the LuaLive editor and client have been updated to use the new MobileLua version.
 
-Note: The downloadables for the LuaLive editor and client are not yet updated to use the mosync namespace.
+Note: The code for the old version of MobileLua that does not have the "mosync" namespace is available in branch "VersionOne".
 
 Error handling
 --------------
