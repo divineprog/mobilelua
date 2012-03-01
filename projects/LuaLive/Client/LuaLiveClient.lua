@@ -114,24 +114,10 @@ LuaLive = (function()
       type = "Screen"
     }
 
-    self.WebView = mosync.NativeUI:CreateWidget
+    self.WebView = mosync.NativeUI:CreateWebView
     {
-      type = "WebView",
       parent = self.Screen,
-      width = mosync.FILL_PARENT,
-      height = mosync.FILL_PARENT,
-      enableZoom = "true",
-      hardHook = "lua://.*",
-      eventFun = function(widget, widgetEvent)
-        local resultCode, result = widget:EvalLuaOnHookInvoked(widgetEvent)
-        if not resultCode then
-          if nil ~= result then
-            log("Error in WebView callback: "..result)
-          else
-            log("Error in WebView callback: Unknown error")
-          end
-        end
-      end
+      enableZoom = "true"
     }
   end
   
@@ -161,6 +147,7 @@ LuaLive = (function()
   <div id="Status"></div>
 </div>
 <script>
+]==] .. mosync.NativeUI:GetMoSyncBridgeJSScript() .. [==[
 function Connect()
 {
   EvalLua(
@@ -181,7 +168,7 @@ function SetServerIPAddress(address)
 
 function EvalLua(script)
 {
-  window.location = "lua://" + script
+  mosync.bridge.sendRaw(escape(script))
 }
 
 // Call Lua to read and set the server ip address text box.

@@ -49,17 +49,10 @@ function CreateUI()
     type = "Screen"
   }
 
-  WebView = mosync.NativeUI:CreateWidget
+  WebView = mosync.NativeUI:CreateWebView
   {
-    type = "WebView",
     parent = Screen,
-    width = mosync.FILL_PARENT,
-    height = mosync.FILL_PARENT,
-    enableZoom = "true",
-    hardHook = "lua://.*",
-    eventFun = function(widget, widgetEvent)
-      widget:EvalLuaOnHookInvoked(widgetEvent)
-    end
+    enableZoom = "true"
   }
 end
 
@@ -134,9 +127,12 @@ html
 }
 </style>
 <script>
+]==] .. mosync.NativeUI:GetMoSyncBridgeJSScript() .. [==[
 function EvalLua(script)
 {
-  window.location = "lua://" + escape(script)
+  // The mosync object is injected below by the
+  // call to EnableLuaMessages.
+  mosync.bridge.sendRaw(escape(script))
 }
 
 function AddItem(itemText)
@@ -164,6 +160,7 @@ function ClearItems()
 </body>
 </html>
 ]==])
+
 end
 
 -- Start the program.

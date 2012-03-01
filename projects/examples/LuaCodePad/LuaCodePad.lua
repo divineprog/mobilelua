@@ -59,25 +59,21 @@ LuaCodePad = (function()
       type = "Screen"
     }
 
-    self.WebView = mosync.NativeUI:CreateWidget
+    self.WebView = mosync.NativeUI:CreateWebView
     {
-      type = "WebView",
       parent = self.Screen,
-      width = mosync.FILL_PARENT,
-      height = mosync.FILL_PARENT,
       enableZoom = "true",
-      hardHook = "lua://.*",
-      eventFun = function(widget, widgetEvent)
-        local success, result = widget:EvalLuaOnHookInvoked(widgetEvent)
-        if nil == result then
-          result = "undefined"
-        end
-        if success then
-          self:ShowResult("RESULT: "..result)
-        else
-          self:ShowResult("ERROR: "..result)
-        end
-      end
+      eventFun = mosync.NativeUI:CreateWebViewEventFun(
+        function(success, result)
+          if nil == result then
+            result = "nil"
+          end
+          if success then
+            self:ShowResult("RESULT: "..result)
+          else
+            self:ShowResult("ERROR: "..result)
+          end
+        end)
     }
   end
 
@@ -149,6 +145,7 @@ log("Hello World")
   <div id="StatusMessage"></div>
 </div>
 <script>
+]==] .. mosync.NativeUI:GetMoSyncBridgeJSScript() .. [==[
 function CodeEditorRunAll()
 {
   EvalLua(CodeEditorGetText())
@@ -163,7 +160,7 @@ function EvalLua(script)
 {
   if (script.length > 0)
   {
-    window.location = "lua://" + escape(script)
+    mosync.bridge.sendRaw(escape(script))
   }
 }
 

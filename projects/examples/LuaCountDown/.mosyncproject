@@ -31,5 +31,6 @@
 <property key="excludes/Debug" value=""/>
 <property key="excludes/Release" value=""/>
 <property key="template.id" value="project.empty"/>
+<property key="winmobilecs:guid" value="08e97b50-45bb-102f-80e4-5b882c1a8a7b"/>
 </properties>
 </project>
