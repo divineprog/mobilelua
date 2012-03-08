@@ -39,7 +39,7 @@ MessageLabel = mosync.NativeUI:CreateWidget
   height = mosync.WRAP_CONTENT,
   fontSize = "36",
   fontColor = "FFFFFF",
-  text = "Demo of MoSync NativeUI" 
+  text = "Demo of MoSync NativeUI"
 }
 
 ButtonSayHello = mosync.NativeUI:CreateButton 
@@ -65,3 +65,10 @@ ButtonSayHi = mosync.NativeUI:CreateButton
 }
 
 mosync.NativeUI:ShowScreen(Screen)
+
+-- Exit on BACK key on Android
+mosync.EventMonitor:OnKeyDown(function(key)
+  if mosync.MAK_BACK == key then
+    mosync.maExit(0)
+  end
+end)
