@@ -405,6 +405,7 @@ mosync.NativeUI = (function()
   uiManager.CreateWidget = function(self, proplist)
 
     -- Check that NativeUI is available, abort wil panic message if not.
+    --[[
     if not nativeUISupportChecked then
       nativeUISupportChecked = true
       local result = mosync.maWidgetScreenShow(-1)
@@ -412,13 +413,16 @@ mosync.NativeUI = (function()
         mosync.maPanic(0, "NativeUI is not supported on this platform.")
       end
     end
+    --]]
 
     -- The widget object.
     local widget = {}
 
     -- Create the Native UI widget and check that it went ok.
     local mWidgetHandle = mosync.maWidgetCreate(proplist.type)
-    if mWidgetHandle < 1 then
+    if mWidgetHandle < 0 then
+      mosync.maPanic(0, 
+        "NativeUI is not supported. Widget type: " .. proplist.type)
       return nil
     end
 
@@ -514,6 +518,20 @@ mosync.NativeUI = (function()
     end
 
     return widget
+  end -- End of CreateWidget
+
+  -- Method that creates a screen.
+  uiManager.CreateScreen = function(self, proplist)
+    proplist.type = "Screen"
+    return self:CreateWidget(proplist)
+  end
+  
+  -- Method that creates a vertical layout.
+  uiManager.CreateVerticalLayout = function(self, proplist)
+    proplist.type = "VerticalLayout"
+    self:__SetPropIfNil__(proplist, "width", mosync.FILL_PARENT)
+    self:__SetPropIfNil__(proplist, "height", mosync.FILL_PARENT)
+    return self:CreateWidget(proplist)
   end
 
   -- Method that creates a button widget with some
@@ -599,6 +617,7 @@ mosync.NativeUI = (function()
   uiManager.ShowScreen = function(self, screen)
     -- Initializes the UI manager if not done.
     self:Init()
+    log("uiManager.ShowScreen handle: " .. screen:GetHandle())
     mosync.maWidgetScreenShow(screen:GetHandle())
   end
 
@@ -973,6 +992,7 @@ mosync.FileSys = (function()
     -- Close store and free temporary objects.
     self:CloseStore(store)
     mosync.SysFree(buffer)
+    
     mosync.maDestroyPlaceholder(handle)
 
     return result
@@ -998,7 +1018,12 @@ mosync.FileSys = (function()
 
     -- Close store and free temporary objects.
     self:CloseStore(store)
-    mosync.maDestroyPlaceholder(handle)
+    
+    -- TODO: Bug on Windows Phone, use maDestroyObject
+    -- until there is a new build with this fixed:
+    -- http://jira.mosync.com/browse/MOSYNC-2015
+    --mosync.maDestroyPlaceholder(handle)
+    mosync.maDestroyObject(handle)
 
     return text
   end
