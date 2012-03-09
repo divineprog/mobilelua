@@ -116,7 +116,7 @@ mosync.EventMonitor = (function ()
 
     -- This is the event loop.
     while isRunning do
-      --mosync.maWait(self.WaitTime)
+      mosync.maWait(self.WaitTime)
       while isRunning and 0 ~= mosync.maGetEvent(event) do
         local eventType = mosync.SysEventGetType(event)
         if mosync.EVENT_TYPE_CLOSE == eventType then
