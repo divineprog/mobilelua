@@ -31,6 +31,22 @@
 
   Enter the ip address of the editor below in the
   variable SERVER_DEFAULT_ADDRESS.
+  
+  If you want the app to display a user interface where you can
+  enter an ip-address of the server/editor (currently only works
+  on Android/iOS/Windows Phone), then enable this below by setting:
+  
+    self.USE_NATIVE_UI = true
+    
+  If you do not want the initial user interface to display, or are
+  building for a platform that does not support NativeUI, you can 
+  just set the ip-address in the code below and disable the initial
+  screen like this (change the IP address to that displayed in the 
+  LuaLive editor):
+  
+    self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
+    
+    self.USE_NATIVE_UI = false
 
   Protocol specification:
 
@@ -73,7 +89,7 @@ LuaLive = (function()
   -- TODO: Change the server address to the one used on your machine.
   -- When running in the Android emulator, use 10.0.2.2 for localhost.
   self.SERVER_DEFAULT_ADDRESS = "127.0.0.1"
-  self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
+  --self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
   --self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
   self.SERVER_PORT = ":55555"
   
