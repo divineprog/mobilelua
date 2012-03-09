@@ -1,0 +1,28 @@
+.res LUALIB
+.bin
+.include "../../common/LuaLib.lua"
+
+.res LUAROCKSOLID
+.bin
+.include "LuaRockSolid.lua"
+
+.res SOUND_BEGIN
+.media "audio/x-wav", "SoundBegin.wav"
+
+.res SOUND_DONE
+.media "audio/x-wav", "SoundDone.wav"
+
+.res SOUND_10
+.media "audio/x-wav", "Sound10.wav"
+
+.res SOUND_20
+.media "audio/x-wav", "Sound20.wav"
+
+.res SOUND_30
+.media "audio/x-wav", "Sound30.wav"
+
+.res SOUND_40
+.media "audio/x-wav", "Sound40.wav"
+
+.res SOUND_50
+.media "audio/x-wav", "Sound50.wav"
