@@ -88,8 +88,8 @@ LuaLive = (function()
   -- Server address and port.
   -- TODO: Change the server address to the one used on your machine.
   -- When running in the Android emulator, use 10.0.2.2 for localhost.
-  self.SERVER_DEFAULT_ADDRESS = "127.0.0.1"
-  --self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
+  --self.SERVER_DEFAULT_ADDRESS = "127.0.0.1"
+  self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
   --self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
   self.SERVER_PORT = ":55555"
   
@@ -106,7 +106,8 @@ LuaLive = (function()
   -- use the same ip-address every time.
   -- Default is to use mosync.NativeUI to display a start
   -- screen where you can enter the ip-address.
-  self.USE_NATIVE_UI = false --true
+  --self.USE_NATIVE_UI = true
+  self.USE_NATIVE_UI = false
   
   self.Main = function()
     print("Welcome to the LuaLive client!")
