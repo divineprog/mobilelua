@@ -1,5 +1,5 @@
 --[[
-File: LuaNativeUIExampleLowLevelEventFunctions.lua
+File: LuaNativeUIExampleLowLevel2.lua
 Author: Mikael Kindborg
 
 Description: 
