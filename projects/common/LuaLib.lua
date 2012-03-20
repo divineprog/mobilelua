@@ -426,6 +426,9 @@ mosync.NativeUI = (function()
       return nil
     end
 
+    -- Add the widget to the widget handle table.
+    mWidgetHandleToWidgetObject[mWidgetHandle] = widget
+
     -- Returns the Native UI widget handle.
     widget.GetHandle = function(self)
       return mWidgetHandle
@@ -439,7 +442,33 @@ mosync.NativeUI = (function()
       -- Make sure value is always a string.
       mosync.maWidgetSetProperty(self:GetHandle(), property, ""..value)
     end
+    
+    -- Utility method that gets a widget property value.
+    -- The bufferSize param is optional, default is 1024.
+    widget.GetProp = function(self, property, bufferSize)
+      if not bufferSize then
+        bufferSize = 1024
+      end
+      local buffer = mosync.SysAlloc(bufferSize)
+      mosync.maWidgetGetProperty(
+        self:GetHandle(),
+        property,
+        buffer,
+        bufferSize);
+      local text = mosync.SysBufferToString(buffer)
+      mosync.SysFree(buffer)
+      return text
+    end
 
+    -- Set the event function of a widget object. This is
+    -- useful if you don't want to supply an event function
+    -- in the table when the widget is constructed. You can
+    -- set the funcction dynamically with this method, and
+    -- change it dynamically.
+    widget.EventFun = function(self, eventFun)
+      mWidgetHandleToEventFun[self:GetHandle()] = eventFun
+    end
+    
     -- Evaluate JavaScript in a WebView widget.
     -- Only valid for WebView widgets!
     widget.EvalJS = function(self, script)
@@ -502,21 +531,26 @@ mosync.NativeUI = (function()
 
     -- Set properties of the widget. Properties "parent", "type",
     -- "eventFun", and "data" are handled as special cases.
+    local parent = nil
     for prop,value in pairs(proplist) do
       if "parent" == prop then
-        mosync.maWidgetAddChild(value:GetHandle(), mWidgetHandle)
+        -- Save reference to parent widget.
+        parent = value
       elseif "eventFun" == prop then
         -- Add function as event handler for this widget.
-        mWidgetHandleToEventFun[mWidgetHandle] = value
-        -- Also add the widget to the widget handle table.
-        mWidgetHandleToWidgetObject[mWidgetHandle] = widget
+        -- Old code: mWidgetHandleToEventFun[mWidgetHandle] = value
+        widget:EventFun(value)
       elseif "data" == prop then
         widget.data = value
       elseif "type" ~= prop then
         widget:SetProp(prop, value)
       end
     end
-
+    -- Add this widget to parent. This must be done last.
+    if nil ~= parent then
+        mosync.maWidgetAddChild(parent:GetHandle(), mWidgetHandle)
+    end
+    
     return widget
   end -- End of CreateWidget
 
@@ -629,7 +663,7 @@ mosync.NativeUI = (function()
   -- Register an event function for the supplied widget handle.
   -- This method is useful if you wish to use the bare MoSync
   -- Widget API and still have the benefit of attaching event
-  -- handler functions to widgets. Note that the widhetHandle
+  -- handler functions to widgets. Note that the widgetHandle
   -- parameter is a handle to a MoSync widget (it is NOT a Lua
   -- widget object). To unregister an event function, it should
   -- work to pass nil as the eventFun parameter.

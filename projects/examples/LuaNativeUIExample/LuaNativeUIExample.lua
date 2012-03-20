@@ -1,9 +1,11 @@
 --[[
 File: LuaNativeUIExample.lua
 Author: Mikael Kindborg
-Description: Demo that uses an experimental Lua UI library 
-to create a NativeUI. The object NativeUI is defined in
-file: projects/common/LuaLib.lua
+
+Description:
+
+Demo that uses a high-level Lua UI library to create a NativeUI. 
+The object NativeUI is defined in file: projects/common/LuaLib.lua
 
 Here are some things to try in the LuaLive editor. 
 

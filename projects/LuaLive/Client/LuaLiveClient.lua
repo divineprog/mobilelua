@@ -44,7 +44,7 @@
   screen like this (change the IP address to that displayed in the 
   LuaLive editor):
   
-    self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
+    self.SERVER_DEFAULT_ADDRESS = "192.168.0.145"
     
     self.USE_NATIVE_UI = false
 
@@ -85,12 +85,15 @@ LuaLive = (function()
   -- a length int and a string of byte-size characters.
   self.COMMAND_REPLY = 3
   
+  -- Transfer a file from PC to device.
+  self.COMMAND_FILE_TRANSFER = 4
+  
   -- Server address and port.
   -- TODO: Change the server address to the one used on your machine.
   -- When running in the Android emulator, use 10.0.2.2 for localhost.
   --self.SERVER_DEFAULT_ADDRESS = "127.0.0.1"
-  self.SERVER_DEFAULT_ADDRESS = "192.168.0.112"
-  --self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
+  --self.SERVER_DEFAULT_ADDRESS = "192.168.0.145"
+  self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
   self.SERVER_PORT = ":55555"
   
   -- The connection object.
@@ -261,6 +264,9 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
       if self.COMMAND_RUN_LUA_SCRIPT == command then
         -- Read script and evaluate it when recieved.
         self.connection:Read(dataSize, self.ScriptReceived)
+      elseif self.COMMAND_FILE_TRANSFER == command then
+        -- Write file data to device.
+        self.connection:Read(dataSize, self.FileReceived)
       end
     end
     -- Free the result buffer.
@@ -292,6 +298,33 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
           log("Failed to evaluate script. "..resultOrErrorMessage)
         end
       end
+      -- Write response.
+      self.WriteResponse(resultOrErrorMessage)
+    end
+    -- Free the result buffer.
+    if nil ~= buffer then
+      mosync.SysFree(buffer)
+    end
+  end
+  
+  -- Write data to file. Data in buffer has this layout:
+  --  32 bit int: filepath length
+  --  filepath
+  --  32 bit int: file data
+  --  file data
+  self.FileReceived = function(buffer, result)
+    log("FileReceived")
+    if result > 0 then
+      local pathSize = self.BufferReadInt(buffer, 0)
+      local dataSize = self.BufferReadInt(buffer, 4 + pathSize)
+      -- Zero terminate path (overwrites data size).
+      mosync.SysBufferSetByte(buffer, 4 + pathSize, 0)
+      -- Get path string.
+      local pathPointer = mosync.SysBufferGetBytePointer(buffer, 4)
+      local path = mosync.SysBufferToString(buffer)
+      -- Debug info.
+      log("FileReceived path ".. path)
+      
       -- Write response.
       self.WriteResponse(resultOrErrorMessage)
     end

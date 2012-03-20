@@ -1,9 +1,11 @@
 --[[
 File: LuaNativeUIExample.lua
 Author: Mikael Kindborg
-Description: Demo that uses an experimental Lua UI library 
-to create a NativeUI. The object NativeUI is defined in
-file: projects/common/LuaLib.lua
+
+Description:
+
+Demo that uses a high-level Lua UI library to create a NativeUI. 
+The object NativeUI is defined in file: projects/common/LuaLib.lua
 
 Here are some things to try in the LuaLive editor. 
 
@@ -39,7 +41,7 @@ MessageLabel = mosync.NativeUI:CreateWidget
   height = mosync.WRAP_CONTENT,
   fontSize = "36",
   fontColor = "FFFFFF",
-  text = "Demo of MoSync NativeUI" 
+  text = "Demo of MoSync NativeUI"
 }
 
 ButtonSayHello = mosync.NativeUI:CreateButton 
@@ -48,7 +50,7 @@ ButtonSayHello = mosync.NativeUI:CreateButton
   width = mosync.FILL_PARENT,
   height = mosync.WRAP_CONTENT,
   text = "Say Hello",
-  eventFun = function(widget, widgetEvent)
+  eventFun = function(self, widgetEvent)
     MessageLabel:SetProp("text", "Hello World!")
   end
 }
@@ -59,9 +61,16 @@ ButtonSayHi = mosync.NativeUI:CreateButton
   width = mosync.FILL_PARENT,
   height = mosync.WRAP_CONTENT,
   text = "Say Hi",
-  eventFun = function(widget, widgetEvent)
+  eventFun = function(self, widgetEvent)
     MessageLabel:SetProp("text", "Hi there!")
   end
 }
 
 mosync.NativeUI:ShowScreen(Screen)
+
+-- Exit on BACK key on Android
+mosync.EventMonitor:OnKeyDown(function(key)
+  if mosync.MAK_BACK == key then
+    mosync.maExit(0)
+  end
+end)

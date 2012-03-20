@@ -1,9 +1,10 @@
 --[[
-File: LuaNativeUIBasicExampleWithEventFunctions.lua
+File: LuaNativeUIExampleLowLevelEventFunctions.lua
 Author: Mikael Kindborg
+
 Description: 
 
-This is a slightly modified version of LuaNativeUIBasicExample.lua.
+This is a slightly modified version of LuaNativeUIExampleLowLevel.lua.
 
 The example shows how to attach event functions to widgets.
 This is done by calling:

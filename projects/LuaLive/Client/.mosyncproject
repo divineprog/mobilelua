@@ -2,6 +2,12 @@
 <project supports-build-configs="true" version="1.4">
 <build.cfg id="Debug" types="Debug"/>
 <build.cfg id="Release" types="Release"/>
+<criteria>
+<filter mgr="0" profiles="" require="0" type="com.mobilesorcery.mosync.filters.profile" vendors="Android,BlackBerry,JavaME,Moblin,Symbian,Windows Mobile,Windows Phone,iOS"/>
+<filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
+<capabilities optional="" required="File\ Storage Internet\ Access"/>
+</filter>
+</criteria>
 <properties>
 <property key="build.prefs:additional.include.paths/Debug" value="%project:LuaLib%/inc"/>
 <property key="build.prefs:additional.include.paths/Release" value="%project:LuaLib%/inc"/>
@@ -10,7 +16,7 @@
 <property key="build.prefs:additional.libraries/Release" value="MAUtil.lib, MAUI.lib, MAFS.lib, LuaLib.lib"/>
 <property key="build.prefs:additional.library.paths/Debug" value="%project:LuaLib%/Output/Debug"/>
 <property key="build.prefs:additional.library.paths/Release" value="%project:LuaLib%/Output/Release"/>
-<property key="build.prefs:app.permissions" value="Camera File\ Storage Internet\ Access Location Location/Coarse Location/Fine Vibration"/>
+<property key="build.prefs:app.permissions" value="Accelerometer Camera Compass File\ Storage Gyroscope Internet\ Access Location Location/Coarse Location/Fine Orientation Proximity Vibration"/>
 <property key="build.prefs:extra.link.sw/Debug" value=""/>
 <property key="build.prefs:extra.link.sw/Release" value=""/>
 <property key="build.prefs:extra.res.sw/Debug" value=""/>
@@ -30,6 +36,7 @@
 <property key="dependency.strategy" value="0"/>
 <property key="excludes/Debug" value=""/>
 <property key="excludes/Release" value=""/>
+<property key="profile.mgr.type" value="0"/>
 <property key="template.id" value="project.empty"/>
 <property key="winmobilecs:guid" value="28e60d60-4b42-102f-8060-19f096773066"/>
 </properties>

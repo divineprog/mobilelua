@@ -21,10 +21,13 @@
 --]]
 
 --[[
-File: LuaNativeUIBasic.lua
+File: LuaNativeUIListViewLowLevel.lua
 Author: Mikael Kindborg
 
-Simple NativeUI demo in Lua. Uses MoSync API directly.
+Description:
+
+NativeUI demo in Lua that shows how to use a layout
+with a ListView, uses low-level syscalls to manage widgets.
 ]]
 
 function CreateUI()
@@ -33,18 +36,9 @@ function CreateUI()
 
   -- Create main layout.
   local layout = mosync.maWidgetCreate(mosync.MAW_VERTICAL_LAYOUT)
-  mosync.maWidgetSetProperty(
-    layout,
-    mosync.MAW_WIDGET_WIDTH,
-    mosync.FILL_PARENT)
-  mosync.maWidgetSetProperty(
-    layout,
-    mosync.MAW_WIDGET_HEIGHT,
-    mosync.FILL_PARENT);
-  mosync.maWidgetSetProperty(
-    layout,
-    mosync.MAW_WIDGET_BACKGROUND_COLOR,
-    "0x000000")
+  mosync.maWidgetSetProperty(layout, mosync.MAW_WIDGET_WIDTH, mosync.FILL_PARENT)
+  mosync.maWidgetSetProperty(layout, mosync.MAW_WIDGET_HEIGHT, mosync.FILL_PARENT);
+  mosync.maWidgetSetProperty(layout, mosync.MAW_WIDGET_BACKGROUND_COLOR, "0x000000")
   mosync.maWidgetAddChild(screen, layout)
   
   -- Title label.
@@ -62,6 +56,7 @@ function CreateUI()
   local editbox = mosync.maWidgetCreate(mosync.MAW_EDIT_BOX)
   mosync.maWidgetSetProperty(editbox, mosync.MAW_WIDGET_WIDTH, mosync.FILL_PARENT)
   mosync.maWidgetSetProperty(editbox, mosync.MAW_WIDGET_HEIGHT, mosync.WRAP_CONTENT)
+  mosync.maWidgetSetProperty(label, mosync.MAW_BUTTON_FONT_SIZE, "24")
   mosync.maWidgetAddChild(layout, editbox)
   
   -- Button to add text.
@@ -91,8 +86,10 @@ function CreateUI()
   
   -- Create a widget event listener.
   mosync.EventMonitor:OnWidget(function(widgetEvent)
-    if button == mosync.SysWidgetEventGetHandle(widgetEvent) then
-      -- Button was clicked, add item to list.
+    if (mosync.MAW_EVENT_CLICKED == mosync.SysWidgetEventGetType(widgetEvent)) and
+       (button == mosync.SysWidgetEventGetHandle(widgetEvent)) then
+      -- Button was clicked, add item to list. 
+      -- Here we need to allocate a C buffer to hold string data.
       local buffer = mosync.SysAlloc(256)
       mosync.maWidgetGetProperty(editbox, "text", buffer, 256);
       local text = mosync.SysBufferToString(buffer)
@@ -101,8 +98,9 @@ function CreateUI()
       mosync.maWidgetSetProperty(listItem, "text", text)
       mosync.maWidgetAddChild(list, listItem)
       table.insert(items, text)
-    elseif list == mosync.SysWidgetEventGetHandle(widgetEvent) then
-      -- List was clicked, display selected item text.
+    elseif (mosync.MAW_EVENT_ITEM_CLICKED == mosync.SysWidgetEventGetType(widgetEvent)) and
+           (list == mosync.SysWidgetEventGetHandle(widgetEvent)) then
+      -- List item was clicked, display selected item text.
       local index = mosync.SysWidgetEventGetListItemIndex(widgetEvent)
       if index > -1 then
         local text = items[index + 1]

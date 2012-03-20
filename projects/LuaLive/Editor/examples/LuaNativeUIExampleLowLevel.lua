@@ -1,7 +1,11 @@
 --[[
-File: LuaNativeUIBasicExample.lua
+File: LuaNativeUIExampleLowLevel.lua
 Author: Mikael Kindborg
-Description: Very basic demo of NativeUI in Lua.
+
+Description:
+
+Basic demo of NativeUI in Lua that uses low-level
+syscalls to create and manage widgets.
 
 This example uses global variables for the Widgets, to make
 it possible to interactively experiment with the UI using
