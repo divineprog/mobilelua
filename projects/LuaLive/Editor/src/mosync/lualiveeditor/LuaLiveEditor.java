@@ -7,5 +7,6 @@ public class LuaLiveEditor
 		Log.i("Hello");
 
 	    new MainWindow();
+		//new ReloadWindow();
 	}
 }

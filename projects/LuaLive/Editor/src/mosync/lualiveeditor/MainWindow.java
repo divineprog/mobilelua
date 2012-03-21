@@ -247,25 +247,25 @@ public class MainWindow extends JFrame
 //        tabbedPane.addTab("Widget editor", null, widgetEditor,
 //                "Custom properties");
 
-// TODO: Add the split pane for the file tree.
-//		// File list pane.
-//	    mFileTree = new FileTreeComponent(sDefaultDirectory);
-//	    JScrollPane fileListScrollPane = new JScrollPane(mFileTree);
-//
-//		// Split pane.
-//		JSplitPane splitPane = new JSplitPane(
-//            JSplitPane.HORIZONTAL_SPLIT,
-//            fileListScrollPane,
-//            mainEditor);
-//        splitPane.setOneTouchExpandable(true);
-//        splitPane.setDividerLocation(200);
-//
-//        // Add components.
-//        this.add(toolPanel, BorderLayout.SOUTH);
-//        this.add(splitPane, BorderLayout.CENTER);
+		// TODO: Add the split pane for the file tree.
+		// File list pane.
+	    mFileTree = new FileTreeComponent(sDefaultDirectory);
+	    JScrollPane fileListScrollPane = new JScrollPane(mFileTree);
 
+		// Split pane.
+		JSplitPane splitPane = new JSplitPane(
+            JSplitPane.HORIZONTAL_SPLIT,
+            fileListScrollPane,
+            mainEditor);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setDividerLocation(0);
+
+        // Add components.
         this.add(toolPanel, BorderLayout.SOUTH);
-        this.add(mainEditor, BorderLayout.CENTER);
+        this.add(splitPane, BorderLayout.CENTER);
+
+        //this.add(toolPanel, BorderLayout.SOUTH);
+        //this.add(mainEditor, BorderLayout.CENTER);
 
 		// Set window size and show the window.
 		setSize(1000, 700);

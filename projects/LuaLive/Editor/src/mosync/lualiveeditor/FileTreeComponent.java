@@ -1,9 +1,13 @@
 package mosync.lualiveeditor;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -17,13 +21,49 @@ import javax.swing.tree.TreePath;
 public class FileTreeComponent extends JTree
 {
 	JTree mFileTree;
+	JPopupMenu mPopupMenu;
 
 	public FileTreeComponent(String path)
 	{
+		// Create file tree view.
 		mFileTree = this;
 	    Model model = new Model(new File(path));
 	    mFileTree.setModel(model);
 	    mFileTree.addMouseListener(new FileTreeMouseListener());
+
+	    // Create popup menu.
+	    mPopupMenu = new JPopupMenu();
+	    JMenuItem menuItem = new JMenuItem("Transfer & Load");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Log.i("Transfer & Load");
+			}
+	    });
+	    mPopupMenu.add(menuItem);
+	    menuItem = new JMenuItem("Transfer");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Log.i("Transfer");
+			}
+	    });
+	    mPopupMenu.add(menuItem);
+	    mPopupMenu.add(menuItem);
+	    menuItem = new JMenuItem("Open");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Log.i("Open");
+			}
+	    });
+	    mPopupMenu.add(menuItem);
 	}
 
 	/**
@@ -121,6 +161,13 @@ public class FileTreeComponent extends JTree
 				if (null != path)
 				{
 					Log.i("Show menu on: " + path);
+					if (e.isPopupTrigger())
+					{
+			            mPopupMenu.show(
+			            	e.getComponent(),
+			                e.getX(),
+			                e.getY());
+			        }
 					//if (mFileTree.isExpanded(path))
 						//m_action.putValue(Action.NAME, "Collapse");
 					//else
