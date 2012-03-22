@@ -55,9 +55,12 @@ public class MainWindow extends JFrame
 	Editor mEditor;
 	JTextArea mMessagePane;
 	JTextArea mCodeArea;
-	MainWindow mSelf;
-	String mCurrentFileName;
 	JTree mFileTree;
+	JButton mButtonRun;
+	JMenuItem mMenuItemRun;
+	MainWindow mSelf;
+	String mCurrentFileName; // File in editor
+	String mRunFileName; // File to run (reload)
 
 	public MainWindow()
 	{
@@ -81,12 +84,12 @@ public class MainWindow extends JFrame
 
 		// Create the File menu.
 		JMenu fileMenu = new JMenu("File");
-		JMenuItem openItem = fileMenu.add("Open");
+		JMenuItem openItem = fileMenu.add("Open File...");
 		openItem.addActionListener(new CommandLoad());
 		openItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_O, InputEvent.CTRL_MASK));
 
-		JMenuItem saveItem = fileMenu.add("Save");
+		JMenuItem saveItem = fileMenu.add("Save File...");
 		saveItem.addActionListener(new CommandSave());
 		saveItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_S, InputEvent.CTRL_MASK));
@@ -102,13 +105,20 @@ public class MainWindow extends JFrame
 		// Create the Run menu.
 		JMenu runMenu = new JMenu("Run");
 
-		JMenuItem runProgramItem = runMenu.add("Run all");
-		runProgramItem.addActionListener(new CommandRunProgram());
-		runProgramItem.setAccelerator(KeyStroke.getKeyStroke(
+		mMenuItemRun = runMenu.add("Run (no file selected)");
+		mMenuItemRun.addActionListener(new CommandRun());
+		mMenuItemRun.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_R, InputEvent.CTRL_MASK));
 
-		JMenuItem runSelectionItem = runMenu.add("Run selection");
-		runSelectionItem.addActionListener(new CommandRunSelection());
+		JMenuItem runFileSelectItem = runMenu.add("Select file to Run...");
+		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
+		runFileSelectItem.setAccelerator(KeyStroke.getKeyStroke(
+			KeyEvent.VK_R, InputEvent.CTRL_MASK));
+
+		fileMenu.addSeparator();
+
+		JMenuItem runSelectionItem = runMenu.add("DoIt (evaluate selection)");
+		runSelectionItem.addActionListener(new CommandEval());
 		runSelectionItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_D, InputEvent.CTRL_MASK));
 
@@ -156,22 +166,21 @@ public class MainWindow extends JFrame
 		toolPanel.add(messageScrollPane);
 
 		// Create buttons.
-		JButton button;
 
-		button = new JButton("Run all");
-		button.addActionListener(new CommandRunProgram());
+		mButtonRun = new JButton("Run");
+		mButtonRun.addActionListener(new CommandRun());
+		mButtonRun.setAlignmentX(LEFT_ALIGNMENT);
+		buttonPanel.add(mButtonRun);
+
+		JButton button = new JButton("DoIt");
+		button.addActionListener(new CommandEval());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
-
-		button = new JButton("Run selection");
-		button.addActionListener(new CommandRunSelection());
-		button.setAlignmentX(LEFT_ALIGNMENT);
-		buttonPanel.add(button);
-
+/*
 		button = new JButton("Reset client");
 		button.addActionListener(new CommandResetClient());
 		button.setAlignmentX(LEFT_ALIGNMENT);
-		// buttonPanel.add(button);
+		buttonPanel.add(button);
 
 		button = new JButton("Load...");
 		button.addActionListener(new CommandLoad());
@@ -181,18 +190,18 @@ public class MainWindow extends JFrame
 		button = new JButton("Save...");
 		button.addActionListener(new CommandSave());
 		button.setAlignmentX(LEFT_ALIGNMENT);
-		// buttonPanel.add(button);
+		buttonPanel.add(button);
 
 		button = new JButton("Start server");
 		button.addActionListener(new CommandServerStart());
 		button.setAlignmentX(LEFT_ALIGNMENT);
-		// buttonPanel.add(button);
+		buttonPanel.add(button);
 
 		button = new JButton("Stop server");
 		button.addActionListener(new CommandServerStop());
 		button.setAlignmentX(LEFT_ALIGNMENT);
-		// buttonPanel.add(button);
-
+		buttonPanel.add(button);
+*/
 		// Add label with host address.
 		JLabel label = new JLabel();
 		String ipAddress = getServerIpAddress();
@@ -211,31 +220,8 @@ public class MainWindow extends JFrame
 
 		// Editor view.
 		mEditor = new Editor();
-		mEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_LUA);
-		mEditor.setHighlightCurrentLine(false);
-		mEditor.setText(""
-			+ "---------------------------------------------------\n"
-			+ "-- Welcome to the Wonderful World of Mobile Lua! --\n"
-			+ "---------------------------------------------------\n"
-			+ "\n"
-			+ "-- Run this code to display a coloured rectangle.\n"
-			+ "mosync.Screen:SetColor(255, 255, 255)\n"
-			+ "mosync.Screen:Fill()\n"
-			+ "mosync.Screen:SetColor(200, 0, 0)\n"
-			+ "mosync.Screen:FillRect(0, 0, 300, 300)\n"
-			+ "mosync.Screen:Update()\n");
-		mEditor.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
-		mEditor.setRoundedSelectionEdges(false);
-		SyntaxScheme syntaxSceheme = mEditor.getDefaultSyntaxScheme();
-		syntaxSceheme.setStyle(Token.SEPARATOR, new Style(Color.BLACK, null));
-		syntaxSceheme.setStyle(Token.LITERAL_STRING_DOUBLE_QUOTE, new Style(
-			new Color(0, 0, 175), null));
-		syntaxSceheme.setStyle(Token.LITERAL_CHAR, new Style(new Color(0, 0,
-			175), null));
-		mEditor.setSyntaxScheme(syntaxSceheme);
 		RTextScrollPane scrollPane = new RTextScrollPane(mEditor);
 		scrollPane.setLineNumbersEnabled(true);
-
 		Container mainEditor = new Container();
 		mainEditor.setLayout(new BoxLayout(mainEditor, BoxLayout.PAGE_AXIS));
 		mainEditor.add(scrollPane, BorderLayout.CENTER);
@@ -247,7 +233,6 @@ public class MainWindow extends JFrame
 //        tabbedPane.addTab("Widget editor", null, widgetEditor,
 //                "Custom properties");
 
-		// TODO: Add the split pane for the file tree.
 		// File list pane.
 	    mFileTree = new FileTreeComponent(sDefaultDirectory);
 	    JScrollPane fileListScrollPane = new JScrollPane(mFileTree);
@@ -258,7 +243,7 @@ public class MainWindow extends JFrame
             fileListScrollPane,
             mainEditor);
         splitPane.setOneTouchExpandable(true);
-        splitPane.setDividerLocation(0);
+        splitPane.setDividerLocation(0); // Hide for now.
 
         // Add components.
         this.add(toolPanel, BorderLayout.SOUTH);
@@ -271,25 +256,6 @@ public class MainWindow extends JFrame
 		setSize(1000, 700);
 		setVisible(true);
 	}
-
-	/*
-	 * For jedit-syntax private void createEditor() { JEditTextArea textArea =
-	 * new JEditTextArea(); textArea.setTokenMarker(new JavaTokenMarker());
-	 * textArea.setText(text); textArea.recalculateVisibleLines();
-	 * textArea.setFirstLine(0); textArea.setElectricScroll(0);
-	 * textArea.getPainter().setSelectionColor(
-	 * UIManager.getColor("TextArea.selectionBackground"));
-	 *
-	 * SyntaxStyle[] styles = SyntaxUtilities.getDefaultSyntaxStyles();
-	 * styles[Token.COMMENT1] = new SyntaxStyle(Color.GRAY,true,false);
-	 * styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0x000080),false,true);
-	 * styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0x000080),false,true);
-	 * styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x000080),false,true);
-	 * styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x008000),false,true);
-	 * styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x000080),false,true);
-	 *
-	 * textArea.getPainter().setStyles(styles); }
-	 */
 
 	private String getServerIpAddress()
 	{
@@ -320,6 +286,36 @@ public class MainWindow extends JFrame
 	{
 		mCurrentFileName = fileName;
 		setTitle("MobileLua Live Editor - " + mCurrentFileName);
+	}
+
+	public void selectFileToRun()
+	{
+		Log.i("CommandSelectFileToRun");
+		JFileChooser fc = new JFileChooser(new File(sDefaultDirectory));
+		fc.setCurrentDirectory(new File(sDefaultDirectory));
+		fc.showOpenDialog(mSelf);
+		File selectedFile = fc.getSelectedFile();
+		if (null == selectedFile)
+		{
+			return;
+		}
+
+		// Sets window title to show the filename.
+		mSelf.setRunFile(selectedFile);
+	}
+
+	public void setRunFile(File file)
+	{
+		try
+		{
+			mRunFileName = file.getCanonicalPath();
+			mMenuItemRun.setText("Run: " + file.getName());
+			mButtonRun.setText("Run: " + file.getName());
+		}
+		catch (Exception ex)
+		{
+			ex.printStackTrace();
+		}
 	}
 
 	public void showMessage(final String message)
@@ -359,26 +355,41 @@ public class MainWindow extends JFrame
 		}
 	}
 
-	class CommandRunProgram implements ActionListener
+	class CommandRun implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			Log.i("CommandRunProgram");
-			String code = mEditor.getText();
-			mServer.postMessage(new Message("CommandRunProgram", code));
+			Log.i("CommandRun");
+			if (mRunFileName.length() == 0)
+			{
+				new CommandSelectFileToRun().actionPerformed(null);
+			}
+			mServer.postMessage(new Message("CommandRun", mRunFileName));
 		}
 	}
 
-	class CommandRunSelection implements ActionListener
+	class CommandEval implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			Log.i("CommandRunSelection");
+			// TODO: Add check for Lua/JS eval.
+			Log.i("CommandEvalLua");
 			String code = mEditor.getSelectedText();
 			if (null != code)
 			{
-				mServer.postMessage(new Message("CommandRunSelection", code));
+				mServer.postMessage(new Message("CommandEvalLua", code));
 			}
+		}
+	}
+
+	class CommandEvalAll implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO: Add check for Lua/JS eval.
+			Log.i("CommandEvalAll");
+			String code = mEditor.getText();
+			mServer.postMessage(new Message("CommandEvalAll", code));
 		}
 	}
 
@@ -388,6 +399,14 @@ public class MainWindow extends JFrame
 		{
 			Log.i("CommandResetClient");
 			mServer.postMessage(new Message("CommandResetClient", 0));
+		}
+	}
+
+	class CommandSelectFileToRun implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			mSelf.selectFileToRun();
 		}
 	}
 
@@ -479,10 +498,58 @@ public class MainWindow extends JFrame
 		}
 	}
 
+	/*
+	 * For jedit-syntax private void createEditor() { JEditTextArea textArea =
+	 * new JEditTextArea(); textArea.setTokenMarker(new JavaTokenMarker());
+	 * textArea.setText(text); textArea.recalculateVisibleLines();
+	 * textArea.setFirstLine(0); textArea.setElectricScroll(0);
+	 * textArea.getPainter().setSelectionColor(
+	 * UIManager.getColor("TextArea.selectionBackground"));
+	 *
+	 * SyntaxStyle[] styles = SyntaxUtilities.getDefaultSyntaxStyles();
+	 * styles[Token.COMMENT1] = new SyntaxStyle(Color.GRAY,true,false);
+	 * styles[Token.KEYWORD1] = new SyntaxStyle(new Color(0x000080),false,true);
+	 * styles[Token.KEYWORD2] = new SyntaxStyle(new Color(0x000080),false,true);
+	 * styles[Token.KEYWORD3] = new SyntaxStyle(new Color(0x000080),false,true);
+	 * styles[Token.LITERAL1] = new SyntaxStyle(new Color(0x008000),false,true);
+	 * styles[Token.LITERAL2] = new SyntaxStyle(new Color(0x000080),false,true);
+	 *
+	 * textArea.getPainter().setStyles(styles); }
+	 */
+
 	/**
-	 * TODO: Consider moving initialization of the editor here.
+	 * Editor area.
 	 */
 	static class Editor extends RSyntaxTextArea
 	{
+		public Editor()
+		{
+			this.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_LUA);
+			this.setHighlightCurrentLine(false);
+			this.setText(""
+				+ "---------------------------------------------------\n"
+				+ "-- Welcome to the Wonderful World of Mobile Lua! --\n"
+				+ "---------------------------------------------------\n"
+				+ "\n"
+				+ "-- Run this code to display a coloured rectangle.\n"
+				+ "mosync.Screen:SetColor(255, 255, 255)\n"
+				+ "mosync.Screen:Fill()\n"
+				+ "mosync.Screen:SetColor(200, 0, 0)\n"
+				+ "mosync.Screen:FillRect(0, 0, 300, 300)\n"
+				+ "mosync.Screen:Update()\n");
+			this.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 18));
+			this.setRoundedSelectionEdges(false);
+			SyntaxScheme syntaxSceheme = this.getDefaultSyntaxScheme();
+			syntaxSceheme.setStyle(
+				Token.SEPARATOR,
+				new Style(Color.BLACK, null));
+			syntaxSceheme.setStyle(
+				Token.LITERAL_STRING_DOUBLE_QUOTE,
+				new Style(new Color(0, 0, 175), null));
+			syntaxSceheme.setStyle(
+				Token.LITERAL_CHAR,
+				new Style(new Color(0, 0, 175), null));
+			this.setSyntaxScheme(syntaxSceheme);
+		}
 	}
 }
