@@ -7,23 +7,41 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Server extends MessageThread
-{
-	public static final int COMMAND_RUN_LUA_SCRIPT = 1;
-	public static final int COMMAND_RESET = 2;
-	public static final int COMMAND_REPLY = 3;
+import mosync.lualiveeditor.MessageQueue.Message;
 
+public class Server
+{
+	// Commands in the binary client/server protocol.
+	public static final int COMMAND_RESET = 1;
+	public static final int COMMAND_REPLY = 2;
+	public static final int COMMAND_EVAL_LUA = 3;
+	public static final int COMMAND_EVAL_JAVASCRIPT = 4;
+	public static final int COMMAND_STORE_BINARY_FILE = 5;
+
+	// Instance variables.
 	private MainWindow mMainWindow;
 	private boolean mRunning = false;
 	private ArrayList<ClientConnection> mClientConnections;
-	private SocketAcceptor mAcceptor;
+	private ClientAcceptor mClientAcceptor;
+	private MessageQueue mServerInBox;
 
 	public Server(MainWindow mainWindow)
 	{
 		mMainWindow = mainWindow;
 		mRunning = false;
 		mClientConnections = new ArrayList<ClientConnection>();
-		mAcceptor = new SocketAcceptor(this);
+
+		// Thread that handles messages to the server.
+		// Acts as a mediator that passes on messages.
+		mServerInBox = new MessageQueue(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				serverMessageLoop();
+			}
+		});
+		mClientAcceptor = new ClientAcceptor(mServerInBox);
 	}
 
 	public void startServer()
@@ -31,31 +49,32 @@ public class Server extends MessageThread
 		if (!mRunning)
 		{
 			mRunning = true;
-			start();
-			mAcceptor.start();
+			mServerInBox.start();
+			mClientAcceptor.start();
 			mMainWindow.showMessage("Server is running");
 		}
 	}
 
+	public void postMessage(Message message)
+	{
+		mServerInBox.postMessage(message);
+	}
+
 	private void stopServer()
 	{
-		mRunning = false;
-		this.
-		mAcceptor.close();
-		mMainWindow.showMessage("Server stopped");
+		if (!mRunning)
+		{
+			mRunning = false;
+			mClientAcceptor.close();
+			mMainWindow.showMessage("Server stopped");
+		}
 	}
 
-	@Override
-	public void run()
-	{
-		worker();
-	}
-
-	private void worker()
+	private void serverMessageLoop()
 	{
 		while (mRunning)
 		{
-			Message message = waitForMessage();
+			Message message = mServerInBox.waitForMessage();
 
 			Log.i("Server got message: " + message.getMessage());
 
@@ -82,22 +101,22 @@ public class Server extends MessageThread
 				// Inform user that a client connection is closed.
 				mMainWindow.showMessage("Client has disconnected: " + connection.getHostName());
 			}
-			else if ("CommandRunProgram".equals(message.getMessage()))
+			else if ("CommandRun".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandRunProgram to client connection: " + connection);
+					Log.i("Sending CommandRun to client connection: " + connection);
 					connection.postMessage(
-						new Message("CommandRunProgram", message.getObject()));
+						new Message("CommandRun", message.getObject()));
 				}
 			}
-			else if ("CommandRunSelection".equals(message.getMessage()))
+			else if ("CommandEvalLua".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandRunSelection to client connection: " + connection);
+					Log.i("Sending CommandEvalLua to client connection: " + connection);
 					connection.postMessage(
-						new Message("CommandRunSelection", message.getObject()));
+						new Message("CommandEvalLua", message.getObject()));
 				}
 			}
 			else if ("CommandResetClient".equals(message.getMessage()))
@@ -116,6 +135,12 @@ public class Server extends MessageThread
 			}
 			else if ("CommandServerStop".equals(message.getMessage()))
 			{
+				for (ClientConnection connection : mClientConnections)
+				{
+					Log.i("Sending CommandCloseClientConnection to client connection: " + connection);
+					connection.postMessage(
+						new Message("CommandCloseClientConnection", message.getObject()));
+				}
 				stopServer();
 			}
 			else if("ServerAddressReceived".equals(message.getMessage()))
@@ -126,14 +151,14 @@ public class Server extends MessageThread
 		}
 	}
 
-	static class SocketAcceptor extends Thread
+	static class ClientAcceptor extends Thread
 	{
-		private Server mServer;
+		private MessageQueue mServerInBox;
 		private ServerSocket mServerSocket;
 
-		public SocketAcceptor(Server server)
+		public ClientAcceptor(MessageQueue queue)
 		{
-			mServer = server;
+			mServerInBox = queue;
 		}
 
 		@Override
@@ -141,11 +166,33 @@ public class Server extends MessageThread
 		{
 			try
 			{
-				worker();
+				mServerSocket = new ServerSocket(55555);
+
+				//Enumeration adapters = NetworkInterface.getNetworkInterfaces();
+				//String a = "";
+			    //if(adapters.hasMoreElements()) {
+				//	a = adapters.nextElement().toString();
+	     		//}
+
+				//mServer.postMessage(
+				//		new Message("ServerAddressReceived", a));
+
+				while (true)
+				{
+					Log.i("Waiting for client connection");
+					Socket socket = mServerSocket.accept();
+					Log.i("Client connection accepted");
+					ClientConnection clientConnection = new ClientConnection(
+						socket,
+						mServerInBox);
+					mServerInBox.postMessage(
+						new Message("ClientConnectionCreated", clientConnection));
+				}
 			}
-			catch (IOException e)
+			catch (IOException ex)
 			{
-				e.printStackTrace();
+				// This will happen when closing the server socket.
+				ex.printStackTrace();
 			}
 		}
 
@@ -160,51 +207,78 @@ public class Server extends MessageThread
 				{
 					mServerSocket.close();
 				}
-				catch (IOException e)
+				catch (IOException ex)
 				{
-					e.printStackTrace();
+					ex.printStackTrace();
 				}
-			}
-		}
-
-		public void worker() throws IOException
-		{
-			mServerSocket = new ServerSocket(55555);
-
-			//Enumeration adapters = NetworkInterface.getNetworkInterfaces();
-			//String a = "";
-		    //if(adapters.hasMoreElements()) {
-			//	a = adapters.nextElement().toString();
-     		//}
-
-			//mServer.postMessage(
-			//		new Message("ServerAddressReceived", a));
-
-			while (true)
-			{
-				Log.i("Waiting for client connection");
-				Socket socket = mServerSocket.accept();
-				Log.i("Client connection accepted");
-				ClientConnection clientConnection = new ClientConnection(socket, mServer);
-				mServer.postMessage(
-					new Message("ClientConnectionCreated", clientConnection));
 			}
 		}
 	}
 
-	static class ClientConnection extends MessageThread
+	static class ClientConnection
 	{
 		private Socket mSocket;
-		private Server mServer;
+		private MessageQueue mServerInBox;
+		private MessageQueue mClientOutBox;
+		private Thread mClientInBox;
 		private boolean mRunning;
 		private String mHostName;
 
-		public ClientConnection(Socket socket, Server server)
+		public ClientConnection(Socket socket, MessageQueue queue)
 		{
 			mSocket = socket;
-			mServer = server;
+			mServerInBox = queue;
 			mRunning = true;
 			mHostName = socket.getInetAddress().getHostName();
+
+			// Thread that handles outgoing messages.
+			mClientOutBox = new MessageQueue(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					try
+					{
+						// Start outgoing communication loop.
+						outgoingMessageLoop();
+					}
+					catch (IOException ex)
+					{
+						ex.printStackTrace();
+					}
+				}
+			});
+
+			// Thread that handles incoming messages.
+			mClientInBox = new Thread()
+			{
+				@Override
+				public void run()
+				{
+					try
+					{
+						// Start incoming communication loop.
+						incomingMessageLoop();
+					}
+					catch (IOException ex)
+					{
+						ex.printStackTrace();
+					}
+					finally
+					{
+						mRunning = false;
+
+						// Post dummy message to out box to ensure the blocking
+						// call to the queue returns and the loop is exited.
+						mClientOutBox.postMessage(
+							new Message("DummyMessage", this));
+
+						// Post connection closed message to server.
+						mServerInBox.postMessage(
+							new Message("ClientConnectionClosed", this));
+					}
+				}
+			};
 		}
 
 		public String getHostName()
@@ -212,41 +286,26 @@ public class Server extends MessageThread
 			return mHostName;
 		}
 
-		@Override
-		public void run()
+		public void start()
 		{
-			try
-			{
-				// Start communication.
-				worker();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				// Post connection closed message.
-				mServer.postMessage(
-					new Message("ClientConnectionClosed", this));
-			}
+			mClientInBox.start();
+			mClientOutBox.start();
 		}
 
-		// TODO: Make two threads out of this method, one for processing
-		// incoming messages and one for writing data to client.
-		// Perhaps this is not really needed? Perhaps synchronous
-		// responses are adequate?
-		public void worker() throws IOException
+		public void postMessage(Message message)
+		{
+			mClientOutBox.postMessage(message);
+		}
+
+		private void outgoingMessageLoop() throws IOException
 		{
 			OutputStream out = mSocket.getOutputStream();
-			InputStream in = mSocket.getInputStream();
 
 			while (mRunning)
 			{
-				// Wait for message.
-
-				Log.i("Waiting for message in client connection: " + getHostName());
-				Message message = waitForMessage();
+				// Wait for message to send in the outgoing box.
+				Log.i("Waiting for outgoing message in client connection: " + getHostName());
+				Message message = mClientOutBox.waitForMessage();
 				Log.i("ClientConnectionMessage: " + message.getMessage());
 
 				if ("CommandResetClient".equals(message.getMessage()))
@@ -262,33 +321,62 @@ public class Server extends MessageThread
 
 					out.flush();
 				}
-				else if ("CommandRunProgram".equals(message.getMessage())
-					|| "CommandRunSelection".equals(message.getMessage()))
+				else if ("CommandRun".equals(message.getMessage()))
 				{
-					// Send run script request to client.
+					// Send files to client, then send run command.
+					// iterate over updates files ...
+
+					FileData fileData = (FileData) message.getObject();
 
 					// Write command integer.
-					writeIntToStream(out, COMMAND_RUN_LUA_SCRIPT);
+					writeIntToStream(out, COMMAND_STORE_BINARY_FILE);
 
-					// Write data size length.
-					String string = message.getObject().toString();
-					byte[] byteString = string.getBytes("ISO-8859-1");
-					int dataSize = byteString.length;
-					writeIntToStream(out, dataSize);
+					// Write path length and path name.
+					String path = fileData.getPath();
+					writeStringToStream(out, path);
 
-					Log.i("ClientConnection: out dataSize: " + dataSize);
-
-
-					// Write script data.
-					out.write(byteString);
+					byte[] data = fileData.getData();
+					writeBytesToStream(out, data);
 
 					out.flush();
 				}
+				else if ("CommandEvalLua".equals(message.getMessage()))
+				{
+					writeIntToStream(out, COMMAND_EVAL_LUA);
 
-				// Wait for result.
-				// TODO: Make this asynchronous? No wait?
+					String string = message.getObject().toString();
+					writeStringToStream(out, string);
 
-				// TODO: We should change to a dynamically allocated buffer.
+					out.flush();
+				}
+				else if ("CommandEvalJavaScript".equals(message.getMessage()))
+				{
+					writeIntToStream(out, COMMAND_EVAL_JAVASCRIPT);
+
+					String string = message.getObject().toString();
+					writeStringToStream(out, string);
+
+					out.flush();
+				}
+				else if ("CommandCloseClientConnection".equals(message.getMessage()))
+				{
+					// This will trigger an IOException and close the connection.
+					mSocket.close();
+					mRunning = false;
+				}
+
+			} // while
+		}
+
+		private void incomingMessageLoop() throws IOException
+		{
+			InputStream in = mSocket.getInputStream();
+
+			while (mRunning)
+			{
+				// Wait for data to arrive on the socket.
+
+				// TODO: Change to a dynamically allocated buffer.
 				int bufSize = 100 * 1024;
 				byte[] buffer = new byte[bufSize];
 				int numBytesRead = 0;
@@ -337,11 +425,33 @@ public class Server extends MessageThread
 							" data: " + data);
 
 						// Post result message to server.
-						mServer.postMessage(new Message("MessageFromClient", data));
+						mServerInBox.postMessage(new Message("MessageFromClient", data));
 
 						break;
 				}
-			}
+			} // while
+		}
+
+		/**
+		 * Write string data to stream.
+		 */
+		private void writeStringToStream(OutputStream out, String str)
+			throws IOException
+		{
+
+			byte[] bytes = str.getBytes("ISO-8859-1");
+			writeBytesToStream(out, bytes);
+		}
+
+		/**
+		 * Write byte data to stream. First write size of data
+		 * then the data itself.
+		 */
+		private void writeBytesToStream(OutputStream out, byte[] data)
+			throws IOException
+		{
+			writeIntToStream(out, data.length);
+			out.write(data);
 		}
 
 		/**

@@ -34,7 +34,7 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import mosync.lualiveeditor.MessageThread.Message;
+import mosync.lualiveeditor.MessageQueue.Message;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.Style;
@@ -112,15 +112,13 @@ public class MainWindow extends JFrame
 
 		JMenuItem runFileSelectItem = runMenu.add("Select file to Run...");
 		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
-		runFileSelectItem.setAccelerator(KeyStroke.getKeyStroke(
-			KeyEvent.VK_R, InputEvent.CTRL_MASK));
 
 		fileMenu.addSeparator();
 
-		JMenuItem runSelectionItem = runMenu.add("DoIt (evaluate selection)");
+		JMenuItem runSelectionItem = runMenu.add("Eval selection");
 		runSelectionItem.addActionListener(new CommandEval());
 		runSelectionItem.setAccelerator(KeyStroke.getKeyStroke(
-			KeyEvent.VK_D, InputEvent.CTRL_MASK));
+			KeyEvent.VK_E, InputEvent.CTRL_MASK));
 
 		// Create the Font menu.
 		JMenu fontMenu = new JMenu("Font");
@@ -172,7 +170,7 @@ public class MainWindow extends JFrame
 		mButtonRun.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(mButtonRun);
 
-		JButton button = new JButton("DoIt");
+		JButton button = new JButton("Eval selection");
 		button.addActionListener(new CommandEval());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
@@ -360,7 +358,7 @@ public class MainWindow extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			Log.i("CommandRun");
-			if (mRunFileName.length() == 0)
+			if (null == mRunFileName || mRunFileName.length() == 0)
 			{
 				new CommandSelectFileToRun().actionPerformed(null);
 			}
@@ -379,17 +377,6 @@ public class MainWindow extends JFrame
 			{
 				mServer.postMessage(new Message("CommandEvalLua", code));
 			}
-		}
-	}
-
-	class CommandEvalAll implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			// TODO: Add check for Lua/JS eval.
-			Log.i("CommandEvalAll");
-			String code = mEditor.getText();
-			mServer.postMessage(new Message("CommandEvalAll", code));
 		}
 	}
 

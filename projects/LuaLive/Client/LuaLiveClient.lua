@@ -74,19 +74,23 @@ LuaLive = (function()
   
   -- Command constants.
   
-  -- Run Lua code on the client. After this command follows
-  -- a length int and a string of byte-size characters.
-  self.COMMAND_RUN_LUA_SCRIPT = 1
-  
-  -- Reset the interpreter state.
-  self.COMMAND_RESET = 2
+  -- Reset the interpreter state. Not used?
+  self.COMMAND_RESET = 1
   
   -- Reply from client to server. After this command follows
   -- a length int and a string of byte-size characters.
-  self.COMMAND_REPLY = 3
+  self.COMMAND_REPLY = 2
   
-  -- Transfer a file from PC to device.
-  self.COMMAND_FILE_TRANSFER = 4
+  -- Run Lua code on the client. After this command follows
+  -- a length int and a string of byte-size characters.
+  self.COMMAND_EVAL_LUA = 3
+  
+  -- Run JavaScript code on the client. After this command follows
+  -- a length int and a string of byte-size characters.
+  self.COMMAND_EVAL_JAVASCRIPT = 4
+  
+  -- Store a file on the client.
+  self.COMMAND_STORE_BINARY_FILE = 5
   
   -- Server address and port.
   -- TODO: Change the server address to the one used on your machine.
@@ -261,10 +265,13 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     if result > 0 then
       local command = self.BufferReadInt(buffer, 0)
       local dataSize = self.BufferReadInt(buffer, 4)
-      if self.COMMAND_RUN_LUA_SCRIPT == command then
-        -- Read script and evaluate it when recieved.
-        self.connection:Read(dataSize, self.ScriptReceived)
-      elseif self.COMMAND_FILE_TRANSFER == command then
+      if self.COMMAND_EVAL_LUA == command then
+        -- Read script and evaluate it when received.
+        self.connection:Read(dataSize, self.EvalLua)
+      elseif self.COMMAND_EVAL_JAVASCRIPT == command then
+        -- Read script and evaluate it when received.
+        self.connection:Read(dataSize, self.EvalJavaScript)
+      elseif self.COMMAND_STORE_BINARY_FILE == command then
         -- Write file data to device.
         self.connection:Read(dataSize, self.FileReceived)
       end
@@ -275,9 +282,8 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     end
   end
   
-  self.ScriptReceived = function(buffer, result)
+  self.EvalLua = function(buffer, result)
     -- Process the result.
-    log("ScriptReceived")
     if result > 0 then
       -- Convert buffer to string.
       local script = mosync.SysBufferToString(buffer)
@@ -307,24 +313,62 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     end
   end
   
+  self.EvalJavaScript = function(buffer, result)
+    -- Process the result.
+    if result > 0 then
+      -- Convert buffer to string.
+      local script = mosync.SysBufferToString(buffer)
+      
+      -- Create WebView if it does not exist.
+      if nil == self.WebView then
+        self.CreateGraphicalUI()
+      end
+      
+      -- TODO: Make sure web view screen is shown
+      -- also when web veiw exists. Will this do?
+      mosync.NativeUI:ShowScreen(self.Screen)
+      
+      if nil ~= self.WebView then
+        self.WebView:EvalJS(script)
+      end
+      
+      -- Write response.
+      self.WriteResponse("JavaScript Evaluated")
+    end
+    
+    -- Free the result buffer.
+    if nil ~= buffer then
+      mosync.SysFree(buffer)
+    end
+  end
+  
   -- Write data to file. Data in buffer has this layout:
   --  32 bit int: filepath length
   --  filepath
-  --  32 bit int: file data
+  --  32 bit int: file data size
   --  file data
   self.FileReceived = function(buffer, result)
     log("FileReceived")
     if result > 0 then
       local pathSize = self.BufferReadInt(buffer, 0)
       local dataSize = self.BufferReadInt(buffer, 4 + pathSize)
+      log("FileReceived pathSize: " .. pathSize)
+      log("FileReceived dataSize: " .. dataSize)
       -- Zero terminate path (overwrites data size).
       mosync.SysBufferSetByte(buffer, 4 + pathSize, 0)
       -- Get path string.
       local pathPointer = mosync.SysBufferGetBytePointer(buffer, 4)
       local path = mosync.SysBufferToString(buffer)
+      log("FileReceived path: " .. path)
       -- Debug info.
       log("FileReceived path ".. path)
-      
+      -- Write file data
+      local dataPointer = mosync.SysBufferGetBytePointer(buffer, 4 + pathSize + 4)
+      local dataHandle = mosync.maCreatePlaceholder()
+      mosync.maWriteData(dataHandle, dataPointer, 0, dataSize)
+      local result = mosync.FileSys:WriteDataToFile(path, dataHandle)
+      mosync.maDestroyPlaceholder(dataHandle)
+      log("FileSys:WriteDataToFile result: " .. result)
       -- Write response.
       self.WriteResponse(resultOrErrorMessage)
     end

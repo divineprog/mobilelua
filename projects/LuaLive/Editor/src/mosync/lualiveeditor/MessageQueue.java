@@ -3,23 +3,39 @@ package mosync.lualiveeditor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @SuppressWarnings("unchecked")
-public class MessageThread extends Thread
+public class MessageQueue extends Thread
 {
-	private MessageQueue mMessageQueue;
+	private InternalMessageQueue mQueue = new InternalMessageQueue();
+	private Runnable mWorker;
 
-	public MessageThread()
+	public MessageQueue()
 	{
-		mMessageQueue = new MessageQueue();
+	}
+
+	public MessageQueue(Runnable worker)
+	{
+		setWorker(worker);
+	}
+
+	public void setWorker(Runnable worker)
+	{
+		mWorker = worker;
 	}
 
 	public void postMessage(Message message)
 	{
-		mMessageQueue.postMessage(message);
+		mQueue.postMessage(message);
 	}
 
 	public Message waitForMessage()
 	{
-		return mMessageQueue.nextMessage();
+		return mQueue.nextMessage();
+	}
+
+	@Override
+	public void run()
+	{
+		mWorker.run();
 	}
 
 	public static class Message
@@ -44,20 +60,20 @@ public class MessageThread extends Thread
 		}
 	}
 
-	private static class MessageQueue
+	private static class InternalMessageQueue
 	{
-		private LinkedBlockingQueue mMessageQueue = new LinkedBlockingQueue();
+		private LinkedBlockingQueue mInternalQueue = new LinkedBlockingQueue();
 
 		public void postMessage(Message message)
 		{
-			mMessageQueue.offer(message);
+			mInternalQueue.offer(message);
 		}
 
 		public Message nextMessage()
 		{
 			try
 			{
-				return (Message) mMessageQueue.take();
+				return (Message) mInternalQueue.take();
 			}
 			catch (InterruptedException e)
 			{
