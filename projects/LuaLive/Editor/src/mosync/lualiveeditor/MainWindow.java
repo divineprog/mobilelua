@@ -306,7 +306,7 @@ public class MainWindow extends JFrame
 	{
 		try
 		{
-			mRunFileName = file.getCanonicalPath();
+			mRunFileName = file.getCanonicalPath().replace("\\", "/");
 			mMenuItemRun.setText("Run: " + file.getName());
 			mButtonRun.setText("Run: " + file.getName());
 		}

@@ -265,6 +265,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     if result > 0 then
       local command = self.BufferReadInt(buffer, 0)
       local dataSize = self.BufferReadInt(buffer, 4)
+      log("MessageHeaderReceived dataSize: "..dataSize)
       if self.COMMAND_EVAL_LUA == command then
         -- Read script and evaluate it when received.
         self.connection:Read(dataSize, self.EvalLua)
@@ -273,7 +274,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
         self.connection:Read(dataSize, self.EvalJavaScript)
       elseif self.COMMAND_STORE_BINARY_FILE == command then
         -- Write file data to device.
-        self.connection:Read(dataSize, self.FileReceived)
+        self.connection:Read(dataSize, self.StoreFile)
       end
     end
     -- Free the result buffer.
@@ -343,36 +344,43 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   -- Write data to file. Data in buffer has this layout:
-  --  32 bit int: filepath length
-  --  filepath
-  --  32 bit int: file data size
+  --  32 bit int (filepath length)
+  --  32 bit int (file data size)
+  --  filepath (zero terminated)
   --  file data
-  self.FileReceived = function(buffer, result)
-    log("FileReceived")
-    if result > 0 then
+  self.StoreFile = function(buffer, result)
+    log("StoreFile")
+    if result > 0 and nil ~= buffer then
       local pathSize = self.BufferReadInt(buffer, 0)
-      local dataSize = self.BufferReadInt(buffer, 4 + pathSize)
-      log("FileReceived pathSize: " .. pathSize)
-      log("FileReceived dataSize: " .. dataSize)
-      -- Zero terminate path (overwrites data size).
-      mosync.SysBufferSetByte(buffer, 4 + pathSize, 0)
+      local dataSize = self.BufferReadInt(buffer, 4)
+      log(" pathSize:"..pathSize)
+      log(" dataSize:"..dataSize)
       -- Get path string.
-      local pathPointer = mosync.SysBufferGetBytePointer(buffer, 4)
-      local path = mosync.SysBufferToString(buffer)
-      log("FileReceived path: " .. path)
-      -- Debug info.
-      log("FileReceived path ".. path)
+      local pathPointer = mosync.SysBufferGetBytePointer(buffer, 8)
+      local path = mosync.SysBufferToString(pathPointer)
+      log(" path: " .. path)
       -- Write file data
-      local dataPointer = mosync.SysBufferGetBytePointer(buffer, 4 + pathSize + 4)
+      local dataPointer = mosync.SysBufferGetBytePointer(buffer, 8 + pathSize)
+      log("Step 1")
       local dataHandle = mosync.maCreatePlaceholder()
+      log("Step 2")
+      mosync.maCreateData(dataHandle, dataSize)
+      log("Step 3")
       mosync.maWriteData(dataHandle, dataPointer, 0, dataSize)
-      local result = mosync.FileSys:WriteDataToFile(path, dataHandle)
+      log("Step 4")
+      local fullPath = mosync.FileSys:GetLocalPath() .. path
+      log("Step 5")
+      local success = mosync.FileSys:WriteDataToFile(fullPath, dataHandle)
+      log("Step 6")
       mosync.maDestroyPlaceholder(dataHandle)
-      log("FileSys:WriteDataToFile result: " .. result)
       -- Write response.
-      self.WriteResponse(resultOrErrorMessage)
+      if success then
+        self.WriteResponse("File written: "..path)
+      else
+        self.WriteResponse("Error writing file: "..path)
+      end
     end
-    -- Free the result buffer.
+    -- Free the buffer.
     if nil ~= buffer then
       mosync.SysFree(buffer)
     end

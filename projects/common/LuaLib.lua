@@ -811,7 +811,7 @@ mosync.FileSys = (function()
       bufferSize);
     -- If there was an error, return empty string.
     if size < 0 or size > bufferSize then
-      return ""
+      return "/"
     end
     local path = mosync.SysBufferToString(buffer);
     mosync.SysFree(buffer)
@@ -822,11 +822,11 @@ mosync.FileSys = (function()
   -- Open a file for writing.
   -- Create the file if it does not exist.
   -- Note: Will truncate the file if it exists.
-  -- Returns handle to the open file, false on error.
+  -- Returns handle to the open file, -1 on error.
   fileObj.OpenFileForWriting = function(self, filePath)
     local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
-      return false
+      return -1
     end
 
     if mosync.maFileExists(file) == 1 then
@@ -839,7 +839,7 @@ mosync.FileSys = (function()
       -- If the file does not exist, create it.
       local result = mosync.maFileCreate(file)
       if result < 0 then
-        return false
+        return -1
       end
     end
 
@@ -847,15 +847,15 @@ mosync.FileSys = (function()
   end
 
   -- Open a file for reading.
-  -- Returns handle to the open file, false on error.
+  -- Returns handle to the open file, -1 on error.
   fileObj.OpenFileForReading = function(self, filePath)
     local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ)
     if file < 0 then
-      return false
+      return -1
     end
 
     if not mosync.maFileExists(file) then
-      return false
+      return -1
     end
 
     return file
@@ -886,6 +886,7 @@ mosync.FileSys = (function()
 
   -- Read a data object from a file.
   -- Returns handle to data, false on error
+  -- TODO: Better to return -1 or zero on error?
   fileObj.ReadDataFromFile = function(self, filePath)
     local file = self:OpenFileForReading(filePath)
     if file < 0 then
@@ -1059,6 +1060,12 @@ mosync.FileSys = (function()
     --mosync.maDestroyPlaceholder(handle)
     mosync.maDestroyObject(handle)
 
+    return text
+  end
+  
+  -- Load and run the given Lua source file.
+  fileObj.LoadAndRunLuaFile = function(self, path)
+    print("Running file "..path)
     return text
   end
 

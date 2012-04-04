@@ -18,6 +18,11 @@ public class FileTracker
 		mRootPath = rootPath;
 	}
 
+	public String getRootPath()
+	{
+		return mRootPath;
+	}
+
 	public ArrayList<String> getUpdatedFiles()
 	{
 		File dir = new File(mRootPath);
@@ -33,6 +38,7 @@ public class FileTracker
 
 		for (FileStatus status : fileStatus.values())
 		{
+			Log.i("Checking status 2 of " + status.mPath);
 			if (status.mUpdated)
 			{
 				// Save name and reset updated flag.
@@ -50,6 +56,7 @@ public class FileTracker
 	{
 		try
 		{
+			Log.i("Walking files in: " + dir.getCanonicalPath());
 			for (File file : dir.listFiles())
 			{
 				if (file.isDirectory())
@@ -59,9 +66,10 @@ public class FileTracker
 				else
 				{
 					FileStatus status = fileStatus.get(file.getCanonicalPath());
+					Log.i("Checking status of " + file.getCanonicalPath());
 					if (null != status)
 					{
-						status.updateIfModified(file.lastModified());
+						status.updateModified(file.lastModified());
 					}
 					else
 					{
@@ -84,7 +92,7 @@ public class FileTracker
 	{
 		String mPath;
 		long mLastModified;
-		boolean mUpdated = false;
+		boolean mUpdated = true;
 
 		public FileStatus(String path, long lastModified)
 		{
@@ -92,12 +100,19 @@ public class FileTracker
 			mLastModified = lastModified;
 		}
 
-		public void updateIfModified(long lastModified)
+		public void updateModified(long lastModified)
 		{
+			Log.i(" lastModified: " + lastModified);
+			Log.i(" mLastModified: " + mLastModified);
+
 			if (lastModified > mLastModified)
 			{
 				mLastModified = lastModified;
 				mUpdated = true;
+			}
+			else
+			{
+				mUpdated = false;
 			}
 		}
 	}

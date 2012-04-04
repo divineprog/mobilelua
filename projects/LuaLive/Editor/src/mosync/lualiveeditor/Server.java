@@ -1,11 +1,15 @@
 package mosync.lualiveeditor;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import mosync.lualiveeditor.MessageQueue.Message;
 
@@ -24,6 +28,7 @@ public class Server
 	private ArrayList<ClientConnection> mClientConnections;
 	private ClientAcceptor mClientAcceptor;
 	private MessageQueue mServerInBox;
+	private FileTracker mFileTracker;
 
 	public Server(MainWindow mainWindow)
 	{
@@ -103,11 +108,41 @@ public class Server
 			}
 			else if ("CommandRun".equals(message.getMessage()))
 			{
+				String runFilePath = message.getObject().toString();
+				String rootPath = FileData.basePath(runFilePath);
+
+				Log.i("runFilePath: " + runFilePath);
+				Log.i("rootPath:    " + rootPath);
+				if (null != mFileTracker)
+				{
+					Log.i("************************************");
+					Log.i("FT rootPath: " + mFileTracker.getRootPath());
+				}
+
+				// If there is no FileTracker or if the root path has changed
+				// we create a new FileTracker.
+				if ((null == mFileTracker) ||
+					(!rootPath.equals(mFileTracker.getRootPath())))
+				{
+					Log.i("Creating new FileTracker");
+					mFileTracker = new FileTracker(rootPath);
+				}
+				else Log.i("============= SUCCESS");
+
+				// Get updated files.
+				ArrayList<String> updatedFiles = mFileTracker.getUpdatedFiles();
+				Log.i(" updatedFiles size: " + updatedFiles.size());
+
+				// Send update message.
 				for (ClientConnection connection : mClientConnections)
 				{
 					Log.i("Sending CommandRun to client connection: " + connection);
 					connection.postMessage(
-						new Message("CommandRun", message.getObject()));
+						new Message(
+							"CommandRun",
+							new FileData(
+								runFilePath,
+								updatedFiles)));
 				}
 			}
 			else if ("CommandEvalLua".equals(message.getMessage()))
@@ -323,31 +358,13 @@ public class Server
 				}
 				else if ("CommandRun".equals(message.getMessage()))
 				{
-					// Send files to client, then send run command.
-					// iterate over updates files ...
-
-					FileData fileData = (FileData) message.getObject();
-
-					// Write command integer.
-					writeIntToStream(out, COMMAND_STORE_BINARY_FILE);
-
-					// Write path length and path name.
-					String path = fileData.getPath();
-					writeStringToStream(out, path);
-
-					byte[] data = fileData.getData();
-					writeBytesToStream(out, data);
-
-					out.flush();
+					// Send files to client, then reload main file.
+					sendUpdatedFilesAndRunFile(out, (FileData) message.getObject());
 				}
 				else if ("CommandEvalLua".equals(message.getMessage()))
 				{
-					writeIntToStream(out, COMMAND_EVAL_LUA);
-
-					String string = message.getObject().toString();
-					writeStringToStream(out, string);
-
-					out.flush();
+					String data = message.getObject().toString();
+					sendEvalLua(out, data);
 				}
 				else if ("CommandEvalJavaScript".equals(message.getMessage()))
 				{
@@ -366,6 +383,69 @@ public class Server
 				}
 
 			} // while
+		}
+
+		private void sendEvalLua(OutputStream out, String data)
+			throws IOException
+		{
+			writeIntToStream(out, COMMAND_EVAL_LUA);
+			writeStringToStream(out, data);
+			out.flush();
+		}
+
+		private void sendUpdatedFilesAndRunFile(OutputStream out, FileData fileData)
+			throws IOException
+		{
+			String rootPath = fileData.getRootPath();
+
+			// Write files onto device.
+			for (String path : fileData.getUpdatedFiles())
+			{
+				String localPath = FileData.makeDeviceLocalPath(rootPath, path);
+				Log.i(" Sending file path: " + path);
+				Log.i(" Sending localPath: " + localPath);
+				sendFileData(out, path, localPath);
+			}
+
+			// Reload main file.
+			String localPath = FileData.makeDeviceLocalPath(
+				rootPath,
+				fileData.getRunFilePath());
+			sendEvalLua(out, "mosync.FileSys:LoadAndRunLuaFile('" + localPath + "')");
+		}
+
+		private void sendFileData(OutputStream out, String filePath, String localPath)
+			throws IOException
+		{
+			byte[] path = FileData.stringBytes(localPath);
+			byte[] data = FileData.readFileData(filePath);
+
+			// Total size of the data we are sending (path + data).
+			int totalSize =
+				4 + // Size of path.
+				4 + // Size of string.
+				path.length +
+				data.length;
+
+			// Write command integer.
+			writeIntToStream(out, COMMAND_STORE_BINARY_FILE);
+
+			// Write total data size. This goes after the command.
+			writeIntToStream(out, totalSize);
+
+			// Write size of path.
+			writeIntToStream(out, path.length);
+
+			// Write size of data.
+			writeIntToStream(out, data.length);
+
+			// Write path.
+			out.write(path);
+
+			// Write data.
+			out.write(data);
+
+			out.flush();
 		}
 
 		private void incomingMessageLoop() throws IOException
@@ -434,22 +514,13 @@ public class Server
 
 		/**
 		 * Write string data to stream.
+		 * Note: Writes size header.
+		 * Be aware of byte alignment problems with 4-byte ints!
 		 */
 		private void writeStringToStream(OutputStream out, String str)
 			throws IOException
 		{
-
-			byte[] bytes = str.getBytes("ISO-8859-1");
-			writeBytesToStream(out, bytes);
-		}
-
-		/**
-		 * Write byte data to stream. First write size of data
-		 * then the data itself.
-		 */
-		private void writeBytesToStream(OutputStream out, byte[] data)
-			throws IOException
-		{
+			byte[] data = str.getBytes("ISO-8859-1");
 			writeIntToStream(out, data.length);
 			out.write(data);
 		}
@@ -484,6 +555,113 @@ public class Server
 				(i2 << 8) |
 				(i3 << 16) |
 				(i4 << 24);
+		}
+	}
+
+	/**
+	 * Helper class used when running a remote file and
+	 * sending file data.
+	 */
+	static class FileData
+	{
+		/**
+		 * Utility method to get the base path of a file path.
+		 * @param path Full path name
+		 * @return The part of the path name that precedes the last slash.
+		 */
+		public static String basePath(String path)
+		{
+			int index = path.lastIndexOf("/");
+			if (index < 0)
+			{
+				return "/";
+			}
+			return path.substring(0, index + 1);
+		}
+
+		/**
+		 * Utility method to get the file name of a file path.
+		 * @param path Full path name
+		 * @return The part of the path name that follows the last slash.
+		 */
+		public static String fileName(String path)
+		{
+			int index = path.lastIndexOf("/");
+			if (index < 0)
+			{
+				return path;
+			}
+			return path.substring(index + 1);
+		}
+
+
+		/**
+		 * Get part of the path that is below root path.
+		 * @param rootPath Full root path.
+		 * @param path Full file path.
+		 * @return Path local to root path.
+		 */
+		public static String makeDeviceLocalPath(String rootPath, String path)
+		{
+			return path.substring(rootPath.length());
+		}
+
+		public static byte[] readFileData(String path)
+		{
+			try
+			{
+				File file = new File(path);
+				byte [] data = new byte[(int)file.length()];
+				DataInputStream in = new DataInputStream(new FileInputStream(file));
+				in.readFully(data);
+				in.close();
+
+				return data;
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+				return null;
+			}
+		}
+
+		/**
+		 * Get a byte array of the string data, plus one
+		 * zero-terminating byte at the end.
+		 * @param str
+		 * @return The string byte buffer.
+		 * @throws IOException
+		 */
+		public static byte[] stringBytes(String str)
+			throws IOException
+		{
+			byte[] data = str.getBytes("ISO-8859-1");
+			data = Arrays.copyOf(data, data.length + 1);
+			return data;
+		}
+
+		private String mRunFilePath;
+		private ArrayList<String> mUpdatedFiles;
+
+		public FileData(String runFilePath, ArrayList<String> updatedFiles)
+		{
+			mRunFilePath = runFilePath;
+			mUpdatedFiles = updatedFiles;
+		}
+
+		public String getRunFilePath()
+		{
+			return mRunFilePath;
+		}
+
+		public String getRootPath()
+		{
+			return FileData.basePath(mRunFilePath);
+		}
+
+		public ArrayList<String> getUpdatedFiles()
+		{
+			return mUpdatedFiles;
 		}
 	}
 }
