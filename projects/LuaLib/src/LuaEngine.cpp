@@ -50,7 +50,7 @@ namespace MobileLua
 /**
  * Set the user data object at the given key.
  */
-static void setUserData(lua_State *L, const char* key, void* data)
+void setUserData(lua_State *L, const char* key, void* data)
 {
 	// Push key.
 	// lua_pushlightuserdata(L, (void*)&key);  // Use a C pointer as a key
@@ -600,6 +600,28 @@ int LuaEngine::eval(MAHandle handle)
 	}
 }
 
+void LuaEngine::registerGlobalTableFunction(
+	const char* tableName,
+	const char* funName,
+	LUA_FUNCTION funPointer)
+{
+	RegTableFun(
+		(lua_State*) mLuaState,
+		tableName,
+		funName,
+		(lua_CFunction) funPointer);
+}
+
+void LuaEngine::registerGlobalFunction(
+	const char* funName,
+	LUA_FUNCTION funPointer)
+{
+	RegFun(
+		(lua_State*) mLuaState,
+		funName,
+		(lua_CFunction) funPointer);
+}
+
 /**
  * Set a listener that will get notified when there is a
  * Lua error.
@@ -620,5 +642,5 @@ void LuaEngine::reportLuaError(const char* errorMessage)
 	}
 }
 
-}
+} // namespace
 
