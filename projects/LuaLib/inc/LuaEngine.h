@@ -34,6 +34,19 @@ namespace MobileLua
 {
 
 /**
+ * Function pointer type for functions that are
+ * called from Lua. This type is here to avoid
+ * forcing a Lua app to include Lua header files.
+ * You still need to include Lua header files when
+ * making your own bindings. This is just to make
+ * the binding methods build happily without them.
+ * @param L The Lua State (of type lua_State).
+ * @return Number of return values.
+ */
+typedef int (*LUA_FUNCTION) (void* L);
+
+
+/**
  * Wrapper for the Lua interpreter.
  */
 class LuaEngine
@@ -98,6 +111,15 @@ public:
 	 * @return Non-zero if successful, zero on error.
 	 */
 	virtual int eval(MAHandle scriptResourceId);
+
+	void registerGlobalTableFunction(
+		const char* tableName,
+		const char* funName,
+		LUA_FUNCTION funPointer);
+
+	void registerGlobalFunction(
+		const char* funName,
+		LUA_FUNCTION funPointer);
 
 	/**
 	 * Set a listener that will get notified when there is a
