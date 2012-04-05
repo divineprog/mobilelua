@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html
+{
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #FFFFFF;
+  
+  /* Disable text selection in all browsers. */
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+#TouchArea
+{
+  font-size: 2.0em;
+  font-family: sans-serif;
+  font-weight: bold;
+  text-align: center;
+  
+  padding: 0.3em 0.5em;
+  border-radius: 0.3em;
+  -webkit-border-radius: 0.3em;
+  margin: 1em 0.5em;
+
+  color: white;
+  background-color: #99CF00;
+}
+</style>
+<script type="text/javascript" charset="utf-8" src="js/mosync-bridge.js"></script>
+<script>
+function EvalLua(script)
+{
+  mosync.bridge.sendRaw(escape(script))
+}
+</script>
+</head>
+<body>
+<div id="TouchArea" ontouchstart="EvalLua('mosync.maVibrate(500)')">Touch Me Now!</div>
+</body>
+</html>
