@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -22,27 +23,30 @@ public class FileTreeComponent extends JTree
 {
 	JTree mFileTree;
 	JPopupMenu mPopupMenu;
+	MainWindow mMainUI;
+	TreePath mSelectedTreePath;
 
-	public FileTreeComponent(String path)
+	public FileTreeComponent(String path, MainWindow mainUI)
 	{
 		// Create file tree view.
 		mFileTree = this;
-	    Model model = new Model(new File(path));
+		FileTreeModel model = new FileTreeModel(new FileModel(path));
 	    mFileTree.setModel(model);
 	    mFileTree.addMouseListener(new FileTreeMouseListener());
 
 	    // Create popup menu.
 	    mPopupMenu = new JPopupMenu();
-	    JMenuItem menuItem = new JMenuItem("Transfer & Load");
+	    JMenuItem menuItem = new JMenuItem("Run");
 	    menuItem.addActionListener(new ActionListener()
 	    {
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Log.i("Transfer & Load");
+				Log.i("Run");
 			}
 	    });
 	    mPopupMenu.add(menuItem);
+
 	    menuItem = new JMenuItem("Transfer");
 	    menuItem.addActionListener(new ActionListener()
 	    {
@@ -52,8 +56,8 @@ public class FileTreeComponent extends JTree
 				Log.i("Transfer");
 			}
 	    });
-	    mPopupMenu.add(menuItem);
-	    mPopupMenu.add(menuItem);
+	    //mPopupMenu.add(menuItem);
+
 	    menuItem = new JMenuItem("Open");
 	    menuItem.addActionListener(new ActionListener()
 	    {
@@ -66,14 +70,19 @@ public class FileTreeComponent extends JTree
 	    mPopupMenu.add(menuItem);
 	}
 
+	public void setSelectedThreePath(TreePath treePath)
+	{
+		mSelectedTreePath = treePath;
+	}
+
 	/**
 	 * Model for the list of files.
 	 */
-	class Model implements TreeModel
+	class FileTreeModel implements TreeModel
 	{
-		File mRoot;
+		FileModel mRoot;
 
-		public Model(File root)
+		public FileTreeModel(FileModel root)
 		{
 			mRoot = root;
 		}
@@ -87,49 +96,25 @@ public class FileTreeComponent extends JTree
 		@Override
 		public boolean isLeaf(Object node)
 		{
-			return ((File) node).isFile();
+			return ((FileModel) node).isFile();
 		}
 
 		@Override
 		public int getChildCount(Object parent)
 		{
-			String[] children = ((File) parent).list();
-			return null != children ? children.length : 0;
+			return ((FileModel) parent).getChildCount();
 		}
 
 		@Override
 		public Object getChild(Object parent, int index)
 		{
-			String[] children = ((File) parent).list();
-			if ((null == children) || (index >= children.length))
-			{
-				return null;
-			}
-			else
-			{
-				return new File((File) parent, children[index]);
-			}
+			return ((FileModel) parent).getChild(index);
 		}
 
 		@Override
 		public int getIndexOfChild(Object parent, Object child)
 		{
-			String[] children = ((File )parent).list();
-			if (null == children)
-			{
-				return -1;
-			}
-
-			String childname = ((File) child).getName();
-			for (int i = 0; i < children.length; ++i)
-			{
-				if (childname.equals(children[i]))
-				{
-					return i;
-				}
-			}
-
-			return -1;
+			return ((FileModel) parent).getIndexOfChild((FileModel) child);
 		}
 
 		@Override
@@ -148,6 +133,68 @@ public class FileTreeComponent extends JTree
 		}
 	}
 
+	class FileModel
+	{
+		private File mFile;
+
+		public FileModel(String path)
+		{
+			mFile = new File(path);
+		}
+
+		public boolean isFile()
+		{
+			return mFile.isFile();
+		}
+
+		public int getChildCount()
+		{
+			File[] children = mFile.listFiles();
+			return null != children ? children.length : 0;
+		}
+
+		public FileModel getChild(int index)
+		{
+			try
+			{
+				File[] children = mFile.listFiles();
+				if ((null == children) || (index >= children.length))
+				{
+					return null;
+				}
+				else
+				{
+					return new FileModel(children[index].getCanonicalPath());
+				}
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				return null;
+			}
+		}
+
+		public int getIndexOfChild(FileModel child)
+		{
+			int childCount = getChildCount();
+			for (int i = 0; i < childCount; ++i)
+			{
+				if (getChild(i) == child)
+				{
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		@Override
+		public String toString()
+		{
+			String name = mFile.getName();
+			return (null == name || name.length() <= 0) ? "FileSystem" : name;
+		}
+	}
+
 	class FileTreeMouseListener extends MouseAdapter
 	{
 		@Override
@@ -157,10 +204,13 @@ public class FileTreeComponent extends JTree
 			{
 				int x = e.getX();
 				int y = e.getY();
-				TreePath path = mFileTree.getPathForLocation(x, y);
-				if (null != path)
+				TreePath treePath = mFileTree.getPathForLocation(x, y);
+				if (null != treePath)
 				{
-					Log.i("Show menu on: " + path);
+					Log.i("Show menu on: " + treePath);
+
+					setSelectedThreePath(treePath);
+
 					if (e.isPopupTrigger())
 					{
 			            mPopupMenu.show(
@@ -168,12 +218,9 @@ public class FileTreeComponent extends JTree
 			                e.getX(),
 			                e.getY());
 			        }
-					//if (mFileTree.isExpanded(path))
-						//m_action.putValue(Action.NAME, "Collapse");
-					//else
-						//m_action.putValue(Action.NAME, "Expand");
-					//m_popup.show(m_tree, x, y);
-					//m_clickedPath = path;
+
+					// Perhaps useful for something.
+					//if (mFileTree.isExpanded(treePath)) ...
 				}
 			}
 		}

@@ -262,11 +262,11 @@ mosync.Connection.Create = function(selfIsNotUsed)
   self.__ConnectionListener__ = function(connection, opType, result)
     if mosync.CONNOP_CONNECT == opType then
       -- First we get an event that confirms that the connection is created.
-      log("mosync.CONNOP_CONNECT result: " .. result)
+      --log("mosync.CONNOP_CONNECT result: " .. result)
       mConnectedFun(result)
     elseif mosync.CONNOP_READ == opType then
       -- This is a confirm of a read or write operation.
-      log("mosync.CONNOP_READ result: " .. result)
+      --log("mosync.CONNOP_READ result: " .. result)
       if result > 0 then
         -- Update byte counters.
         mNumberOfBytesRead = mNumberOfBytesRead + result
@@ -289,7 +289,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
         mReadDoneFun(nil, result)
       end
     elseif mosync.CONNOP_WRITE == opType then
-      log("mosync.CONNOP_WRITE result: " .. result)
+      --log("mosync.CONNOP_WRITE result: " .. result)
       mWriteDoneFun(mOutBuffer, result)
     end
   end
@@ -303,7 +303,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
     mOpen = true
     mConnectionHandle = mosync.maConnect(connectString)
     mConnectedFun = connectedFun
-    log("mosync.maConnect result: " .. mConnectionHandle)
+    --log("mosync.maConnect result: " .. mConnectionHandle)
     if mConnectionHandle > 0 then
       mosync.EventMonitor:SetConnectionFun(
         mConnectionHandle,
@@ -651,7 +651,7 @@ mosync.NativeUI = (function()
   uiManager.ShowScreen = function(self, screen)
     -- Initializes the UI manager if not done.
     self:Init()
-    log("uiManager.ShowScreen handle: " .. screen:GetHandle())
+    --log("uiManager.ShowScreen handle: " .. screen:GetHandle())
     mosync.maWidgetScreenShow(screen:GetHandle())
   end
 
@@ -801,7 +801,7 @@ mosync.FileSys = (function()
 
   -- Get the path to the local file system.
   -- Returns path that ends with a slash,
-  -- empty string on error.
+  -- the path "/" as default (on error).
   fileObj.GetLocalPath = function(self)
     local bufferSize = 1024
     local buffer = mosync.SysAlloc(bufferSize)
@@ -818,6 +818,60 @@ mosync.FileSys = (function()
     return path
   end
 
+  fileObj.CreatePath = function(self, fullPath)
+    -- Walk path and create parts that do not exist.
+    -- Assume path begins with a slash.
+    log("EnsurePathExists "..fullPath)
+    local start = 2
+    while true do
+      local a, b = fullPath:find("/", start)
+      if nil == a then
+        return true
+      end
+      local path = fullPath:sub(1, a)
+      local result = self.CreateFile(path)
+      if not success then
+        return false
+      end
+      start = b
+    end
+    return true
+  end
+  
+  -- Returns true if file exists, false if not.
+  fileObj.FileExists = function(self, fullPath)
+    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
+    if file < 0 then
+      return false
+    end
+    local exists = mosync.maFileExists(file)
+    mosync.maFileClose(file)
+    return 1 == exists
+  end
+  
+  -- Create a file/directory. Parent directory must exist.
+  fileObj.CreateFile = function(self, fullPath)
+    log("CreateFile "..fullPath)
+    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
+    if file < 0 then
+      return false
+    end
+    
+    local result = 1
+    if mosync.maFileExists(file) < 1 then
+      -- If the file does not exist, try to create it.
+      local result = mosync.maFileCreate(file)
+      log("File Created")
+    end
+
+    mosync.maFileClose(file)
+    
+    if result < 0 then
+      return false
+    else
+      return true
+    end
+  end
 
   -- Open a file for writing.
   -- Create the file if it does not exist.
@@ -839,6 +893,7 @@ mosync.FileSys = (function()
       -- If the file does not exist, create it.
       local result = mosync.maFileCreate(file)
       if result < 0 then
+        mosync.maFileClose(file)
         return -1
       end
     end
@@ -855,6 +910,7 @@ mosync.FileSys = (function()
     end
 
     if not mosync.maFileExists(file) then
+      mosync.maFileClose(file)
       return -1
     end
 
@@ -885,27 +941,27 @@ mosync.FileSys = (function()
   end
 
   -- Read a data object from a file.
-  -- Returns handle to data, false on error
+  -- Returns handle to data, -1 on error
   -- TODO: Better to return -1 or zero on error?
   fileObj.ReadDataFromFile = function(self, filePath)
     local file = self:OpenFileForReading(filePath)
     if file < 0 then
-      return false
+      return -1
     end
 
     local size = mosync.maFileSize(file)
     if size < 1 then
-      return false
+      return -1
     end
 
     local dataHandle = mosync.maCreatePlaceholder()
     if dataHandle < 0 then
-      return false
+      return -1
     end
 
     local result = mosync.maCreateData(dataHandle, size)
     if mosync.RES_OK ~= result then
-      return false
+      return -1
     end
 
     result = mosync.maFileReadToData(file, dataHandle, 0, size);
@@ -913,10 +969,60 @@ mosync.FileSys = (function()
     mosync.maFileClose(file)
 
     if result < 0 then
-      return false
+      return -1
     end
 
     return dataHandle;
+  end
+
+  -- Write a text string to a file.
+  -- Returns true on success, false on error.
+  fileObj.WriteTextToFile = function(self, filePath, text)
+    -- Create data object to write.
+    local handle = mosync.maCreatePlaceholder()
+    local size = text:len()
+    local result = mosync.maCreateData(handle, size)
+    if result < 0 then
+      mosync.maDestroyPlaceholder(handle)
+      return false
+    end
+
+    -- Create buffer to hold string data.
+    -- TODO: Add error checking.
+    local buffer = mosync.SysAlloc(size)
+    
+    -- Copy string to buffer.
+    mosync.SysStringToBuffer(text, buffer)
+
+    -- Copy buffer contents to data object.
+    mosync.maWriteData(handle, buffer, 0, size)
+
+    -- Write string to file.
+    result = self:WriteDataToFile(filePath, handle)
+
+    -- Free temporary objects.
+    mosync.SysFree(buffer)
+    mosync.maDestroyPlaceholder(handle)
+
+    return result
+  end
+
+  -- Read a text string from a file.
+  -- Returns string, nil on error
+  fileObj.ReadTextFromFile = function(self, filePath)
+    -- Read data from the file.
+    local handle = self:ReadDataFromFile(filePath)
+    if handle < 0 then
+      return nil
+    end
+
+    -- Create Lua string from the data handle.
+    local text = mosync.SysLoadStringResource(handle)
+
+    -- Release data object.
+    mosync.maDestroyPlaceholder(handle)
+
+    return text
   end
 
   -- Get a list of files. Root path must be full path
@@ -1015,8 +1121,12 @@ mosync.FileSys = (function()
       return -1
     end
 
-    -- Create string buffer.
-    local buffer = mosync.SysStringToBuffer(text)
+    -- Create buffer to hold string data.
+    -- TODO: Add error checking.
+    local buffer = mosync.SysAlloc(size)
+    
+    -- Copy string to buffer.
+    mosync.SysStringToBuffer(text, buffer)
 
     -- Copy buffer contents to data object.
     mosync.maWriteData(handle, buffer, 0, size)
@@ -1027,7 +1137,6 @@ mosync.FileSys = (function()
     -- Close store and free temporary objects.
     self:CloseStore(store)
     mosync.SysFree(buffer)
-    
     mosync.maDestroyPlaceholder(handle)
 
     return result
@@ -1064,9 +1173,39 @@ mosync.FileSys = (function()
   end
   
   -- Load and run the given Lua source file.
+  -- Returns success (boolean), errorMessageOrResult
   fileObj.LoadAndRunLuaFile = function(self, path)
-    print("Running file "..path)
-    return text
+    print("LoadAndRunLuaFile: "..path)
+    
+    local script = self:ReadTextFromFile(path)
+    if nil == script then
+      return false, "Could not read file: "..path
+    end
+    
+    -- Add ending space as a fix for the bug that
+    -- causes statements like "return 10" to fail.
+    -- "return 10 " will succeed.
+    script = script .. " "
+
+    -- Parse script.
+    local fun, errorMessage = loadstring(script)
+    if nil == fun then
+      return false, errorMessage
+    else
+      -- Run script and return result, success will
+      -- be true on success, false on error.
+      local success, resultOrErrorMessage = pcall(fun)
+      return success, resultOrErrorMessage
+    end
+  end
+  
+  -- Load and run the given Lua source file.
+  -- Path is relative to the application local file system.
+  -- Returns success (boolean), errorMessageOrResult
+  fileObj.LoadAndRunLocalLuaFile = function(self, path)
+    print("LoadAndRunLocalLuaFile: "..path)
+    local basePath = self:GetLocalPath()
+    return self:LoadAndRunLuaFile(basePath..path)
   end
 
   -- Return the file system object.
@@ -1076,7 +1215,6 @@ end)()
 -- Add missing functions in the built-in os module.
 -- Thanks to Paul Kulchenko (github.com/pkulchenko)
 -- for this contribution.
-
 if nil == os then
   os = {}
 end

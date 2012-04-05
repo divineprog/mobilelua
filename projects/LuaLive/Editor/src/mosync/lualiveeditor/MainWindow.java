@@ -59,6 +59,7 @@ public class MainWindow extends JFrame
 	JButton mButtonRun;
 	JMenuItem mMenuItemRun;
 	MainWindow mSelf;
+	String mCurrentDirectory; // File in editor
 	String mCurrentFileName; // File in editor
 	String mRunFileName; // File to run (reload)
 
@@ -66,7 +67,7 @@ public class MainWindow extends JFrame
 	{
 		mSelf = this;
 
-		setCurrentFileName("NoName.lua");
+		setCurrentFileName(sDefaultDirectory, "NoName.lua");
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -105,20 +106,28 @@ public class MainWindow extends JFrame
 		// Create the Run menu.
 		JMenu runMenu = new JMenu("Run");
 
-		mMenuItemRun = runMenu.add("Run (no file selected)");
+		mMenuItemRun = runMenu.add("Run File (no file selected)");
 		mMenuItemRun.addActionListener(new CommandRun());
 		mMenuItemRun.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_R, InputEvent.CTRL_MASK));
 
-		JMenuItem runFileSelectItem = runMenu.add("Select file to Run...");
+		JMenuItem runFileSelectItem = runMenu.add("Select file to run...");
 		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
+
+		JMenuItem runCurrentFileItem = runMenu.add("Save and run current file...");
+		runCurrentFileItem.addActionListener(new CommandRunCurrentFile());
 
 		fileMenu.addSeparator();
 
-		JMenuItem runSelectionItem = runMenu.add("Eval selection");
-		runSelectionItem.addActionListener(new CommandEval());
-		runSelectionItem.setAccelerator(KeyStroke.getKeyStroke(
+		JMenuItem evalLuaItem = runMenu.add("Eval Lua");
+		evalLuaItem.addActionListener(new CommandEvalLua());
+		evalLuaItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_E, InputEvent.CTRL_MASK));
+
+		JMenuItem evalJavaScriptItem = runMenu.add("Eval JavaScript");
+		evalJavaScriptItem.addActionListener(new CommandEvalJavaScript());
+		evalJavaScriptItem.setAccelerator(KeyStroke.getKeyStroke(
+			KeyEvent.VK_J, InputEvent.CTRL_MASK));
 
 		// Create the Font menu.
 		JMenu fontMenu = new JMenu("Font");
@@ -165,13 +174,25 @@ public class MainWindow extends JFrame
 
 		// Create buttons.
 
-		mButtonRun = new JButton("Run");
+		mButtonRun = new JButton("Run File");
 		mButtonRun.addActionListener(new CommandRun());
 		mButtonRun.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(mButtonRun);
 
-		JButton button = new JButton("Eval selection");
-		button.addActionListener(new CommandEval());
+		JButton button;
+
+		button = new JButton("Save and Run");
+		button.addActionListener(new CommandRunCurrentFile());
+		button.setAlignmentX(LEFT_ALIGNMENT);
+		buttonPanel.add(button);
+
+		button = new JButton("Eval Lua");
+		button.addActionListener(new CommandEvalLua());
+		button.setAlignmentX(LEFT_ALIGNMENT);
+		buttonPanel.add(button);
+
+		button = new JButton("Eval JS");
+		button.addActionListener(new CommandEvalJavaScript());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
 /*
@@ -232,7 +253,7 @@ public class MainWindow extends JFrame
 //                "Custom properties");
 
 		// File list pane.
-	    mFileTree = new FileTreeComponent(sDefaultDirectory);
+	    mFileTree = new FileTreeComponent("/", this);
 	    JScrollPane fileListScrollPane = new JScrollPane(mFileTree);
 
 		// Split pane.
@@ -280,8 +301,24 @@ public class MainWindow extends JFrame
 		return ipAddress;
 	}
 
-	public void setCurrentFileName(String fileName)
+	public void saveFile(File file)
 	{
+		try
+		{
+			// Write file.
+			Writer output = new BufferedWriter(new FileWriter(file));
+			output.write(mEditor.getText());
+			output.close();
+		}
+		catch (IOException ex)
+		{
+			ex.printStackTrace();
+		}
+	}
+
+	public void setCurrentFileName(String directoryPath, String fileName)
+	{
+		mCurrentDirectory = directoryPath;
 		mCurrentFileName = fileName;
 		setTitle("MobileLua Live Editor - " + mCurrentFileName);
 	}
@@ -289,8 +326,9 @@ public class MainWindow extends JFrame
 	public void selectFileToRun()
 	{
 		Log.i("CommandSelectFileToRun");
-		JFileChooser fc = new JFileChooser(new File(sDefaultDirectory));
-		fc.setCurrentDirectory(new File(sDefaultDirectory));
+		String path = null != mRunFileName ? mRunFileName : sDefaultDirectory;
+		JFileChooser fc = new JFileChooser(new File(path));
+		fc.setCurrentDirectory(new File(path));
 		fc.showOpenDialog(mSelf);
 		File selectedFile = fc.getSelectedFile();
 		if (null == selectedFile)
@@ -307,8 +345,8 @@ public class MainWindow extends JFrame
 		try
 		{
 			mRunFileName = file.getCanonicalPath().replace("\\", "/");
-			mMenuItemRun.setText("Run: " + file.getName());
-			mButtonRun.setText("Run: " + file.getName());
+			mMenuItemRun.setText("Run File: " + file.getName());
+			mButtonRun.setText("Run File: " + file.getName());
 		}
 		catch (Exception ex)
 		{
@@ -362,20 +400,50 @@ public class MainWindow extends JFrame
 			{
 				new CommandSelectFileToRun().actionPerformed(null);
 			}
-			mServer.postMessage(new Message("CommandRun", mRunFileName));
+			if (null != mRunFileName && mRunFileName.length() > 0)
+			{
+				mServer.postMessage(new Message("CommandRun", mRunFileName));
+			}
+			Log.i("mRunFileName: " + mRunFileName);
 		}
 	}
 
-	class CommandEval implements ActionListener
+	class CommandRunCurrentFile implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
-			// TODO: Add check for Lua/JS eval.
+			if (null == mRunFileName && null != mCurrentDirectory && null != mCurrentFileName)
+			{
+				String fullPath = mCurrentDirectory + mCurrentFileName;
+				saveFile(new File(fullPath));
+				mServer.postMessage(new Message("CommandRun", fullPath));
+				Log.i("CommandRunCurrentFile: " + fullPath);
+			}
+		}
+	}
+
+	class CommandEvalLua implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
 			Log.i("CommandEvalLua");
 			String code = mEditor.getSelectedText();
 			if (null != code)
 			{
 				mServer.postMessage(new Message("CommandEvalLua", code));
+			}
+		}
+	}
+
+	class CommandEvalJavaScript implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			Log.i("CommandEvalJavaScript");
+			String code = mEditor.getSelectedText();
+			if (null != code)
+			{
+				mServer.postMessage(new Message("CommandEvalJavaScript", code));
 			}
 		}
 	}
@@ -402,8 +470,8 @@ public class MainWindow extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			Log.i("CommandLoad");
-			JFileChooser fc = new JFileChooser(new File(sDefaultDirectory));
-			fc.setCurrentDirectory(new File(sDefaultDirectory));
+			JFileChooser fc = new JFileChooser(new File(mCurrentDirectory));
+			fc.setCurrentDirectory(new File(mCurrentDirectory));
 			fc.showOpenDialog(mSelf);
 			File selectedFile = fc.getSelectedFile();
 			if (null == selectedFile)
@@ -435,7 +503,9 @@ public class MainWindow extends JFrame
 			mEditor.setText(contents.toString());
 
 			// Sets window title to show the filename.
-			mSelf.setCurrentFileName(selectedFile.getName());
+			mSelf.setCurrentFileName(
+				selectedFile.getParent(),
+				selectedFile.getName());
 		}
 	}
 
@@ -444,7 +514,8 @@ public class MainWindow extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			Log.i("CommandSave");
-			JFileChooser fc = new JFileChooser(sDefaultDirectory);
+			JFileChooser fc = new JFileChooser(mCurrentDirectory);
+			fc.setCurrentDirectory(new File(mCurrentDirectory));
 			fc.setSelectedFile(new File(mCurrentFileName));
 			fc.showSaveDialog(mSelf);
 			File selectedFile = fc.getSelectedFile();
@@ -453,20 +524,12 @@ public class MainWindow extends JFrame
 				return;
 			}
 
-			try
-			{
-				// Write file.
-				Writer output = new BufferedWriter(new FileWriter(selectedFile));
-				output.write(mEditor.getText());
-				output.close();
+			saveFile(selectedFile);
 
-				// Sets window title to show the filename.
-				mSelf.setCurrentFileName(selectedFile.getName());
-			}
-			catch (IOException ex)
-			{
-				ex.printStackTrace();
-			}
+			// Sets window title to show the filename.
+			mSelf.setCurrentFileName(
+				selectedFile.getParent(),
+				selectedFile.getName());
 		}
 	}
 

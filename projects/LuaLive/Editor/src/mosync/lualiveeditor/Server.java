@@ -81,8 +81,6 @@ public class Server
 		{
 			Message message = mServerInBox.waitForMessage();
 
-			Log.i("Server got message: " + message.getMessage());
-
 			if ("ClientConnectionCreated".equals(message.getMessage()))
 			{
 				// Get connection object.
@@ -92,7 +90,6 @@ public class Server
 				mMainWindow.showMessage("Client connected: " + connection.getHostName());
 
 				// Add connection.
-				Log.i("Client connected: " + connection.getHostName());
 				mClientConnections.add(connection);
 
 				// Start connection thread.
@@ -111,32 +108,23 @@ public class Server
 				String runFilePath = message.getObject().toString();
 				String rootPath = FileData.basePath(runFilePath);
 
-				Log.i("runFilePath: " + runFilePath);
-				Log.i("rootPath:    " + rootPath);
-				if (null != mFileTracker)
-				{
-					Log.i("************************************");
-					Log.i("FT rootPath: " + mFileTracker.getRootPath());
-				}
-
-				// If there is no FileTracker or if the root path has changed
-				// we create a new FileTracker.
+				// If there is no FileTracker, or if the root path has
+				// changed, we create a new FileTracker.
 				if ((null == mFileTracker) ||
 					(!rootPath.equals(mFileTracker.getRootPath())))
 				{
-					Log.i("Creating new FileTracker");
 					mFileTracker = new FileTracker(rootPath);
 				}
-				else Log.i("============= SUCCESS");
 
 				// Get updated files.
 				ArrayList<String> updatedFiles = mFileTracker.getUpdatedFiles();
-				Log.i(" updatedFiles size: " + updatedFiles.size());
+				mMainWindow.showMessage("Number of updated files: " + updatedFiles.size());
+				Log.i("Number of updated files: " + updatedFiles.size());
 
 				// Send update message.
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandRun to client connection: " + connection);
+					//Log.i("Sending CommandRun to client connection: " + connection);
 					connection.postMessage(
 						new Message(
 							"CommandRun",
@@ -149,35 +137,40 @@ public class Server
 			{
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandEvalLua to client connection: " + connection);
 					connection.postMessage(
 						new Message("CommandEvalLua", message.getObject()));
+				}
+			}
+			else if ("CommandEvalJavaScript".equals(message.getMessage()))
+			{
+				for (ClientConnection connection : mClientConnections)
+				{
+					connection.postMessage(
+						new Message("CommandEvalJavaScript", message.getObject()));
 				}
 			}
 			else if ("CommandResetClient".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandResetClient to client connection: " + connection);
 					connection.postMessage(
 						new Message("CommandResetClient", message.getObject()));
 				}
 			}
 			else if ("MessageFromClient".equals(message.getMessage()))
 			{
-				Log.i("MessageFromClient: " + message.getObject());
 				mMainWindow.showMessage(message.getObject().toString());
 			}
 			else if ("CommandServerStop".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
 				{
-					Log.i("Sending CommandCloseClientConnection to client connection: " + connection);
 					connection.postMessage(
 						new Message("CommandCloseClientConnection", message.getObject()));
 				}
 				stopServer();
 			}
+			// TODO: How is this used?
 			else if("ServerAddressReceived".equals(message.getMessage()))
 			{
 				Log.i("ServerAddressReceived: " + message.getObject());
@@ -214,9 +207,7 @@ public class Server
 
 				while (true)
 				{
-					Log.i("Waiting for client connection");
 					Socket socket = mServerSocket.accept();
-					Log.i("Client connection accepted");
 					ClientConnection clientConnection = new ClientConnection(
 						socket,
 						mServerInBox);
@@ -341,7 +332,6 @@ public class Server
 				// Wait for message to send in the outgoing box.
 				Log.i("Waiting for outgoing message in client connection: " + getHostName());
 				Message message = mClientOutBox.waitForMessage();
-				Log.i("ClientConnectionMessage: " + message.getMessage());
 
 				if ("CommandResetClient".equals(message.getMessage()))
 				{
@@ -368,12 +358,8 @@ public class Server
 				}
 				else if ("CommandEvalJavaScript".equals(message.getMessage()))
 				{
-					writeIntToStream(out, COMMAND_EVAL_JAVASCRIPT);
-
-					String string = message.getObject().toString();
-					writeStringToStream(out, string);
-
-					out.flush();
+					String data = message.getObject().toString();
+					sendEvalJavaScript(out, data);
 				}
 				else if ("CommandCloseClientConnection".equals(message.getMessage()))
 				{
@@ -393,6 +379,14 @@ public class Server
 			out.flush();
 		}
 
+		private void sendEvalJavaScript(OutputStream out, String data)
+			throws IOException
+		{
+			writeIntToStream(out, COMMAND_EVAL_JAVASCRIPT);
+			writeStringToStream(out, data);
+			out.flush();
+		}
+
 		private void sendUpdatedFilesAndRunFile(OutputStream out, FileData fileData)
 			throws IOException
 		{
@@ -402,8 +396,6 @@ public class Server
 			for (String path : fileData.getUpdatedFiles())
 			{
 				String localPath = FileData.makeDeviceLocalPath(rootPath, path);
-				Log.i(" Sending file path: " + path);
-				Log.i(" Sending localPath: " + localPath);
 				sendFileData(out, path, localPath);
 			}
 
@@ -411,7 +403,8 @@ public class Server
 			String localPath = FileData.makeDeviceLocalPath(
 				rootPath,
 				fileData.getRunFilePath());
-			sendEvalLua(out, "mosync.FileSys:LoadAndRunLuaFile('" + localPath + "')");
+
+			sendEvalLua(out, "LuaLive.LoadFile('" + localPath + "')");
 		}
 
 		private void sendFileData(OutputStream out, String filePath, String localPath)
@@ -490,19 +483,11 @@ public class Server
 				// First integer is the command.
 				int command = readIntFromByteBuffer(buffer, 0);
 
-				Log.i("ClientConnection: in dataSize: " + dataSize);
-				Log.i("ClientConnection: in messageSize: " + messageSize);
-				Log.i("ClientConnection: in command: " + command);
-
 				switch (command)
 				{
 					case COMMAND_REPLY:
 						// Read reply string. The reply starts at byte 8.
 						String data = new String(buffer, 8, dataSize, "ISO-8859-1");
-
-						Log.i(
-							"numRead: " + numBytesRead +
-							" data: " + data);
 
 						// Post result message to server.
 						mServerInBox.postMessage(new Message("MessageFromClient", data));

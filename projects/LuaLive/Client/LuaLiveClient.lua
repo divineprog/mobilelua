@@ -255,17 +255,14 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.ReadCommand = function()
     -- Read from server.
-    log("ReadCommand")
     self.connection:Read(8, self.MessageHeaderReceived)
   end
   
   self.MessageHeaderReceived = function(buffer, result)
     -- Process the result.
-    log("MessageHeaderReceived")
     if result > 0 then
       local command = self.BufferReadInt(buffer, 0)
       local dataSize = self.BufferReadInt(buffer, 4)
-      log("MessageHeaderReceived dataSize: "..dataSize)
       if self.COMMAND_EVAL_LUA == command then
         -- Read script and evaluate it when received.
         self.connection:Read(dataSize, self.EvalLua)
@@ -281,6 +278,53 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     if nil ~= buffer then
       mosync.SysFree(buffer)
     end
+  end
+  
+  self.LoadFile = function(localPath)
+    log("LoadFile: "..localPath)
+    local type = self.GetFileType(localPath)
+    if 1 == type then
+      local success, result = mosync.FileSys:LoadAndRunLocalLuaFile(localPath)
+      return result
+    end
+    if 2 == type then
+      self.LoadHTML(localPath)
+      return "Done"
+    end
+  end
+  
+  self.LoadHTML = function(localPath)
+      -- Create WebView if it does not exist.
+      if nil == self.WebView then
+        self.CreateGraphicalUI()
+      end
+      
+      -- TODO: Make sure screen is shown also when 
+      -- the web veiw exists. Will this do?
+      mosync.NativeUI:ShowScreen(self.Screen)
+      
+      if nil ~= self.WebView then
+        self.WebView:SetProp(mosync.MAW_WEB_VIEW_URL, localPath)
+      end
+  end
+  
+  -- Returns 1 for .lua, 2 for .html/.htm and 0 for unknown.
+  -- Function is case insensitive.
+  self.GetFileType = function(path)
+    local pathUpper = path:upper()
+    local a,b = pathUpper:find(".LUA", -4, true)
+    if a ~= nil then
+      return 1
+    end
+    a,b = pathUpper:find(".HTM", -4, true)
+    if a ~= nil then
+      return 2
+    end
+    a,b = pathUpper:find(".HTML", -5, true)
+    if a ~= nil then
+      return 2
+    end
+    return 0
   end
   
   self.EvalLua = function(buffer, result)
@@ -325,8 +369,8 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
         self.CreateGraphicalUI()
       end
       
-      -- TODO: Make sure web view screen is shown
-      -- also when web veiw exists. Will this do?
+      -- TODO: Make sure screen is shown also when 
+      -- the web veiw exists. Will this do?
       mosync.NativeUI:ShowScreen(self.Screen)
       
       if nil ~= self.WebView then
@@ -349,29 +393,21 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   --  filepath (zero terminated)
   --  file data
   self.StoreFile = function(buffer, result)
-    log("StoreFile")
     if result > 0 and nil ~= buffer then
       local pathSize = self.BufferReadInt(buffer, 0)
       local dataSize = self.BufferReadInt(buffer, 4)
-      log(" pathSize:"..pathSize)
-      log(" dataSize:"..dataSize)
       -- Get path string.
       local pathPointer = mosync.SysBufferGetBytePointer(buffer, 8)
       local path = mosync.SysBufferToString(pathPointer)
-      log(" path: " .. path)
-      -- Write file data
+      log("StoreFile: "..path)
+      -- Write file data.
       local dataPointer = mosync.SysBufferGetBytePointer(buffer, 8 + pathSize)
-      log("Step 1")
       local dataHandle = mosync.maCreatePlaceholder()
-      log("Step 2")
       mosync.maCreateData(dataHandle, dataSize)
-      log("Step 3")
       mosync.maWriteData(dataHandle, dataPointer, 0, dataSize)
-      log("Step 4")
       local fullPath = mosync.FileSys:GetLocalPath() .. path
-      log("Step 5")
+      mosync.FileSys:CreatePath(fullPath)
       local success = mosync.FileSys:WriteDataToFile(fullPath, dataHandle)
-      log("Step 6")
       mosync.maDestroyPlaceholder(dataHandle)
       -- Write response.
       if success then
@@ -387,9 +423,8 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   self.WriteResponse = function(value)
-    log("WriteResponse")
     if nil == value then
-      value = "Undefined"
+      value = "Ok"
     end
     local response = "Lua Result: "..value
     -- Allocate buffer for the reply, reader plus string data.
@@ -402,7 +437,6 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   self.WriteResponseDone = function(buffer, result)
-    log("Response written - result: "..result)
     if nil ~= buffer then mosync.SysFree(buffer) end
     self.ReadCommand()
   end
