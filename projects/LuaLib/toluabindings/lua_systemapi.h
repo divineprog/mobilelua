@@ -132,8 +132,8 @@ double SysBufferGetDouble(void* buffer, int index);
 
 /**
  * Copy bytes from one memory block to another. The number of bytes
- * given by numberOfBytesToCopy bytes, starting at sourceIndex in 
- * the source block, will be copied to the destination block, 
+ * given by numberOfBytesToCopy bytes, starting at sourceIndex in
+ * the source block, will be copied to the destination block,
  * starting at destIndex.
  * @param sourceBuffer Pointer to the source memory block.
  * @param sourceIndex Offset to a byte index in the source block.
@@ -268,9 +268,16 @@ These Lua functions are implemented in LuaEngine.cpp.
 They are listed here for documentation purposes,
 to make the list of Lua "Sys" functions complete.
 
--- Convert a null-terminated C-string pointer to
--- by "buffer" to a Lua string.
+-- Create a new Lua string from a null-terminated
+-- C-string pointed to by "buffer".
+-- Return Lua string on success, nil on error.
 SysBufferToString(buffer) -> string
+
+-- Copy contents of a Lua string to a C-buffer
+-- pointed to by "buffer".
+-- Does NOT copy the terminating null character.
+-- Return true on success, false on error.
+SysStringToBuffer(string, buffer) -> boolean
 
 -- Create a new instance of the Lua engine.
 SysLuaEngineCreate() -> ref to the engine

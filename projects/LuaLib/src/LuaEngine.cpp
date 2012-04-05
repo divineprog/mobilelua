@@ -186,8 +186,9 @@ static int luaPrint(lua_State *L)
 }
 
 /**
- * Convert the contents of a zero terminated
- * string pointer (char*) to a Lua string.
+ * Create a new Lua string from a null-terminated
+ * C-string pointed to by "buffer".
+ * Return Lua string on success, nil on error.
  */
 static int luaBufferToString(lua_State *L)
 {
@@ -198,18 +199,64 @@ static int luaBufferToString(lua_State *L)
 		char* text = (char*) lua_touserdata(L, 1);
 		if (NULL != text)
 		{
-			// This copies the text.
+			// This copies the text into a new Lua string.
 			lua_pushstring(L, text);
 		}
+		else
+		{
+			lua_pushnil(L);
+		}
+	}
+	else
+	{
+		lua_pushnil(L);
 	}
 
 	return 1; // Number of results
 }
 
 /**
- * Convert a Lua string to a string pointer (char*).
+ * Copy contents of a Lua string to a C-buffer
+ * pointed to by "buffer".
+ * Does NOT copy the terminating null character.
+ * Return true on success, false on error.
  */
 static int luaStringToBuffer(lua_State *L)
+{
+	// Get pointer to Lua string.
+	const char* s = luaL_checkstring(L, 1);
+
+	// Get pointer to buffer.
+	if (!lua_isnoneornil(L, 1) && lua_islightuserdata(L, 1))
+	{
+		char* buffer = (char*) lua_touserdata(L, 1);
+		if (NULL != buffer)
+		{
+			// Copy to buffer.
+			memcpy(buffer, s, strlen(s));
+
+			lua_pushboolean(L, 1);
+		}
+		else
+		{
+			lua_pushboolean(L, 0);
+		}
+	}
+	else
+	{
+		lua_pushboolean(L, 0);
+	}
+
+	return 1; // Number of results
+}
+
+#if 0
+// Old version.
+
+/**
+ * Create a Lua string from a string pointer (char*).
+ */
+static int luaBufferToString(lua_State *L)
 {
 	// Get pointer to Lua string.
 	const char* s = luaL_checkstring(L, 1);
@@ -226,6 +273,7 @@ static int luaStringToBuffer(lua_State *L)
 
 	return 1; // Number of results
 }
+#endif
 
 /**
  * Helper function that escapes a string.

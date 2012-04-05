@@ -115,6 +115,7 @@ end
 Copy string char values to a C buffer.
 Note that in Lua first element has index one,
 in a C buffer first byte has index zero.
+TODO: Replace this with mosync.SysStringToBuffer()
 ]]
 function WriteStringToBuffer(s, buffer)
   --print(s)
