@@ -38,7 +38,6 @@ public class FileTracker
 
 		for (FileStatus status : fileStatus.values())
 		{
-			Log.i("Checking status 2 of " + status.mPath);
 			if (status.mUpdated)
 			{
 				// Save name and reset updated flag.
@@ -56,7 +55,6 @@ public class FileTracker
 	{
 		try
 		{
-			Log.i("Walking files in: " + dir.getCanonicalPath());
 			for (File file : dir.listFiles())
 			{
 				if (file.isDirectory())
@@ -65,18 +63,18 @@ public class FileTracker
 				}
 				else
 				{
-					FileStatus status = fileStatus.get(file.getCanonicalPath());
-					Log.i("Checking status of " + file.getCanonicalPath());
+					FileStatus status = fileStatus.get(Server.FileData.unixPath(file));
 					if (null != status)
 					{
 						status.updateModified(file.lastModified());
 					}
 					else
 					{
+						String path = Server.FileData.unixPath(file);
 						fileStatus.put(
-							file.getCanonicalPath(),
+							path,
 							new FileStatus(
-								file.getCanonicalPath(),
+								path,
 								file.lastModified()));
 					}
 				}
@@ -102,8 +100,8 @@ public class FileTracker
 
 		public void updateModified(long lastModified)
 		{
-			Log.i(" lastModified: " + lastModified);
-			Log.i(" mLastModified: " + mLastModified);
+			//Log.i(" lastModified: " + lastModified);
+			//Log.i(" mLastModified: " + mLastModified);
 
 			if (lastModified > mLastModified)
 			{

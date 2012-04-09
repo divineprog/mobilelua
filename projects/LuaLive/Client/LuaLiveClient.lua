@@ -281,7 +281,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   self.LoadFile = function(localPath)
-    log("LoadFile: "..localPath)
+    --log("LoadFile: "..localPath)
     local type = self.GetFileType(localPath)
     if 1 == type then
       local success, result = mosync.FileSys:LoadAndRunLocalLuaFile(localPath)
@@ -399,13 +399,14 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
       -- Get path string.
       local pathPointer = mosync.SysBufferGetBytePointer(buffer, 8)
       local path = mosync.SysBufferToString(pathPointer)
-      log("StoreFile: "..path)
+      --log("StoreFile: "..path)
       -- Write file data.
       local dataPointer = mosync.SysBufferGetBytePointer(buffer, 8 + pathSize)
       local dataHandle = mosync.maCreatePlaceholder()
       mosync.maCreateData(dataHandle, dataSize)
       mosync.maWriteData(dataHandle, dataPointer, 0, dataSize)
-      local fullPath = mosync.FileSys:GetLocalPath() .. path
+      local fullPath = mosync.FileSys:GetLocalPath()..path
+      --log("StoreFile fullPath "..fullPath)
       mosync.FileSys:CreatePath(fullPath)
       local success = mosync.FileSys:WriteDataToFile(fullPath, dataHandle)
       mosync.maDestroyPlaceholder(dataHandle)

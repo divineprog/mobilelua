@@ -114,6 +114,9 @@ public class Server
 				String runFilePath = FileData.unixPath(runFile);
 				String rootPath = FileData.basePath(runFilePath);
 
+				Log.i("runFilePath: " + runFilePath);
+				Log.i("rootPath: " + rootPath);
+
 				// If there is no FileTracker, or if the root path has
 				// changed, we create a new FileTracker.
 				if ((null == mFileTracker) ||
@@ -124,7 +127,7 @@ public class Server
 
 				// Get updated files.
 				ArrayList<String> updatedFiles = mFileTracker.getUpdatedFiles();
-				mMainWindow.showMessage("Number of updated files: " + updatedFiles.size());
+				mMainWindow.showMessage("Sending " + updatedFiles.size() + " updated file(s)");
 				Log.i("Number of updated files: " + updatedFiles.size());
 
 				// Send update message.
@@ -402,6 +405,7 @@ public class Server
 			for (String path : fileData.getUpdatedFiles())
 			{
 				String localPath = FileData.deviceLocalPath(rootPath, path);
+				Log.i(" localPath: " + localPath);
 				sendFileData(out, path, localPath);
 			}
 

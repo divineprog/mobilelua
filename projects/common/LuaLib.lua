@@ -821,19 +821,20 @@ mosync.FileSys = (function()
   fileObj.CreatePath = function(self, fullPath)
     -- Walk path and create parts that do not exist.
     -- Assume path begins with a slash.
-    log("EnsurePathExists "..fullPath)
     local start = 2
     while true do
       local a, b = fullPath:find("/", start)
       if nil == a then
+        -- End of path reached.
         return true
       end
       local path = fullPath:sub(1, a)
-      local result = self.CreateFile(path)
+      -- CreateFile returns true even when the file exists.
+      local success = self:CreateFile(path)
       if not success then
         return false
       end
-      start = b
+      start = b + 1
     end
     return true
   end
@@ -850,8 +851,8 @@ mosync.FileSys = (function()
   end
   
   -- Create a file/directory. Parent directory must exist.
+  -- CreateFile returns true even when the file exists.
   fileObj.CreateFile = function(self, fullPath)
-    log("CreateFile "..fullPath)
     local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
       return false
@@ -861,7 +862,6 @@ mosync.FileSys = (function()
     if mosync.maFileExists(file) < 1 then
       -- If the file does not exist, try to create it.
       local result = mosync.maFileCreate(file)
-      log("File Created")
     end
 
     mosync.maFileClose(file)
