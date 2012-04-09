@@ -1,11 +1,16 @@
 package mosync.lualiveeditor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -23,14 +28,14 @@ public class Server
 	public static final int COMMAND_STORE_BINARY_FILE = 5;
 
 	// Instance variables.
-	private MainWindow mMainWindow;
+	private UIMainWindow mMainWindow;
 	private boolean mRunning = false;
 	private ArrayList<ClientConnection> mClientConnections;
 	private ClientAcceptor mClientAcceptor;
 	private MessageQueue mServerInBox;
 	private FileTracker mFileTracker;
 
-	public Server(MainWindow mainWindow)
+	public Server(UIMainWindow mainWindow)
 	{
 		mMainWindow = mainWindow;
 		mRunning = false;
@@ -105,7 +110,8 @@ public class Server
 			}
 			else if ("CommandRun".equals(message.getMessage()))
 			{
-				String runFilePath = message.getObject().toString();
+				File runFile = (File) message.getObject();
+				String runFilePath = FileData.unixPath(runFile);
 				String rootPath = FileData.basePath(runFilePath);
 
 				// If there is no FileTracker, or if the root path has
@@ -395,12 +401,12 @@ public class Server
 			// Write files onto device.
 			for (String path : fileData.getUpdatedFiles())
 			{
-				String localPath = FileData.makeDeviceLocalPath(rootPath, path);
+				String localPath = FileData.deviceLocalPath(rootPath, path);
 				sendFileData(out, path, localPath);
 			}
 
 			// Reload main file.
-			String localPath = FileData.makeDeviceLocalPath(
+			String localPath = FileData.deviceLocalPath(
 				rootPath,
 				fileData.getRunFilePath());
 
@@ -411,7 +417,7 @@ public class Server
 			throws IOException
 		{
 			byte[] path = FileData.stringBytes(localPath);
-			byte[] data = FileData.readFileData(filePath);
+			byte[] data = FileData.readFileData(new File(filePath));
 
 			// Total size of the data we are sending (path + data).
 			int totalSize =
@@ -579,6 +585,23 @@ public class Server
 			return path.substring(index + 1);
 		}
 
+		public static String unixPath(String path)
+		{
+			return path.replace("\\", "/");
+		}
+
+		public static String unixPath(File file)
+		{
+			try
+			{
+				return unixPath(file.getCanonicalPath());
+			}
+			catch (IOException ex)
+			{
+				ex.printStackTrace();
+				return null;
+			}
+		}
 
 		/**
 		 * Get part of the path that is below root path.
@@ -586,16 +609,15 @@ public class Server
 		 * @param path Full file path.
 		 * @return Path local to root path.
 		 */
-		public static String makeDeviceLocalPath(String rootPath, String path)
+		public static String deviceLocalPath(String rootPath, String path)
 		{
 			return path.substring(rootPath.length());
 		}
 
-		public static byte[] readFileData(String path)
+		public static byte[] readFileData(File file)
 		{
 			try
 			{
-				File file = new File(path);
 				byte [] data = new byte[(int)file.length()];
 				DataInputStream in = new DataInputStream(new FileInputStream(file));
 				in.readFully(data);
@@ -623,6 +645,45 @@ public class Server
 			byte[] data = str.getBytes("ISO-8859-1");
 			data = Arrays.copyOf(data, data.length + 1);
 			return data;
+		}
+
+		public static String readFileAsString(File file)
+		{
+			StringBuffer contents = new StringBuffer();
+			try
+			{
+				BufferedReader reader =
+					new BufferedReader(new FileReader(file));
+				String data;
+				while ((data = reader.readLine()) != null)
+				{
+//					contents.append(data).append(
+//						System.getProperty("line.separator"));
+					contents.append(data).append("\n");
+				}
+				reader.close();
+				return contents.toString();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+				return null;
+			}
+		}
+
+		public static void writeFileAsString(File file, String data)
+		{
+			try
+			{
+				// Write file.
+				Writer output = new BufferedWriter(new FileWriter(file));
+				output.write(data);
+				output.close();
+			}
+			catch (IOException ex)
+			{
+				ex.printStackTrace();
+			}
 		}
 
 		private String mRunFilePath;

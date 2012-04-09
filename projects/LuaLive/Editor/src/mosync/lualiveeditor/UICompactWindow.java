@@ -25,7 +25,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 @SuppressWarnings("serial")
-public class ReloadWindow extends JFrame
+public class UICompactWindow extends JFrame
 {
 	/**
 	 * Default directory for the file open/save dialog.
@@ -34,11 +34,11 @@ public class ReloadWindow extends JFrame
 
 	Server mServer;
 	JTextArea mMessagePane;
-	ReloadWindow mSelf;
+	UICompactWindow mSelf;
 	String mCurrentFileName;
 	JLabel mFileNameLabel;
 
-	public ReloadWindow()
+	public UICompactWindow()
 	{
 		mSelf = this;
 

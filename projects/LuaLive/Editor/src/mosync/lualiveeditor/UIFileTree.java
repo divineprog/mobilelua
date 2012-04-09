@@ -7,8 +7,10 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
@@ -19,16 +21,17 @@ import javax.swing.tree.TreePath;
  * @author Mikael Kindborg
  */
 @SuppressWarnings("serial")
-public class FileTreeComponent extends JTree
+public class UIFileTree extends JTree
 {
 	JTree mFileTree;
 	JPopupMenu mPopupMenu;
-	MainWindow mMainUI;
+	UIMainWindow mMainUI;
 	TreePath mSelectedTreePath;
 
-	public FileTreeComponent(String path, MainWindow mainUI)
+	public UIFileTree(String path, UIMainWindow mainUI)
 	{
 		// Create file tree view.
+		mMainUI = mainUI;
 		mFileTree = this;
 		FileTreeModel model = new FileTreeModel(new FileModel(path));
 	    mFileTree.setModel(model);
@@ -36,38 +39,61 @@ public class FileTreeComponent extends JTree
 
 	    // Create popup menu.
 	    mPopupMenu = new JPopupMenu();
-	    JMenuItem menuItem = new JMenuItem("Run");
+	    JMenuItem menuItem = new JMenuItem("Open");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				FileModel model =
+					(FileModel) mSelectedTreePath.getLastPathComponent();
+				if (model.isFile())
+				{
+					mMainUI.openFile(model.getFile());
+				}
+			}
+	    });
+	    mPopupMenu.add(menuItem);
+
+	    menuItem = new JMenuItem("Select To Run");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Log.i("Select To Run");
+				FileModel model =
+					(FileModel) mSelectedTreePath.getLastPathComponent();
+				if (model.isFile())
+				{
+					mMainUI.setRunFile(model.getFile());
+				}
+			}
+	    });
+	    mPopupMenu.add(menuItem);
+
+	    menuItem = new JMenuItem("Run");
 	    menuItem.addActionListener(new ActionListener()
 	    {
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				Log.i("Run");
+				FileModel model =
+					(FileModel) mSelectedTreePath.getLastPathComponent();
+				if (model.isFile())
+				{
+					mMainUI.runFile(model.getFile());
+				}
 			}
 	    });
 	    mPopupMenu.add(menuItem);
+	}
 
-	    menuItem = new JMenuItem("Transfer");
-	    menuItem.addActionListener(new ActionListener()
-	    {
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Log.i("Transfer");
-			}
-	    });
-	    //mPopupMenu.add(menuItem);
-
-	    menuItem = new JMenuItem("Open");
-	    menuItem.addActionListener(new ActionListener()
-	    {
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				Log.i("Open");
-			}
-	    });
-	    mPopupMenu.add(menuItem);
+	public JComponent embedInScrollPane()
+	{
+	    JScrollPane scrollPane = new JScrollPane(this);
+		return scrollPane;
 	}
 
 	public void setSelectedThreePath(TreePath treePath)
@@ -145,6 +171,24 @@ public class FileTreeComponent extends JTree
 		public boolean isFile()
 		{
 			return mFile.isFile();
+		}
+
+		public String getPath()
+		{
+			try
+			{
+				return Server.FileData.unixPath(mFile.getCanonicalPath());
+			}
+			catch (IOException ex)
+			{
+				ex.printStackTrace();
+				return null;
+			}
+		}
+
+		public File getFile()
+		{
+			return mFile;
 		}
 
 		public int getChildCount()
