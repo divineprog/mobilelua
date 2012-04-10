@@ -11,14 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 
 @SuppressWarnings("serial")
-public class UIWorkspacePane extends JComponent
+public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 {
-	private UIMainWindow mMainUI;
 	private UIEditor mEditor;
 
-	public UIWorkspacePane(UIMainWindow mainUI)
+	public UIWorkspaceEditorPane(UIMainWindow mainUI)
 	{
-		mMainUI = mainUI;
+		super(mainUI);
 		createUI();
 	}
 

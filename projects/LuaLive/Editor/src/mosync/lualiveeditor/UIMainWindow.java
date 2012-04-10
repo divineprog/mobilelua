@@ -36,7 +36,7 @@ public class UIMainWindow extends JFrame
 	private Server mServer;
 	private UIMessagePane mMessagePane;
 	private UIFileTree mFileTree;
-	private UIWorkspaceTabPane mWorkspaceTabPane;
+	private UIWorkspaceTabbedContainer mWorkspaceTabPane;
 	private File mRunFile; // File to run (reload)
 	private File mLastFile = sDefaultDirectory;
 
@@ -121,7 +121,7 @@ public class UIMainWindow extends JFrame
 		createMenuBar();
 
 		// Workspace pane.
-		mWorkspaceTabPane = new UIWorkspaceTabPane(this);
+		mWorkspaceTabPane = new UIWorkspaceTabbedContainer(this);
 
 		// Open initial "playspace" tab.
 		mWorkspaceTabPane.openPlayspace();
@@ -183,13 +183,25 @@ public class UIMainWindow extends JFrame
 
 		fileMenu.addSeparator();
 
-		JMenuItem playspaceItem = fileMenu.add("New Playspace");
+		JMenuItem playspaceItem = fileMenu.add("New Playspace Tab");
 		playspaceItem.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				mWorkspaceTabPane.openPlayspace();
+			}
+		});
+
+		fileMenu.addSeparator();
+
+		JMenuItem closeItem = fileMenu.add("Close Current Tab");
+		closeItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				mWorkspaceTabPane.closeCurrentTab();
 			}
 		});
 
@@ -223,6 +235,21 @@ public class UIMainWindow extends JFrame
 
 		JMenuItem runFileSelectItem = runMenu.add("Select File To Run...");
 		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
+
+		JMenuItem clearFileTrackerItem = runMenu.add("Reset File Tracker");
+		clearFileTrackerItem.addActionListener(new CommandResetFileTracker());
+
+		runMenu.addSeparator();
+
+		JMenuItem runTabItem = runMenu.add("Open Run Button Tab");
+		runTabItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				mWorkspaceTabPane.openRunButtonTab();
+			}
+		});
 
 		runMenu.addSeparator();
 
@@ -409,6 +436,14 @@ public class UIMainWindow extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{
 			selectFileToRun();
+		}
+	}
+
+	class CommandResetFileTracker implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			mServer.postMessage(new Message("CommandResetFileTracker", null));
 		}
 	}
 

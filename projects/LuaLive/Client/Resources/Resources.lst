@@ -1,0 +1,11 @@
+.res LOCAL_FILES_BIN
+.ubin
+.include "LocalFiles.bin"
+
+.res LUALIB
+.bin
+.include "../../../common/LuaLib.lua"
+
+.res LUALIVECLIENT
+.bin
+.include "../LuaLiveClient.lua"

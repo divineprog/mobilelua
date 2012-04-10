@@ -113,12 +113,10 @@ LuaLive = (function()
   -- use the same ip-address every time.
   -- Default is to use mosync.NativeUI to display a start
   -- screen where you can enter the ip-address.
-  --self.USE_NATIVE_UI = true
-  self.USE_NATIVE_UI = false
+  self.USE_NATIVE_UI = true
+  --self.USE_NATIVE_UI = false
   
   self.Main = function()
-    print("Welcome to the LuaLive client!")
-    print("Press BACK or Key 0 to exit.")
     mosync.EventMonitor:OnKeyDown(self.OnKeyDown)
 
     if self.USE_NATIVE_UI then
@@ -126,6 +124,7 @@ LuaLive = (function()
       self.CreateHTML()
       mosync.NativeUI:ShowScreen(self.Screen)
     else
+      print("Welcome to the LuaLive client!")
       self.ConnectToServer(self.SERVER_DEFAULT_ADDRESS)
     end
   end
@@ -158,7 +157,7 @@ LuaLive = (function()
 <div id="MainUI">
   <div id="Heading">Welcome to the LuaLive client!</div> 
   <div id="Instruction">
-    Enter the ip-address of the LuaLive editor and connect.
+    Enter the ip-address of the LuaLive editor and press Connect.
     On Android, press BACK to exit.</div>
   <input
     id="ServerIPAddress"
@@ -212,19 +211,22 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.SaveServerIPAddressAndConnect = function(serverAddress)
     -- Save serverAddress to file.
+    log("SaveServerIPAddressAndConnect: "..serverAddress)
     mosync.FileSys:WriteStoreText("ServerAddress", serverAddress)
     self.ConnectToServer(serverAddress)
   end
   
   self.ReadServerIPAddressAndSetTextBox = function()
+    log("ReadServerIPAddressAndSetTextBox")
     self.WebView:EvalJS(
       "SetServerIPAddress('"..self.ReadServerIPAddress().."')")
   end
   
   self.ReadServerIPAddress = function()
     -- Read serverAddress from file.
+    log("ReadServerIPAddress")
     local serverAddress = mosync.FileSys:ReadStoreText("ServerAddress")
-    if nil == serverAddress then
+    if nil == serverAddress or 0 == serverAddress:len() then
       return self.SERVER_DEFAULT_ADDRESS
     else
       return serverAddress
@@ -242,10 +244,12 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   self.ConnectionEstablished = function(result)
     if result > 0 then
       print("Successfully connected.")
+      print("Press BACK or Key 0 to exit.")
       -- Read from server.
       self.ReadCommand()
     else
       print("Failed to connect - error: "..result)
+      print("Press BACK or Key 0 to exit.")
     end
     if self.USE_NATIVE_UI then
       -- Hide the WebView.
@@ -406,21 +410,30 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
       mosync.maCreateData(dataHandle, dataSize)
       mosync.maWriteData(dataHandle, dataPointer, 0, dataSize)
       local fullPath = mosync.FileSys:GetLocalPath()..path
-      --log("StoreFile fullPath "..fullPath)
-      mosync.FileSys:CreatePath(fullPath)
-      local success = mosync.FileSys:WriteDataToFile(fullPath, dataHandle)
-      mosync.maDestroyPlaceholder(dataHandle)
+      --log("StoreFile fullPath: "..fullPath)
+      local success1 = mosync.FileSys:CreatePath(fullPath)
+      --local success1 = true
       -- Write response.
-      if success then
-        self.WriteResponse("File written: "..path)
+      if success1 then
+        local success2 = mosync.FileSys:WriteDataToFile(fullPath, dataHandle)
+        mosync.maDestroyPlaceholder(dataHandle)
+        if success2 then
+          log("File written: "..path)
+          --self.WriteResponse("File written: "..path)
+        else
+          log("Error writing file: "..fullPath)
+          --self.WriteResponse("Error writing file: "..path)
+        end
       else
-        self.WriteResponse("Error writing file: "..path)
+        log("Error creating path: "..fullPath)
+        --self.WriteResponse("Error writing file: "..path)
       end
     end
     -- Free the buffer.
     if nil ~= buffer then
       mosync.SysFree(buffer)
     end
+    self.ReadCommand()
   end
   
   self.WriteResponse = function(value)

@@ -38,6 +38,22 @@ if nil == mosync then
   mosync = {}
 end
 
+-- Search from back of string for substring until
+-- end of string. Return last found start index.
+mosync.SysStringFindLast = function(str, subStr)
+  local startPos = 2
+  local foundPos = -1
+  while true do
+    local a, b = str:find(subStr, startPos)
+    if nil == a then
+      -- End reached.
+      return foundPos
+    end
+    foundPos = a
+    startPos = b + 1
+  end
+end
+      
 -- Create the global mosync.EventMonitor object.
 mosync.EventMonitor = (function ()
 
@@ -818,7 +834,9 @@ mosync.FileSys = (function()
     return path
   end
 
-  fileObj.CreatePath = function(self, fullPath)
+  -- Old function. Should work.
+  --[[
+  fileObj.CreatePathX = function(self, fullPath)
     -- Walk path and create parts that do not exist.
     -- Assume path begins with a slash.
     local start = 2
@@ -829,19 +847,72 @@ mosync.FileSys = (function()
         return true
       end
       local path = fullPath:sub(1, a)
-      -- CreateFile returns true even when the file exists.
-      local success = self:CreateFile(path)
-      if not success then
-        return false
+      log("CreateFile path: "..path)
+      -- If this part of the path does not exist, create it.
+      if not self:FileExists(path) then
+        local success = self:CreateFile(path)
+        if not success then
+          log("Error in CreatePath")
+          return false
+        end
       end
       start = b + 1
     end
     return true
   end
+  --]]
+  
+  fileObj.CreatePath = function(self, fullPath)
+    -- Walk path and create parts that do not exist.
+    -- Assume path begins with a slash.
+    -- Does this path exist?
+    if self:FileExists(fullPath) then
+      --log("CreatePath path exists: "..fullPath)
+      return true -- Success
+    end
+    
+    -- Handle case when fullPath ends with a slash.
+    local path = fullPath
+    local length = path:len()
+    local lastChar = path:sub(length, length);
+    if "/" == lastChar then
+      path = path:sub(0, -2);
+    end
+    
+    -- Try parent path.
+    local pos = mosync.SysStringFindLast(path, "/")
+    if -1 == pos then
+      return false -- Error
+    end
+    local parentPath = path:sub(1, pos)
+    
+    -- Create parent path recursively.
+    --log("CreatePath parentPath: "..parentPath)
+    local result = self:CreatePath(parentPath)
+    if result then
+      -- Create path on way back in the recursion.
+      local success = self:CreateFile(fullPath)
+      if not success then
+        log("Error in CreatePath 1")
+        return false
+      end
+    else
+      log("Error in CreatePath 2")
+    end
+   
+    -- File should exist now.
+    if self:FileExists(fullPath) then
+      --log("Success CreatePath: "..fullPath)
+      return true
+    else
+      log("Error in CreatePath - Could not create file: "..fullPath)
+      return false
+    end
+  end
   
   -- Returns true if file exists, false if not.
   fileObj.FileExists = function(self, fullPath)
-    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
+    local file = mosync.maFileOpen(fullPath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
       return false
     end
@@ -853,20 +924,23 @@ mosync.FileSys = (function()
   -- Create a file/directory. Parent directory must exist.
   -- CreateFile returns true even when the file exists.
   fileObj.CreateFile = function(self, fullPath)
-    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
+    local file = mosync.maFileOpen(fullPath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
+      log("Error in CreateFile file: "..file)
       return false
     end
     
     local result = 1
     if mosync.maFileExists(file) < 1 then
       -- If the file does not exist, try to create it.
-      local result = mosync.maFileCreate(file)
+      log("CreateFile: File does not exist, creating: "..fullPath)
+      result = mosync.maFileCreate(file)
     end
 
     mosync.maFileClose(file)
     
     if result < 0 then
+      log("Error in CreateFile result: "..result)
       return false
     else
       return true
@@ -877,9 +951,10 @@ mosync.FileSys = (function()
   -- Create the file if it does not exist.
   -- Note: Will truncate the file if it exists.
   -- Returns handle to the open file, -1 on error.
-  fileObj.OpenFileForWriting = function(self, filePath)
-    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ_WRITE)
+  fileObj.OpenFileForWriting = function(self, fullPath)
+    local file = mosync.maFileOpen(fullPath, mosync.MA_ACCESS_READ_WRITE)
     if file < 0 then
+      log("Error in OpenFileForWriting file: "..file)
       return -1
     end
 
@@ -893,6 +968,7 @@ mosync.FileSys = (function()
       -- If the file does not exist, create it.
       local result = mosync.maFileCreate(file)
       if result < 0 then
+        log("Error in OpenFileForWriting result: "..result)
         mosync.maFileClose(file)
         return -1
       end
@@ -903,8 +979,8 @@ mosync.FileSys = (function()
 
   -- Open a file for reading.
   -- Returns handle to the open file, -1 on error.
-  fileObj.OpenFileForReading = function(self, filePath)
-    local file = mosync.maFileOpen(filePath, mosync.MA_ACCESS_READ)
+  fileObj.OpenFileForReading = function(self, fullPath)
+    local file = mosync.maFileOpen(fullPath, mosync.MA_ACCESS_READ)
     if file < 0 then
       return -1
     end
@@ -919,9 +995,10 @@ mosync.FileSys = (function()
 
   -- Write a data object to a file.
   -- Returns true on success, false on error.
-  fileObj.WriteDataToFile = function(self, filePath, dataHandle)
-    local file = self:OpenFileForWriting(filePath)
+  fileObj.WriteDataToFile = function(self, fullPath, dataHandle)
+    local file = self:OpenFileForWriting(fullPath)
     if file < 0 then
+      log("Error in WriteDataToFile file: "..file)
       return false
     end
 
@@ -934,6 +1011,7 @@ mosync.FileSys = (function()
     mosync.maFileClose(file)
 
     if result < 0 then
+      log("Error in WriteDataToFile result: "..result)
       return false
     end
 
@@ -943,8 +1021,8 @@ mosync.FileSys = (function()
   -- Read a data object from a file.
   -- Returns handle to data, -1 on error
   -- TODO: Better to return -1 or zero on error?
-  fileObj.ReadDataFromFile = function(self, filePath)
-    local file = self:OpenFileForReading(filePath)
+  fileObj.ReadDataFromFile = function(self, fullPath)
+    local file = self:OpenFileForReading(fullPath)
     if file < 0 then
       return -1
     end
@@ -977,7 +1055,7 @@ mosync.FileSys = (function()
 
   -- Write a text string to a file.
   -- Returns true on success, false on error.
-  fileObj.WriteTextToFile = function(self, filePath, text)
+  fileObj.WriteTextToFile = function(self, fullPath, text)
     -- Create data object to write.
     local handle = mosync.maCreatePlaceholder()
     local size = text:len()
@@ -998,7 +1076,7 @@ mosync.FileSys = (function()
     mosync.maWriteData(handle, buffer, 0, size)
 
     -- Write string to file.
-    result = self:WriteDataToFile(filePath, handle)
+    result = self:WriteDataToFile(fullPath, handle)
 
     -- Free temporary objects.
     mosync.SysFree(buffer)
@@ -1009,9 +1087,9 @@ mosync.FileSys = (function()
 
   -- Read a text string from a file.
   -- Returns string, nil on error
-  fileObj.ReadTextFromFile = function(self, filePath)
+  fileObj.ReadTextFromFile = function(self, fullPath)
     -- Read data from the file.
-    local handle = self:ReadDataFromFile(filePath)
+    local handle = self:ReadDataFromFile(fullPath)
     if handle < 0 then
       return nil
     end
@@ -1087,7 +1165,9 @@ mosync.FileSys = (function()
   -- Write data to store.
   -- Return >0 on success, <0 on error.
   fileObj.WriteStore = function(self, store, handle)
-    return mosync.maWriteStore(store, handle)
+    local result = mosync.maWriteStore(store, handle)
+    log("WriteStore result: "..result)
+    return result
   end
 
   -- Read data from store.
@@ -1095,6 +1175,7 @@ mosync.FileSys = (function()
   fileObj.ReadStore = function(self, store)
     local handle = mosync.maCreatePlaceholder()
     local result = mosync.maReadStore(store, handle)
+    log("ReadStore result: "..result)
     if result < 0 then
       mosync.maDestroyPlaceholder(handle)
       return -1
@@ -1148,12 +1229,14 @@ mosync.FileSys = (function()
     -- Open the store.
     local store = self:OpenStore(storeName)
     if store < 0 then
+      log("ReadStoreText: nil 1")
       return nil
     end
 
     -- Read data from the store.
     local handle = self:ReadStore(store)
     if handle < 0 then
+      log("ReadStoreText: nil 2")
       return nil
     end
 

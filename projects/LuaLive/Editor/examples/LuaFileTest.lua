@@ -18,7 +18,7 @@ end
 mosync.SysBufferSetByte(buffer1, 10, 0)
 
 str1 = mosync.SysBufferToString(buffer1)
---print("@@@ "..str1)
+print("@@@ "..str1)
 
 handle1 = mosync.maCreatePlaceholder()
 mosync.maCreateData(handle1, SIZE)

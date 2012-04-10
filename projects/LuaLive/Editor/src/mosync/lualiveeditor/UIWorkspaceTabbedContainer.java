@@ -7,18 +7,18 @@ import javax.swing.JFileChooser;
 import javax.swing.JTabbedPane;
 
 @SuppressWarnings("serial")
-public class UIWorkspaceTabPane extends JTabbedPane
+public class UIWorkspaceTabbedContainer extends JTabbedPane
 {
 	private UIMainWindow mMainUI;
 
-	public UIWorkspaceTabPane(UIMainWindow mainWindow)
+	public UIWorkspaceTabbedContainer(UIMainWindow mainWindow)
 	{
 		mMainUI = mainWindow;
 	}
 
 	public void openPlayspace()
 	{
-		UIWorkspacePane editor = new UIWorkspacePane(mMainUI);
+		UIWorkspaceEditorPane editor = new UIWorkspaceEditorPane(mMainUI);
 		this.addTab("Playspace", editor);
 		int tabIndex = this.getTabCount() - 1;
 		setSelectedIndex(tabIndex);
@@ -64,6 +64,24 @@ public class UIWorkspaceTabPane extends JTabbedPane
 		 */
 	}
 
+	public void openRunButtonTab()
+	{
+		int index = this.indexOfTab("Run");
+		if (index < 0)
+		{
+			// No Run tab exists, create it.
+			UIWorkspaceRunPane pane = new UIWorkspaceRunPane(mMainUI);
+			this.addTab("Run", pane);
+			int tabIndex = this.getTabCount() - 1;
+			setSelectedIndex(tabIndex);
+		}
+		else
+		{
+			// Tab exists, show it.
+			setSelectedIndex(index);
+		}
+	}
+
 	public void openFile(File file)
 	{
 		try
@@ -79,7 +97,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 				// File is not open.
 				String fileName = Server.FileData.fileName(Server.FileData
 					.unixPath(file.getCanonicalPath()));
-				UIWorkspacePane editor = new UIWorkspacePane(mMainUI);
+				UIWorkspaceEditorPane editor = new UIWorkspaceEditorPane(mMainUI);
 				editor.openFile(file);
 				this.addTab(fileName, editor);
 				tabIndex = this.getTabCount() - 1;
@@ -96,7 +114,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	{
 		int i = getSelectedIndex();
 		Log.i("saveCurrentFile i = " + i);
-		UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+		UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 		Log.i("saveCurrentFile pane = " + pane);
 		pane.save();
 	}
@@ -104,7 +122,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	public void saveCurrentFileAs()
 	{
 		int i = getSelectedIndex();
-		UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+		UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 		File file = pane.getFile();
 		if (null == file)
 		{
@@ -133,7 +151,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	{
 		for (int i = 0; i < getTabCount(); ++i)
 		{
-			UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+			UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 			pane.save();
 		}
 	}
@@ -147,7 +165,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	public String getSelectedText()
 	{
 		int i = getSelectedIndex();
-		UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+		UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 		return pane.getSelectedText();
 	}
 
@@ -155,7 +173,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	{
 		for (int i = 0; i < getTabCount(); ++i)
 		{
-			UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+			UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 			pane.setEditorFont(font);
 		}
 	}
@@ -164,7 +182,7 @@ public class UIWorkspaceTabPane extends JTabbedPane
 	{
 		for (int i = 0; i < getTabCount(); ++i)
 		{
-			UIWorkspacePane pane = (UIWorkspacePane) getComponentAt(i);
+			UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
 			File f = pane.getFile();
 			if (null != f && f.equals(file))
 			{

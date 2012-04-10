@@ -1,0 +1,7 @@
+The LocalFiles folder is a way to bundle files
+with a Lua app (or any MoSync app).
+Place files in this folder and extract them
+onto the local file system of the device at runtime.
+
+Note: The extraction support is not yet tested/added.
+This feaure is not working at present.

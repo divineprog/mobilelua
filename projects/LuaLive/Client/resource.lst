@@ -1,7 +1,0 @@
-.res LUALIB
-.bin
-.include "../../common/LuaLib.lua"
-
-.res LUALIVECLIENT
-.bin
-.include "LuaLiveClient.lua"

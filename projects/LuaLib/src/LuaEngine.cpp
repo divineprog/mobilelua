@@ -186,6 +186,8 @@ static int luaPrint(lua_State *L)
 }
 
 /**
+ * mosync.SysBufferToString(buffer)
+ *
  * Create a new Lua string from a null-terminated
  * C-string pointed to by "buffer".
  * Return Lua string on success, nil on error.
@@ -216,9 +218,12 @@ static int luaBufferToString(lua_State *L)
 }
 
 /**
+ * mosync.SysStringToBuffer(string, buffer)
+ *
  * Copy contents of a Lua string to a C-buffer
  * pointed to by "buffer".
  * Does NOT copy the terminating null character.
+ * Buffer must be large enough to hold string data.
  * Return true on success, false on error.
  */
 static int luaStringToBuffer(lua_State *L)
@@ -227,9 +232,9 @@ static int luaStringToBuffer(lua_State *L)
 	const char* s = luaL_checkstring(L, 1);
 
 	// Get pointer to buffer.
-	if (!lua_isnoneornil(L, 1) && lua_islightuserdata(L, 1))
+	if (!lua_isnoneornil(L, 2) && lua_islightuserdata(L, 2))
 	{
-		char* buffer = (char*) lua_touserdata(L, 1);
+		char* buffer = (char*) lua_touserdata(L, 2);
 		if (NULL != buffer)
 		{
 			// Copy to buffer.

@@ -39,19 +39,6 @@ public class Server
 	{
 		mMainWindow = mainWindow;
 		mRunning = false;
-		mClientConnections = new ArrayList<ClientConnection>();
-
-		// Thread that handles messages to the server.
-		// Acts as a mediator that passes on messages.
-		mServerInBox = new MessageQueue(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				serverMessageLoop();
-			}
-		});
-		mClientAcceptor = new ClientAcceptor(mServerInBox);
 	}
 
 	public void startServer()
@@ -59,8 +46,24 @@ public class Server
 		if (!mRunning)
 		{
 			mRunning = true;
+
+			mClientConnections = new ArrayList<ClientConnection>();
+
+			// Thread that handles messages to the server.
+			// Acts as a mediator that passes on messages.
+			mServerInBox = new MessageQueue(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					serverMessageLoop();
+				}
+			});
 			mServerInBox.start();
+
+			mClientAcceptor = new ClientAcceptor(mServerInBox);
 			mClientAcceptor.start();
+
 			mMainWindow.showMessage("Server is running");
 		}
 	}
@@ -72,8 +75,14 @@ public class Server
 
 	private void stopServer()
 	{
-		if (!mRunning)
+		if (mRunning)
 		{
+			for (ClientConnection connection : mClientConnections)
+			{
+				//connection.postMessage(
+				//	new Message("CommandCloseClientConnection", message.getObject()));
+				connection.close();
+			}
 			mRunning = false;
 			mClientAcceptor.close();
 			mMainWindow.showMessage("Server stopped");
@@ -158,6 +167,11 @@ public class Server
 						new Message("CommandEvalJavaScript", message.getObject()));
 				}
 			}
+			else if ("CommandResetFileTracker".equals(message.getMessage()))
+			{
+				mFileTracker = null;
+			}
+			// CommandResetClient not used for now.
 			else if ("CommandResetClient".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
@@ -172,11 +186,6 @@ public class Server
 			}
 			else if ("CommandServerStop".equals(message.getMessage()))
 			{
-				for (ClientConnection connection : mClientConnections)
-				{
-					connection.postMessage(
-						new Message("CommandCloseClientConnection", message.getObject()));
-				}
 				stopServer();
 			}
 			// TODO: How is this used?
@@ -258,6 +267,7 @@ public class Server
 		private Thread mClientInBox;
 		private boolean mRunning;
 		private String mHostName;
+		private ClientConnection mClientConnection = this;
 
 		public ClientConnection(Socket socket, MessageQueue queue)
 		{
@@ -295,7 +305,7 @@ public class Server
 						// Start incoming communication loop.
 						incomingMessageLoop();
 					}
-					catch (IOException ex)
+					catch (Exception ex)
 					{
 						ex.printStackTrace();
 					}
@@ -306,11 +316,11 @@ public class Server
 						// Post dummy message to out box to ensure the blocking
 						// call to the queue returns and the loop is exited.
 						mClientOutBox.postMessage(
-							new Message("DummyMessage", this));
+							new Message("DummyMessage", mClientConnection));
 
 						// Post connection closed message to server.
 						mServerInBox.postMessage(
-							new Message("ClientConnectionClosed", this));
+							new Message("ClientConnectionClosed", mClientConnection));
 					}
 				}
 			};
@@ -325,6 +335,19 @@ public class Server
 		{
 			mClientInBox.start();
 			mClientOutBox.start();
+		}
+
+		public void close()
+		{
+			try
+			{
+				mSocket.close();
+			}
+			catch (Exception ex)
+			{
+				ex.printStackTrace();
+			}
+			mRunning = false;
 		}
 
 		public void postMessage(Message message)
@@ -405,7 +428,7 @@ public class Server
 			for (String path : fileData.getUpdatedFiles())
 			{
 				String localPath = FileData.deviceLocalPath(rootPath, path);
-				Log.i(" localPath: " + localPath);
+				Log.i("Sending file localPath: " + localPath);
 				sendFileData(out, path, localPath);
 			}
 
@@ -451,7 +474,8 @@ public class Server
 			out.flush();
 		}
 
-		private void incomingMessageLoop() throws IOException
+		private void incomingMessageLoop()
+			throws IOException, StringIndexOutOfBoundsException
 		{
 			InputStream in = mSocket.getInputStream();
 
