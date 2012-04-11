@@ -122,6 +122,78 @@ mosync.EventMonitor = (function ()
     isRunning = false
   end
 
+  self.HandleEvent = function(self, event)
+    log("HandleEvent")
+    local eventType = mosync.SysEventGetType(event)
+    log("  eventType: ".. eventType)
+    if mosync.EVENT_TYPE_CLOSE == eventType then
+      isRunning = false
+    elseif mosync.EVENT_TYPE_KEY_PRESSED == eventType then
+      if nil ~= keyDownFun then
+        keyDownFun(mosync.SysEventGetKey(event))
+      end
+    elseif mosync.EVENT_TYPE_KEY_RELEASED == eventType then
+      if nil ~= keyUpFun then
+        keyUpFun(mosync.SysEventGetKey(event))
+      end
+    elseif mosync.EVENT_TYPE_POINTER_PRESSED == eventType then
+      if nil ~= touchDownFun then
+        touchDownFun(
+          mosync.SysEventGetX(event),
+          mosync.SysEventGetY(event),
+          mosync.SysEventGetTouchId(event))
+      end
+    elseif mosync.EVENT_TYPE_POINTER_RELEASED == eventType then
+      if nil ~= touchUpFun then
+        touchUpFun(
+          mosync.SysEventGetX(event),
+          mosync.SysEventGetY(event),
+          mosync.SysEventGetTouchId(event))
+      end
+    elseif mosync.EVENT_TYPE_POINTER_DRAGGED == eventType then
+      if nil ~= touchDragFun then
+        touchDragFun(
+          mosync.SysEventGetX(event),
+          mosync.SysEventGetY(event),
+          mosync.SysEventGetTouchId(event))
+      end
+    elseif mosync.EVENT_TYPE_CONN == eventType then
+      local connectionFun = connectionFuns[mosync.SysEventGetConnHandle(event)]
+      if nil ~= connectionFun then
+        connectionFun(
+          mosync.SysEventGetConnHandle(event),
+          mosync.SysEventGetConnOpType(event),
+          mosync.SysEventGetConnResult(event))
+      end
+    elseif mosync.EVENT_TYPE_SENSOR == eventType then
+      if nil ~= sensorFun then
+        sensorFun(
+          mosync.SysEventSensorGetType(event),
+          mosync.SysEventSensorGetValue1(event),
+          mosync.SysEventSensorGetValue2(event),
+          mosync.SysEventSensorGetValue3(event))
+      end
+    elseif mosync.EVENT_TYPE_LOCATION == eventType then
+      if nil ~= locationFun then
+        locationFun(
+          mosync.SysEventLocationGetLat(event),
+          mosync.SysEventLocationGetLon(event),
+          mosync.SysEventLocationGetAlt(event),
+          mosync.SysEventLocationGetHorzAcc(event),
+          mosync.SysEventLocationGetVertAcc(event))
+      end
+    elseif mosync.EVENT_TYPE_WIDGET == eventType then
+      if nil ~= widgetFun then
+        widgetFun(mosync.SysEventGetData(event))
+      end
+    end -- End of ifs
+
+    -- Always pass the event to the any function.
+    if nil ~= anyFun then
+      anyFun(event, result)
+    end
+  end
+  
   self.RunEventLoop = function(self)
 
     -- Create a MoSync event object.
@@ -134,74 +206,7 @@ mosync.EventMonitor = (function ()
     while isRunning do
       mosync.maWait(self.WaitTime)
       while isRunning and 0 ~= mosync.maGetEvent(event) do
-        local eventType = mosync.SysEventGetType(event)
-        if mosync.EVENT_TYPE_CLOSE == eventType then
-          isRunning = false
-          break -- Exit inner while loop.
-        elseif mosync.EVENT_TYPE_KEY_PRESSED == eventType then
-          if nil ~= keyDownFun then
-            keyDownFun(mosync.SysEventGetKey(event))
-          end
-        elseif mosync.EVENT_TYPE_KEY_RELEASED == eventType then
-          if nil ~= keyUpFun then
-            keyUpFun(mosync.SysEventGetKey(event))
-          end
-        elseif mosync.EVENT_TYPE_POINTER_PRESSED == eventType then
-          if nil ~= touchDownFun then
-            touchDownFun(
-              mosync.SysEventGetX(event),
-              mosync.SysEventGetY(event),
-              mosync.SysEventGetTouchId(event))
-          end
-        elseif mosync.EVENT_TYPE_POINTER_RELEASED == eventType then
-          if nil ~= touchUpFun then
-            touchUpFun(
-              mosync.SysEventGetX(event),
-              mosync.SysEventGetY(event),
-              mosync.SysEventGetTouchId(event))
-          end
-        elseif mosync.EVENT_TYPE_POINTER_DRAGGED == eventType then
-          if nil ~= touchDragFun then
-            touchDragFun(
-              mosync.SysEventGetX(event),
-              mosync.SysEventGetY(event),
-              mosync.SysEventGetTouchId(event))
-          end
-        elseif mosync.EVENT_TYPE_CONN == eventType then
-          local connectionFun = connectionFuns[mosync.SysEventGetConnHandle(event)]
-          if nil ~= connectionFun then
-            connectionFun(
-              mosync.SysEventGetConnHandle(event),
-              mosync.SysEventGetConnOpType(event),
-              mosync.SysEventGetConnResult(event))
-          end
-        elseif mosync.EVENT_TYPE_SENSOR == eventType then
-          if nil ~= sensorFun then
-            sensorFun(
-              mosync.SysEventSensorGetType(event),
-              mosync.SysEventSensorGetValue1(event),
-              mosync.SysEventSensorGetValue2(event),
-              mosync.SysEventSensorGetValue3(event))
-          end
-        elseif mosync.EVENT_TYPE_LOCATION == eventType then
-          if nil ~= locationFun then
-            locationFun(
-              mosync.SysEventLocationGetLat(event),
-              mosync.SysEventLocationGetLon(event),
-              mosync.SysEventLocationGetAlt(event),
-              mosync.SysEventLocationGetHorzAcc(event),
-              mosync.SysEventLocationGetVertAcc(event))
-          end
-        elseif mosync.EVENT_TYPE_WIDGET == eventType then
-          if nil ~= widgetFun then
-            widgetFun(mosync.SysEventGetData(event))
-          end
-        end -- End of ifs
-
-        -- Always pass the event to the any function.
-        if nil ~= anyFun then
-          anyFun(event, result)
-        end
+        self:HandleEvent(event)
       end -- End of inner event loop
     end -- End of outer event loop
 
@@ -388,7 +393,7 @@ mosync.NativeUI = (function()
   -- Have we checked that NativeUI is supported?
   local nativeUISupportChecked = false
 
-  -- The UI manager object.
+  -- The UI manager object (self).
   local uiManager = {}
 
   -- Table that maps widget handles to event functions.
@@ -699,6 +704,7 @@ mosync.NativeUI = (function()
   -- TODO: Fix this.
   uiManager.Init = function(self)
     if not mIsInitialized then
+      log("mosync.NativeUI.Init()")
       mIsInitialized = true
       -- Create widget event handler that dispatches to
       -- the registered widget event functions.

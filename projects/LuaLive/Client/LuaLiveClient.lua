@@ -373,9 +373,9 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
         self.CreateGraphicalUI()
       end
       
-      -- TODO: Make sure screen is shown also when 
-      -- the web veiw exists. Will this do?
-      mosync.NativeUI:ShowScreen(self.Screen)
+      -- Do not show the screen, we can evaluate JS
+      -- in a hidden web view?
+      --mosync.NativeUI:ShowScreen(self.Screen)
       
       if nil ~= self.WebView then
         self.WebView:EvalJS(script)

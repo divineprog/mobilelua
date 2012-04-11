@@ -17,7 +17,7 @@
 <property key="build.prefs:extra.link.sw/Release" value=""/>
 <property key="build.prefs:extra.res.sw/Debug" value=""/>
 <property key="build.prefs:extra.res.sw/Release" value=""/>
-<property key="build.prefs:gcc.switches/Debug" value="-O0 -DMOSYNC "/>
+<property key="build.prefs:gcc.switches/Debug" value="-O0 -DMOSYNC"/>
 <property key="build.prefs:gcc.switches/Release" value="-O2 -DMOSYNC -DTOLUA_RELEASE"/>
 <property key="build.prefs:gcc.warnings/Debug" value="0"/>
 <property key="build.prefs:gcc.warnings/Release" value="0"/>
