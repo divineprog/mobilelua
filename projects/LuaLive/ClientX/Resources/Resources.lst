@@ -1,0 +1,14 @@
+.res LOCAL_FILES_BIN
+.ubin
+.include "LocalFiles.bin"
+
+.res BEEP_WAV
+.media "audio/x-wav", "Beep.wav"
+
+.res LUALIB
+.bin
+.include "../../../common/LuaLib.lua"
+
+.res LUALIVECLIENTX
+.bin
+.include "../LuaLiveClientX.lua"
