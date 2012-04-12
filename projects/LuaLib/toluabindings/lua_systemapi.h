@@ -230,7 +230,7 @@ void SysRectSetTop(MARect* rect, int top);
 void SysRectSetWidth(MARect* rect, int width);
 void SysRectSetHeight(MARect* rect, int height);
 
-// SMACopyData
+// Create struct MACopyData.
 MACopyData* SysCopyDataCreate(MAHandle dst, int dstOffset, MAHandle src, int srcOffset, int size);
 
 // Screen functions.
@@ -271,13 +271,26 @@ to make the list of Lua "Sys" functions complete.
 -- Create a new Lua string from a null-terminated
 -- C-string pointed to by "buffer".
 -- Return Lua string on success, nil on error.
-SysBufferToString(buffer) -> string
+SysBufferToString(buffer) --> string
 
 -- Copy contents of a Lua string to a C-buffer
 -- pointed to by "buffer".
 -- Does NOT copy the terminating null character.
 -- Return true on success, false on error.
-SysStringToBuffer(string, buffer) -> boolean
+SysStringToBuffer(string, buffer) --> boolean
+
+-- Search from back of string for substring until
+-- end of string. Return last found start index.
+-- Note that this function is defined in LuaLib.lua
+mosync.SysStringFindLast(str, subStr)
+
+-- Decodes a "percent encoded" Lua string (like
+-- the Javascript unescape function).
+mosync.SysStringUnescape(string) --> string
+
+-- Encodes a Lua string using "percent encoding" (like
+-- the Javascript escape function).
+mosync.SysStringEscape(string) --> string
 
 -- Create a new instance of the Lua engine.
 SysLuaEngineCreate() -> ref to the engine

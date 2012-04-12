@@ -106,10 +106,6 @@ mosync.EventMonitor = (function ()
     widgetFun = fun
   end
 
-  self.OnAny = function(self, fun)
-    anyFun = fun
-  end
-
   self.SetConnectionFun = function(self, connection, fun)
     connectionFuns[connection] = fun
   end
@@ -118,8 +114,8 @@ mosync.EventMonitor = (function ()
     connectionFuns[connection] = nil
   end
 
-  self.ExitEventLoop = function(self)
-    isRunning = false
+  self.OnAny = function(self, fun)
+    anyFun = fun
   end
 
   self.HandleEvent = function(self, event)
@@ -215,6 +211,10 @@ mosync.EventMonitor = (function ()
 
   end -- End of function runEventLoop
 
+  self.ExitEventLoop = function(self)
+    isRunning = false
+  end
+  
   return self
 
 end)()
@@ -1092,7 +1092,7 @@ mosync.FileSys = (function()
   end
 
   -- Read a text string from a file.
-  -- Returns string, nil on error
+  -- Returns a string, nil on error.
   fileObj.ReadTextFromFile = function(self, fullPath)
     -- Read data from the file.
     local handle = self:ReadDataFromFile(fullPath)
