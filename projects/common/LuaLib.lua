@@ -190,7 +190,7 @@ mosync.EventMonitor = (function ()
 
     -- Always pass the event to the any function.
     if nil ~= anyFun then
-      anyFun(event, result)
+      anyFun(event)
     end
   end
   
