@@ -33,7 +33,7 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 
 	public void save()
 	{
-		mEditor.save();
+		mEditor.save(false);
 	}
 
 	public void saveAsFile(File file)

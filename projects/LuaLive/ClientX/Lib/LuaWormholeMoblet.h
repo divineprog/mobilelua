@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2011 MoSync AB
+Copyright (C) 2012 MoSync AB
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License,
@@ -17,15 +17,15 @@ MA 02110-1301, USA.
 */
 
 /**
- * @file LuaWebAppMoblet.h
+ * @file LuaWormholeMoblet.h
  * @author Mikael Kindborg
  *
  * @brief Lua-enabled moblet that has a WebView and supports
  * communication between a JavaScript and C++.
  */
 
-#ifndef LUA_WEB_APP_MOBLET_H_
-#define LUA_WEB_APP_MOBLET_H_
+#ifndef LUA_WORMHOLE_MOBLET_H_
+#define LUA_WORMHOLE_MOBLET_H_
 
 #include <ma.h>
 #include <mastdlib.h>
@@ -62,23 +62,23 @@ extern "C"
 namespace MobileLua
 {
 	// Forward declaration.
-	class LuaWebAppMoblet_WebViewListener;
+	class LuaWormholeMoblet_WebViewListener;
 
 	/**
 	 * \brief A web view is a widget used to render web pages.
 	 */
-	class LuaWebAppMoblet : public MobileLua::Moblet
+	class LuaWormholeMoblet : public MobileLua::Moblet
 	{
 	public:
 		/**
 		 * Constructor.
 		 */
-		LuaWebAppMoblet();
+		LuaWormholeMoblet();
 
 		/**
 		 * Destructor.
 		 */
-		virtual ~LuaWebAppMoblet();
+		virtual ~LuaWormholeMoblet();
 
 		void initializeWormhole();
 
@@ -208,7 +208,7 @@ namespace MobileLua
 		/**
 		 * JavsScript message listener.
 		 */
-		LuaWebAppMoblet_WebViewListener* mWebViewListener;
+		LuaWormholeMoblet_WebViewListener* mWebViewListener;
 
 		/**
 		 * File utility object.
@@ -219,6 +219,11 @@ namespace MobileLua
 		 * Has extractFileSystem() been called?
 		 */
 		bool mFileSystemIsExtracted;
+
+		/**
+     	 * Pointer to the current MoSync event.
+     	 */
+		void* mLastEvent;
 
 		/**
 		 * Handler for PhoneGap messages.

@@ -406,6 +406,18 @@ public class Server
 		private void sendEvalLua(OutputStream out, String data)
 			throws IOException
 		{
+//			// Hack to make Lua return a value we can display.
+//			// data must be a variable.
+//			String s = data.trim();
+//			boolean isExpr = 
+//				s.contains(" ") || 
+//				s.contains("=") || 
+//				s.contains("(") || 
+//				s.contains(")");
+//			if (!isExpr)
+//			{
+//				data = "return (" + data + ")";
+//			}
 			writeIntToStream(out, COMMAND_EVAL_LUA);
 			writeStringToStream(out, data);
 			out.flush();

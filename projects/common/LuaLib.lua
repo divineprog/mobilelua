@@ -609,62 +609,80 @@ mosync.NativeUI = (function()
     self:__SetPropIfNil__(
       proplist,
       "eventFun",
-      self:CreateWebViewEventFun(function(success, result)
-        -- Report errors. If you want to display the result from
-        -- the Lua script, set your own "eventFun" when creating the
-        -- web view widget.
-        if not success then
-          log("@@@ Lua error in JavaScript call: "..result)
-        end
-      end
-      )
-    )
+      function(self, widgetEvent)
+        mosync.NativeUI:EvalLuaOnHookInvokedEvent(
+          widgetEvent,
+          function(success, result)
+            -- Report errors. If you want to display the result from
+            -- the Lua script, set your own "eventFun" when creating the
+            -- web view widget.
+            if not success then
+              log("@@@ Lua error in JavaScript call: "..result)
+            end
+          end,
+          true)
+      end)
     return self:CreateWidget(proplist)
   end
 
-  -- TODO: Add more convenience methods for creating widgets.
+  -- Special-purpose function that evaluates the data of a HOOK_INVOKED
+  -- event as a Lua script.
+  -- The callback function has the form: callbackFun(success, result)
+  -- where success is true/false, and result is either the result value
+  -- or an error message.
+  uiManager.EvalLuaOnHookInvokedEvent = function(
+    self, widgetEvent, callbackFun, freeDataHandle)
+    
+    -- If this is a HOOK_INVOKED event then evaluate the
+    -- data as a Lua script.
+    if mosync.MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
+      mosync.SysWidgetEventGetType(widgetEvent) then
 
+      -- Get the url data handle.
+      local dataHandle = mosync.SysWidgetEventGetUrlData(widgetEvent)
+
+      -- Convert data handle to a Lua string (will be GC:ed).
+      local data = mosync.SysLoadStringResource(dataHandle)
+
+      -- Release the data handle. Only do this is the
+      -- freeDataHandle flag is set.
+      if freeDataHandle then
+        mosync.maDestroyPlaceholder(dataHandle)
+      end
+      
+      -- Unescape the script data.
+      local script = mosync.SysStringUnescape(data)
+
+      -- Add ending space as a fix for the bug that
+      -- causes statements like "return 10" to fail.
+      -- "return 10 " will succeed.
+      script = script .. " "
+
+      -- Parse script.
+      local fun, errorMessage = loadstring(script)
+      if nil == fun then
+        callbackFun(false, errorMessage)
+      else
+        -- Run script and return result, success will
+        -- be true on success, false on error.
+        local success, resultOrErrorMessage = pcall(fun)
+        callbackFun(success, resultOrErrorMessage)
+      end
+    end
+  end
+  
+  -- Deprecated - use EvalLuaOnHookInvokedEvent instead.
+  -- TODO: Remove this function.
   -- Returns a function that evaluates Lua code sent from JavaScript.
+  -- This function is to be used with Lua widget objects, not widget handles.
   -- The function callbackFun will be called with the result from
   -- evaluating the Lua code.
   -- The callback function has the form: callbackFun(success, result)
   -- where success is true/false, and result is either the result value
   -- or an error message.
-  uiManager.CreateWebViewEventFun = function(unusedSelf, callbackFun)
-    return function(self, widgetEvent)
-      -- If this is a HOOK_INVOKED event then evaluate the
-      -- data as a Lua script.
-      if mosync.MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
-        mosync.SysWidgetEventGetType(widgetEvent) then
-
-        -- Get the url data handle.
-        local dataHandle = mosync.SysWidgetEventGetUrlData(widgetEvent)
-
-        -- Convert data handle to a Lua string (will be GC:ed).
-        local data = mosync.SysLoadStringResource(dataHandle)
-
-        -- Release the data handle.
-        mosync.maDestroyPlaceholder(dataHandle)
-
-        -- Unescape the script data.
-        local script = mosync.SysStringUnescape(data)
-
-        -- Add ending space as a fix for the bug that
-        -- causes statements like "return 10" to fail.
-        -- "return 10 " will succeed.
-        script = script .. " "
-
-        -- Parse script.
-        local fun, errorMessage = loadstring(script)
-        if nil == fun then
-          callbackFun(false, errorMessage)
-        else
-          -- Run script and return result, success will
-          -- be true on success, false on error.
-          local success, resultOrErrorMessage = pcall(fun)
-          callbackFun(success, resultOrErrorMessage)
-        end
-      end
+  uiManager.CreateWebViewEventFun = function(self, callbackFun)
+    return function(luaWidgetObject, widgetEvent)
+      self:EvalLuaOnHookInvokedEvent(widgetEvent, callbackFun, true)
     end
   end
 
@@ -776,6 +794,7 @@ mosync.NativeUI = (function()
           {
             if (mosync.isAndroid)
             {
+              console.log("Sending Android message: " + data);
               prompt(data, "");
             }
             else if (mosync.isIOS)

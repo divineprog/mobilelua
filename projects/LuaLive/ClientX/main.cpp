@@ -28,12 +28,12 @@
 
 #include <ma.h>
 #include "LuaEngine.h"
-#include "Lib/LuaWebAppMoblet.h"
+#include "Lib/LuaWormholeMoblet.h"
 #include "MAHeaders.h"
 
 extern "C" int MAMain()
 {
-	MobileLua::LuaWebAppMoblet moblet;
+	MobileLua::LuaWormholeMoblet moblet;
 
 	MobileLua::LuaEngine* engine = moblet.getLuaEngine();
 

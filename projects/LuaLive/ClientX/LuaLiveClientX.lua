@@ -1,5 +1,5 @@
 --[[
- * Copyright (c) 2011 MoSync AB
+ * Copyright (c) 2012 MoSync AB
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -105,7 +105,7 @@ LuaLive = (function()
   self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
   self.SERVER_PORT = ":55555"
   
-  -- The connection object.
+  -- The Connection object.
   self.Connection = nil
   
   -- Global references to widgets. These are handles.
@@ -125,6 +125,7 @@ LuaLive = (function()
     mosync.EventMonitor:OnKeyDown(self.OnKeyDown)
 
     if self.USE_NATIVE_UI then
+      -- Note that the UI is created in C++ in LuaWormholeMoblet.
       --self.CreateGraphicalUI()
       self.CreateHTML()
       --mosync.NativeUI:ShowScreen(self.Screen)
@@ -152,10 +153,31 @@ LuaLive = (function()
   --]]
   
   self.CreateHTML = function()
-    -- HTML for the WebView.
+  log("CreateHTML")
+    -- These widgets have been created in LuaWormholeMoblet.
+    -- Here we save the widget handles.
     self.WebView = mosync.WormholeGetWebViewWidgetHandle()
     self.Screen = mosync.WormholeGetScreenWidgetHandle()
+
+    -- Set up callback function that will eval Lua scripts
+    -- sent from JavaScript.
+    mosync.NativeUI:OnWidgetEvent(self.WebView, function(widgetEvent)
+      mosync.NativeUI:EvalLuaOnHookInvokedEvent(
+        widgetEvent, function(success, result)
+          -- Report errors. If you want to display the result from
+          -- the Lua script, set your own "eventFun" when creating the
+          -- web view widget.
+          if not success then
+            log("@@@ Lua error in JavaScript call: "..result)
+            if nil ~= self.Connection then
+              self.WriteResponse("@@@ Lua error in JavaScript call: "..result)
+            end
+          end
+        end,
+        false)
+      end)
     
+    -- Set HTML for the WebView.
     mosync.maWidgetSetProperty(
       self.WebView,
       mosync.MAW_WEB_VIEW_HTML,
@@ -204,6 +226,7 @@ function SetServerIPAddress(address)
 
 function EvalLua(script)
 {
+  console.log("EvalLua: " + script)
   mosync.bridge.sendRaw(escape(script))
 }
 
@@ -230,8 +253,10 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.ReadServerIPAddressAndSetTextBox = function()
     log("ReadServerIPAddressAndSetTextBox")
-    self.WebView:EvalJS(
-      "SetServerIPAddress('"..self.ReadServerIPAddress().."')")
+    mosync.maWidgetSetProperty(
+      self.WebView,
+      mosync.MAW_WEB_VIEW_URL,
+      "javascript:".."SetServerIPAddress('"..self.ReadServerIPAddress().."')")
   end
   
   self.ReadServerIPAddress = function()
@@ -247,8 +272,8 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.ConnectToServer = function(serverAddress)
     print("Connecting to: "..serverAddress)
-    self.connection = mosync.Connection:Create()
-    self.connection:Connect(
+    self.Connection = mosync.Connection:Create()
+    self.Connection:Connect(
       "socket://"..serverAddress..self.SERVER_PORT,
       self.ConnectionEstablished)
   end
@@ -271,7 +296,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.ReadCommand = function()
     -- Read from server.
-    self.connection:Read(8, self.MessageHeaderReceived)
+    self.Connection:Read(8, self.MessageHeaderReceived)
   end
   
   self.MessageHeaderReceived = function(buffer, result)
@@ -281,13 +306,13 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
       local dataSize = self.BufferReadInt(buffer, 4)
       if self.COMMAND_EVAL_LUA == command then
         -- Read script and evaluate it when received.
-        self.connection:Read(dataSize, self.EvalLua)
+        self.Connection:Read(dataSize, self.EvalLua)
       elseif self.COMMAND_EVAL_JAVASCRIPT == command then
         -- Read script and evaluate it when received.
-        self.connection:Read(dataSize, self.EvalJavaScript)
+        self.Connection:Read(dataSize, self.EvalJavaScript)
       elseif self.COMMAND_STORE_BINARY_FILE == command then
         -- Write file data to device.
-        self.connection:Read(dataSize, self.StoreFile)
+        self.Connection:Read(dataSize, self.StoreFile)
       end
     end
     -- Free the result buffer.
@@ -300,11 +325,15 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     --log("LoadFile: "..localPath)
     local type = self.GetFileType(localPath)
     if 1 == type then
+      -- This is a Lua file.
       local success, result = mosync.FileSys:LoadAndRunLocalLuaFile(localPath)
       return result
     end
     if 2 == type then
+      -- This is an HTML file.
       self.LoadHTML(localPath)
+      -- Also init the web view for use with Wormhole.
+      mosync.WormholeInitialize()
       return "Done"
     end
   end
@@ -445,7 +474,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     self.BufferWriteInt(buffer, 0, self.COMMAND_REPLY)
     self.BufferWriteInt(buffer, 4, dataSize)
     self.BufferWriteString(buffer, 8, response)
-    self.connection:Write(buffer, 8 + dataSize, self.WriteResponseDone)
+    self.Connection:Write(buffer, 8 + dataSize, self.WriteResponseDone)
   end
   
   self.WriteResponseDone = function(buffer, result)

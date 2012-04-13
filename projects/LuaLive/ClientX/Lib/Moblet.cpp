@@ -100,7 +100,6 @@ void Moblet::customEvent(const MAEvent& event)
 void Moblet::processEvent(const MAEvent& event)
 {
 	Moblet* moblet = this;
-
 	switch (event.type)
 	{
 		case EVENT_TYPE_CLOSE:
@@ -164,6 +163,7 @@ void Moblet::processEvent(const MAEvent& event)
 			break;
 		default:
 			moblet->fireCustomEventListeners(event);
+			break;
 	}
 }
 

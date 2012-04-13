@@ -24,6 +24,9 @@
 #include "LuaEngine.h"
 #include "MAHeaders.h"
 
+// Define the global variable errno.
+LUA_DEFINE_ERRNO
+
 extern "C" int MAMain()
 {
 	// Create the Lua engine.

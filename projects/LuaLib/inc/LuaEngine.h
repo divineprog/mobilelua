@@ -30,6 +30,9 @@
 
 #include "LuaErrorListener.h"
 
+// To get the macro LUA_DEFINE_ERRNO
+#include "../lua/inc/errno.h"
+
 namespace MobileLua
 {
 

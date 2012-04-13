@@ -44,7 +44,7 @@ class UIEditor extends RTextScrollPane
 	private RSyntaxTextArea mEditor;
 	private File mFile;
 	// Flag to keep track of edit changes.
-	private boolean mUpdated = false;
+	private String mOriginalContent = "";
 
 	public UIEditor()
 	{
@@ -70,14 +70,15 @@ class UIEditor extends RTextScrollPane
 		mScrollPane.setViewportView(mEditor);
 
 		// Listener that tracks updates.
-		createDocumentListener();
+		//createDocumentListener();
 
-		// TODO: Make dynamic.
+		// TODO: Make dynamic based on file extension.
 		mEditor.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_LUA);
 	}
 
 	public void setText(String text)
 	{
+		mOriginalContent = text;
 		mEditor.setText(text);
 	}
 
@@ -101,21 +102,22 @@ class UIEditor extends RTextScrollPane
 		}
 	}
 
-	public void save()
+	public void save(boolean forceSave)
 	{
-		if (null != mFile && mUpdated)
+		String data = mEditor.getText();
+		boolean updated = ! mOriginalContent.equals(data);
+		if (null != mFile && (updated || forceSave))
 		{
-			String data = mEditor.getText();
 			Server.FileData.writeFileAsString(mFile, data);
-			mUpdated = false;
+			mOriginalContent = data;
+			Log.i("Saved file");
 		}
 	}
-
+	
 	public void saveAsFile(File file)
 	{
 		mFile = file;
-		mUpdated = true;
-		save();
+		save(true);
 	}
 
 	public File getFile()
@@ -126,30 +128,5 @@ class UIEditor extends RTextScrollPane
 	public void setEditorFont(Font font)
 	{
 		mEditor.setFont(font);
-	}
-
-	private void createDocumentListener()
-	{
-		mEditor.getDocument().addDocumentListener(
-			new DocumentListener()
-			{
-		        @Override
-		        public void removeUpdate(DocumentEvent e)
-		        {
-		        	mUpdated = true;
-		        }
-
-		        @Override
-		        public void insertUpdate(DocumentEvent e)
-		        {
-		        	mUpdated = true;
-		        }
-
-		        @Override
-		        public void changedUpdate(DocumentEvent arg0)
-		        {
-		        	mUpdated = true;
-		        }
-			});
 	}
 }

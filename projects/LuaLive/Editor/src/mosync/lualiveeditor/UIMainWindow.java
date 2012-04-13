@@ -321,8 +321,9 @@ public class UIMainWindow extends JFrame
 			{
 				JOptionPane.showMessageDialog(
 					null,
-					"<html>Created by Mikael Kindborg<br/>"
-					+ "Built with MoSync Technology",
+					"<html>LuaLive Editor, 2012-04-14<br/>"
+					+ "Built with MoSync Technology<br/>"
+					+ "Author: Mikael Kindborg<br/>",
 					"About",
 					JOptionPane.INFORMATION_MESSAGE);
 			}
@@ -367,7 +368,7 @@ public class UIMainWindow extends JFrame
 			" (use 10.0.2.2 for localhost in Android emulator)";
 	}
 
-	private String getIpAddress()
+	public String getIpAddress()
 	{
 		String ipAddress = null;
 		try

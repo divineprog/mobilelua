@@ -1,9 +1,5 @@
 #include <errno.h>
 
-// This is to avoid duplicate definitions.
-// Define this symbol if you are including
-// another lib that defines errno (yajldom
-// does for example).
-#ifndef ERRNO_DEFINED
-//int errno = 0;
-#endif
+// If errno is not defined when you build
+// your app, use the macro LUA_DEFINE_ERRNO
+// to define it.

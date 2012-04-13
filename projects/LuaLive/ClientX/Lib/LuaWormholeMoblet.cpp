@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2011 MoSync AB
+Copyright (C) 2012 MoSync AB
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License,
@@ -17,20 +17,20 @@ MA 02110-1301, USA.
 */
 
 /**
- * @file LuaWebAppMoblet.cpp
+ * @file LuaWormholeMoblet.cpp
  * @author Mikael Kindborg
  *
  * @brief Lua-enabled moblet that has a WebView and supports
  * communication between a JavaScript and C++.
  */
 
-#include "LuaWebAppMoblet.h"
+#include "LuaWormholeMoblet.h"
 
 namespace MobileLua
 {
 	// Functions called from Lua.
 
-	static LuaWebAppMoblet* TheWormhole;
+	static LuaWormholeMoblet* TheWormhole;
 
 	static int WormholeShowWebView(lua_State *L)
 	{
@@ -68,13 +68,13 @@ namespace MobileLua
 	 * Class that listens for WebView events.
 	 * Here we receive messages from JavaScript.
 	 */
-	class LuaWebAppMoblet_WebViewListener : public NativeUI::WebViewListener
+	class LuaWormholeMoblet_WebViewListener : public NativeUI::WebViewListener
 	{
 	public:
 		/**
 		 * Constructor that saves the pointer to the moblet.
 		 */
-		LuaWebAppMoblet_WebViewListener(LuaWebAppMoblet* moblet)
+		LuaWormholeMoblet_WebViewListener(LuaWormholeMoblet* moblet)
 		{
 			mMoblet = moblet;
 		}
@@ -93,7 +93,6 @@ namespace MobileLua
 		{
 			// Note: urlData is deallocated automatically by
 			// the framework, we should not deallocate it here.
-
 			mMoblet->handleWebViewMessage(webView, urlData);
 		}
 
@@ -101,16 +100,20 @@ namespace MobileLua
 		/**
 		 * Pointer to the moblet.
 		 */
-		LuaWebAppMoblet* mMoblet;
+		LuaWormholeMoblet* mMoblet;
 	};
-	// End of class LuaWebAppMoblet_WebViewListener
+	// End of class LuaWormholeMoblet_WebViewListener
 
 	/**
 	 * Constructor.
 	 */
-	LuaWebAppMoblet::LuaWebAppMoblet() :
+	LuaWormholeMoblet::LuaWormholeMoblet() :
+		mScreen(NULL),
 		mWebView(NULL),
+		mWebViewListener(NULL),
+		mFileUtil(NULL),
 		mFileSystemIsExtracted(false),
+		mLastEvent(NULL),
 		mPhoneGapMessageHandler(getWebView()),
 		mNativeUIMessageHandler(getWebView()),
 		mResourceMessageHandler(getWebView())
@@ -151,7 +154,6 @@ namespace MobileLua
 		// The page in the "LocalFiles" folder to
 		// show when the application starts.
 		//showPage("index.html");
-		getWebView()->setHtml("<html><p>Hello</p></html>");
 
 		mScreen->show();
 	}
@@ -159,7 +161,7 @@ namespace MobileLua
 	/**
 	 * Destructor.
 	 */
-	LuaWebAppMoblet::~LuaWebAppMoblet()
+	LuaWormholeMoblet::~LuaWormholeMoblet()
 	{
 		// Deleting the root widget will also delete child widgets.
 		delete mScreen;
@@ -175,7 +177,11 @@ namespace MobileLua
 		delete mFileUtil;
 	}
 
-	void LuaWebAppMoblet::initializeWormhole()
+  /**
+   * This should be called from Lua after having loaded a 
+   * new web page, to enable Workmhole/PhoneGap.
+   */
+	void LuaWormholeMoblet::initializeWormhole()
 	{
 		// Send the Device Screen size to JavaScript.
 		MAExtent scrSize = maGetScrSize();
@@ -198,7 +204,7 @@ namespace MobileLua
 		mPhoneGapMessageHandler.initializePhoneGap();
 	}
 
-	void LuaWebAppMoblet::callLuaEventFun(lua_State* L, void* event)
+	void LuaWormholeMoblet::callLuaEventFun(lua_State* L, void* event)
 	{
 		// Used for consistency check.
 		int stackSize = lua_gettop(L);
@@ -233,34 +239,45 @@ namespace MobileLua
 		{
 			maPanic(0, "Stack is inconsistent in CallLuaEventFun");
 		}
-
-		maWriteLog("STEP9", 5);
 	}
 
 	/**
 	 * Pass event to Lua.
 	 * Overridden method.
 	 */
-	bool LuaWebAppMoblet::handleEvent(const MAEvent& event)
+	bool LuaWormholeMoblet::handleEvent(const MAEvent& event)
 	{
-		// Call Lua event handler.
+		// Save pointer to event.
+		mLastEvent = (void*) &event;
+	  
+		// Call Lua event handler, unless this is a HOOK_INVOKED event.
+		// HOOK_INVOKED are dispatched to Lua in handleWebViewMessage().
+		if (EVENT_TYPE_WIDGET == event.type)
+		{
+			MAWidgetEventData* widgetEvent = (MAWidgetEventData*) event.data;
+			if (MAW_EVENT_WEB_VIEW_HOOK_INVOKED == widgetEvent->eventType)
+			{
+				return false;
+			}
+		}
+
 		callLuaEventFun((lua_State*) mLuaEngine.mLuaState, (void*) &event);
 
 		// Always let the moblet process the event.
 		return false;
 	}
 
-	MAWidgetHandle LuaWebAppMoblet::getScreenWidgetHandle()
+	MAWidgetHandle LuaWormholeMoblet::getScreenWidgetHandle()
 	{
 		return mScreen->getWidgetHandle();
 	}
 
-	MAWidgetHandle LuaWebAppMoblet::getWebViewWidgetHandle()
+	MAWidgetHandle LuaWormholeMoblet::getWebViewWidgetHandle()
 	{
 		return mWebView->getWidgetHandle();
 	}
 
-	MobileLua::LuaEngine* LuaWebAppMoblet::getLuaEngine()
+	MobileLua::LuaEngine* LuaWormholeMoblet::getLuaEngine()
 	{
 		return &mLuaEngine;
 	}
@@ -270,14 +287,11 @@ namespace MobileLua
 	 * Creates the WebView if it does not exist.
 	 * @return Pointer to a WebView instance.
 	 */
-	NativeUI::WebView* LuaWebAppMoblet::getWebView()
+	NativeUI::WebView* LuaWormholeMoblet::getWebView()
 	{
-		maWriteLog("WEB 1", 5);
 		// Create the WebView if it does not exist.
 		if (NULL == mWebView)
 		{
-			maWriteLog("WEB 2", 5);
-
 			// Create and configure the WebView.
 			mWebView = new NativeUI::WebView();
 			mWebView->fillSpaceHorizontally();
@@ -296,7 +310,7 @@ namespace MobileLua
 	 * device's local file system.
 	 * @return Pointer to a FileUtil instance.
 	 */
-	Wormhole::FileUtil* LuaWebAppMoblet::getFileUtil()
+	Wormhole::FileUtil* LuaWormholeMoblet::getFileUtil()
 	{
 		return mFileUtil;
 	}
@@ -304,11 +318,11 @@ namespace MobileLua
 	/**
 	 * Enable JavaScript to C++ communication.
 	 */
-	void LuaWebAppMoblet::enableWebViewMessages()
+	void LuaWormholeMoblet::enableWebViewMessages()
 	{
 		if (NULL == mWebViewListener)
 		{
-			mWebViewListener = new LuaWebAppMoblet_WebViewListener(this);
+			mWebViewListener = new LuaWormholeMoblet_WebViewListener(this);
 			getWebView()->addWebViewListener(mWebViewListener);
 			getWebView()->enableWebViewMessages();
 		}
@@ -317,7 +331,7 @@ namespace MobileLua
 	/**
 	 * Disable JavaScript to C++ communication.
 	 */
-	void LuaWebAppMoblet::disableWebViewMessages()
+	void LuaWormholeMoblet::disableWebViewMessages()
 	{
 		if (NULL != mWebViewListener)
 		{
@@ -332,7 +346,7 @@ namespace MobileLua
 	 * Display a page in the WebView of this moblet.
 	 * @param url Url of page to open.
 	 */
-	void LuaWebAppMoblet::showPage(const MAUtil::String& url)
+	void LuaWormholeMoblet::showPage(const MAUtil::String& url)
 	{
 		// Since extractFileSystem() is moved out of the constructor
 		// into application code, make sure it has been called before
@@ -354,7 +368,7 @@ namespace MobileLua
 	/**
 	 * Display the WebView.
 	 */
-	void LuaWebAppMoblet::showWebView()
+	void LuaWormholeMoblet::showWebView()
 	{
 		// Make sure the WebView is created.
 		getWebView();
@@ -366,7 +380,7 @@ namespace MobileLua
 	/**
 	 * Run JavaScript code in the WebView.
 	 */
-	void LuaWebAppMoblet::callJS(const MAUtil::String& script)
+	void LuaWormholeMoblet::callJS(const MAUtil::String& script)
 	{
 		getWebView()->callJS(script);
 	}
@@ -378,7 +392,7 @@ namespace MobileLua
 	 // * in the WebView widget. The default implementation just
 	 // * displays a plain message.
 	 // */
-	// void LuaWebAppMoblet::displayUnpackScreen()
+	// void LuaWormholeMoblet::displayUnpackScreen()
 	// {
 		// getWebView()->setHtml(
 			// "<!DOCTYPE html>"
@@ -403,7 +417,7 @@ namespace MobileLua
 	 * This method is called when a key is pressed.
 	 * Forwards the event to PhoneGapMessageHandler.
 	 */
-	void LuaWebAppMoblet::keyPressEvent(int keyCode, int nativeCode)
+	void LuaWormholeMoblet::keyPressEvent(int keyCode, int nativeCode)
 	{
 		// Forward to PhoneGap MessageHandler.
 		mPhoneGapMessageHandler.processKeyEvent(keyCode, nativeCode);
@@ -419,7 +433,7 @@ namespace MobileLua
 	 * @param webView The WebView that sent the message.
 	 * @param urlData Data object that holds message content.
 	 */
-	void LuaWebAppMoblet::handleWebViewMessage(
+	void LuaWormholeMoblet::handleWebViewMessage(
 		NativeUI::WebView* webView,
 		MAHandle data)
 	{
@@ -440,7 +454,9 @@ namespace MobileLua
 		}
 		else
 		{
-			lprintfln("@@@ MOSYNC: Undefined message protocol");
+		  // The event was not any of the predefined protocols
+		  // used by Wormhole, pass it on to Lua.
+		  callLuaEventFun((lua_State*) mLuaEngine.mLuaState, mLastEvent);
 		}
 	}
 
@@ -452,7 +468,7 @@ namespace MobileLua
 	 * @param webView A pointer to the web view posting this message.
 	 * @param data The raw encoded JSON message array.
 	 */
-	void LuaWebAppMoblet::handleMessageStreamJSON(
+	void LuaWormholeMoblet::handleMessageStreamJSON(
 		NativeUI::WebView* webView,
 		MAHandle data)
 	{
@@ -482,7 +498,7 @@ namespace MobileLua
 	 * @param webView A pointer to the web view posting this message.
 	 * @param data The raw encoded stream of string messages.
 	 */
-	void LuaWebAppMoblet::handleMessageStream(
+	void LuaWormholeMoblet::handleMessageStream(
 		NativeUI::WebView* webView,
 		MAHandle data)
 	{
@@ -519,7 +535,7 @@ namespace MobileLua
 	/**
 	 * For debugging.
 	 */
-	void LuaWebAppMoblet::printMessage(MAHandle dataHandle)
+	void LuaWormholeMoblet::printMessage(MAHandle dataHandle)
 	{
 		// Get length of the data, it is not zero terminated.
 		int dataSize = maGetDataSize(dataHandle);
@@ -543,7 +559,7 @@ namespace MobileLua
 	/**
 	 * Extract HTML/CSS/JS/Media files to the local file system.
 	 */
-	void LuaWebAppMoblet::extractFileSystem()
+	void LuaWormholeMoblet::extractFileSystem()
 	{
 		// This function has been called.
 		mFileSystemIsExtracted = true;
@@ -561,7 +577,7 @@ namespace MobileLua
 	 * @return true if the checksum has changed (or if the old
 	 * value did not exist, such as on first time load).
 	 */
-	bool LuaWebAppMoblet::checksumHasChanged()
+	bool LuaWormholeMoblet::checksumHasChanged()
 	{
 		// Assume checksum has changed (or does not exist).
 		bool hasChanged = true;
