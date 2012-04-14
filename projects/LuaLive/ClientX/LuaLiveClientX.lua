@@ -290,7 +290,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
     end
     if self.USE_NATIVE_UI then
       -- Hide the WebView.
-      mosync.maWidgetScreenShow(mosync.MAW_CONSTANT_MOSYNC_SCREEN_HANDLE)
+      --mosync.maWidgetScreenShow(mosync.MAW_CONSTANT_MOSYNC_SCREEN_HANDLE)
     end
   end
   
@@ -340,7 +340,7 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   
   self.LoadHTML = function(localPath)
       -- Make sure the screen is shown.
-      mosync.maWidgetScreenShow(self.Screen)
+      --mosync.maWidgetScreenShow(self.Screen)
       mosync.maWidgetSetProperty(
         self.WebView,
         mosync.MAW_WEB_VIEW_URL,
