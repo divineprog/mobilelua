@@ -119,9 +119,7 @@ mosync.EventMonitor = (function ()
   end
 
   self.HandleEvent = function(self, event)
-    log("HandleEvent")
     local eventType = mosync.SysEventGetType(event)
-    log("  eventType: ".. eventType)
     if mosync.EVENT_TYPE_CLOSE == eventType then
       isRunning = false
     elseif mosync.EVENT_TYPE_KEY_PRESSED == eventType then
