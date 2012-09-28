@@ -1326,11 +1326,11 @@ if nil == os then
 end
 
 if nil == os.time then
-  os.time = maTime
+  os.time = mosync.maTime
 end
 
 if nil == os.clock then
  os.clock = function ()
-   return maGetMilliSecondCount() / 1000
+   return mosync.maGetMilliSecondCount() / 1000
  end
 end
