@@ -24,6 +24,8 @@
 #include "LuaEngine.h"
 #include "MAHeaders.h"
 
+LUA_DEFINE_ERRNO
+
 extern "C" int MAMain()
 {
 	// Create the Lua engine.
