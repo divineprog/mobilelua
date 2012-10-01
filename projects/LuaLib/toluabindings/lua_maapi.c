@@ -1,6 +1,6 @@
 /*
 ** Lua binding: lua_maapi
-** Generated automatically by tolua 5.1.4 on Mon Feb 27 16:15:47 2012.
+** Generated automatically by tolua 5.1.4 on Mon Oct  1 17:58:54 2012.
 */
 
 #include "tolua.h"
@@ -4360,6 +4360,160 @@ static int tolua_lua_maapi_mosync_maGetSystemProperty00(lua_State* tolua_S)
 #endif
 }
 
+/* function: maIapSave */
+static int tolua_lua_maapi_mosync_maIapSave00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maIapSave();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maIapSave'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maIapReset */
+static int tolua_lua_maapi_mosync_maIapReset00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maIapReset();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maIapReset'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maIapShutdown */
+static int tolua_lua_maapi_mosync_maIapShutdown00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maIapShutdown();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maIapShutdown'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maNetworkStatus */
+static int tolua_lua_maapi_mosync_maNetworkStatus00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maNetworkStatus();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maNetworkStatus'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maIapSetMethod */
+static int tolua_lua_maapi_mosync_maIapSetMethod00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int type = ((int)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maIapSetMethod(type);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maIapSetMethod'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maIapSetFilter */
+static int tolua_lua_maapi_mosync_maIapSetFilter00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int filter = ((int)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maIapSetFilter(filter);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maIapSetFilter'.",&tolua_err);
+ return 0;
+#endif
+}
+
 /* function: maCameraFormatNumber */
 static int tolua_lua_maapi_mosync_maCameraFormatNumber00(lua_State* tolua_S)
 {
@@ -4989,6 +5143,133 @@ static int tolua_lua_maapi_mosync_maScreenSetFullscreen00(lua_State* tolua_S)
 #endif
 }
 
+/* function: maAutostartOn */
+static int tolua_lua_maapi_mosync_maAutostartOn00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maAutostartOn();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maAutostartOn'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maAutostartOff */
+static int tolua_lua_maapi_mosync_maAutostartOff00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maAutostartOff();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maAutostartOff'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maScreenSetSupportedOrientations */
+static int tolua_lua_maapi_mosync_maScreenSetSupportedOrientations00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int orientations = ((int)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maScreenSetSupportedOrientations(orientations);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maScreenSetSupportedOrientations'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maScreenGetSupportedOrientations */
+static int tolua_lua_maapi_mosync_maScreenGetSupportedOrientations00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maScreenGetSupportedOrientations();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maScreenGetSupportedOrientations'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maScreenGetCurrentOrientation */
+static int tolua_lua_maapi_mosync_maScreenGetCurrentOrientation00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maScreenGetCurrentOrientation();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maScreenGetCurrentOrientation'.",&tolua_err);
+ return 0;
+#endif
+}
+
 /* function: maScreenStateEventsOn */
 static int tolua_lua_maapi_mosync_maScreenStateEventsOn00(lua_State* tolua_S)
 {
@@ -5035,6 +5316,33 @@ static int tolua_lua_maapi_mosync_maScreenStateEventsOff00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'maScreenStateEventsOff'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maWakeLock */
+static int tolua_lua_maapi_mosync_maWakeLock00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int flag = ((int)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maWakeLock(flag);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maWakeLock'.",&tolua_err);
  return 0;
 #endif
 }
@@ -6725,6 +7033,95 @@ static int tolua_lua_maapi_mosync_maAudioInstanceCreate00(lua_State* tolua_S)
 #endif
 }
 
+/* function: maAudioInstanceCreateDynamic */
+static int tolua_lua_maapi_mosync_maAudioInstanceCreateDynamic00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,2,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  int sampleRate = ((int)  tolua_tonumber(tolua_S,1,0));
+  int numChannels = ((int)  tolua_tonumber(tolua_S,2,0));
+  int bufferSize = ((int)  tolua_tonumber(tolua_S,3,0));
+ {
+  MAAudioInstance tolua_ret = (MAAudioInstance)  maAudioInstanceCreateDynamic(sampleRate,numChannels,bufferSize);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maAudioInstanceCreateDynamic'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maAudioSubmitBuffer */
+static int tolua_lua_maapi_mosync_maAudioSubmitBuffer00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAAudioInstance instance = ((MAAudioInstance)  tolua_tonumber(tolua_S,1,0));
+  const void* buffer = ((const void*)  tolua_touserdata(tolua_S,2,0));
+  int numBytes = ((int)  tolua_tonumber(tolua_S,3,0));
+ {
+  int tolua_ret = (int)  maAudioSubmitBuffer(instance,buffer,numBytes);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maAudioSubmitBuffer'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maAudioGetPendingBufferCount */
+static int tolua_lua_maapi_mosync_maAudioGetPendingBufferCount00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAAudioInstance instance = ((MAAudioInstance)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maAudioGetPendingBufferCount(instance);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maAudioGetPendingBufferCount'.",&tolua_err);
+ return 0;
+#endif
+}
+
 /* function: maAudioInstanceDestroy */
 static int tolua_lua_maapi_mosync_maAudioInstanceDestroy00(lua_State* tolua_S)
 {
@@ -7416,9 +7813,9 @@ static int tolua_lua_maapi_mosync_maNotificationPushRegister00(lua_State* tolua_
 #endif
  {
   MAHandle pushNotificationTypes = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
-  const char* accountID = ((const char*)  tolua_tostring(tolua_S,2,0));
+  const char* senderId = ((const char*)  tolua_tostring(tolua_S,2,0));
  {
-  int tolua_ret = (int)  maNotificationPushRegister(pushNotificationTypes,accountID);
+  int tolua_ret = (int)  maNotificationPushRegister(pushNotificationTypes,senderId);
  tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
  }
  }
@@ -7875,6 +8272,281 @@ static int tolua_lua_maapi_mosync_maCaptureDestroyData00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'maCaptureDestroyData'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseSupported */
+static int tolua_lua_maapi_mosync_maPurchaseSupported00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  int tolua_ret = (int)  maPurchaseSupported();
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseSupported'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseCreate */
+static int tolua_lua_maapi_mosync_maPurchaseCreate00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+  const char* productID = ((const char*)  tolua_tostring(tolua_S,2,0));
+ {
+  maPurchaseCreate(productHandle,productID);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseCreate'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseSetPublicKey */
+static int tolua_lua_maapi_mosync_maPurchaseSetPublicKey00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isstring(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  const char* developerPublicKey = ((const char*)  tolua_tostring(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maPurchaseSetPublicKey(developerPublicKey);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseSetPublicKey'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseRequest */
+static int tolua_lua_maapi_mosync_maPurchaseRequest00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,2,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,3,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+  int quantity = ((int)  tolua_tonumber(tolua_S,2,0));
+ {
+  maPurchaseRequest(productHandle,quantity);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseRequest'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseVerifyReceipt */
+static int tolua_lua_maapi_mosync_maPurchaseVerifyReceipt00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+ {
+  maPurchaseVerifyReceipt(productHandle);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseVerifyReceipt'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseGetField */
+static int tolua_lua_maapi_mosync_maPurchaseGetField00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,3,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,4,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,5,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+  const char* property = ((const char*)  tolua_tostring(tolua_S,2,0));
+  void* buffer = ((void*)  tolua_touserdata(tolua_S,3,0));
+  int bufferSize = ((int)  tolua_tonumber(tolua_S,4,0));
+ {
+  int tolua_ret = (int)  maPurchaseGetField(productHandle,property,buffer,bufferSize);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseGetField'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseSetStoreURL */
+static int tolua_lua_maapi_mosync_maPurchaseSetStoreURL00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isstring(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  const char* url = ((const char*)  tolua_tostring(tolua_S,1,0));
+ {
+  maPurchaseSetStoreURL(url);
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseSetStoreURL'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseGetName */
+static int tolua_lua_maapi_mosync_maPurchaseGetName00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isuserdata(tolua_S,2,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,3,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,4,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+  void* buffer = ((void*)  tolua_touserdata(tolua_S,2,0));
+  int bufferSize = ((int)  tolua_tonumber(tolua_S,3,0));
+ {
+  int tolua_ret = (int)  maPurchaseGetName(productHandle,buffer,bufferSize);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseGetName'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseRestoreTransactions */
+static int tolua_lua_maapi_mosync_maPurchaseRestoreTransactions00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnoobj(tolua_S,1,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+ {
+  maPurchaseRestoreTransactions();
+ }
+ }
+ return 0;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseRestoreTransactions'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maPurchaseDestroy */
+static int tolua_lua_maapi_mosync_maPurchaseDestroy00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,2,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAHandle productHandle = ((MAHandle)  tolua_tonumber(tolua_S,1,0));
+ {
+  int tolua_ret = (int)  maPurchaseDestroy(productHandle);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maPurchaseDestroy'.",&tolua_err);
  return 0;
 #endif
 }
@@ -10052,6 +10724,39 @@ static int tolua_lua_maapi_mosync_maWidgetGetProperty00(lua_State* tolua_S)
 #ifndef TOLUA_RELEASE
  tolua_lerror:
  tolua_error(tolua_S,"#ferror in function 'maWidgetGetProperty'.",&tolua_err);
+ return 0;
+#endif
+}
+
+/* function: maWidgetScreenAddOptionsMenuItem */
+static int tolua_lua_maapi_mosync_maWidgetScreenAddOptionsMenuItem00(lua_State* tolua_S)
+{
+#ifndef TOLUA_RELEASE
+ tolua_Error tolua_err;
+ if (
+ !tolua_isnumber(tolua_S,1,0,&tolua_err) || 
+ !tolua_isstring(tolua_S,2,0,&tolua_err) || 
+ !tolua_isstring(tolua_S,3,0,&tolua_err) || 
+ !tolua_isnumber(tolua_S,4,0,&tolua_err) || 
+ !tolua_isnoobj(tolua_S,5,&tolua_err)
+ )
+ goto tolua_lerror;
+ else
+#endif
+ {
+  MAWidgetHandle widget = ((MAWidgetHandle)  tolua_tonumber(tolua_S,1,0));
+  const char* title = ((const char*)  tolua_tostring(tolua_S,2,0));
+  const char* iconPath = ((const char*)  tolua_tostring(tolua_S,3,0));
+  int iconPredefined = ((int)  tolua_tonumber(tolua_S,4,0));
+ {
+  int tolua_ret = (int)  maWidgetScreenAddOptionsMenuItem(widget,title,iconPath,iconPredefined);
+ tolua_pushnumber(tolua_S,(lua_Number)tolua_ret);
+ }
+ }
+ return 1;
+#ifndef TOLUA_RELEASE
+ tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'maWidgetScreenAddOptionsMenuItem'.",&tolua_err);
  return 0;
 #endif
 }
@@ -12527,6 +13232,8 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"EVENT_TYPE_PUSH_NOTIFICATION_UNREGISTRATION",EVENT_TYPE_PUSH_NOTIFICATION_UNREGISTRATION);
  tolua_constant(tolua_S,"EVENT_TYPE_PUSH_NOTIFICATION",EVENT_TYPE_PUSH_NOTIFICATION);
  tolua_constant(tolua_S,"EVENT_TYPE_CAPTURE",EVENT_TYPE_CAPTURE);
+ tolua_constant(tolua_S,"EVENT_TYPE_PURCHASE",EVENT_TYPE_PURCHASE);
+ tolua_constant(tolua_S,"EVENT_TYPE_NETWORK",EVENT_TYPE_NETWORK);
  tolua_constant(tolua_S,"RUNTIME_MORE",RUNTIME_MORE);
  tolua_constant(tolua_S,"RUNTIME_JAVA",RUNTIME_JAVA);
  tolua_constant(tolua_S,"RUNTIME_SYMBIAN",RUNTIME_SYMBIAN);
@@ -12582,6 +13289,19 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"MA_SMS_RESULT_NOT_SENT",MA_SMS_RESULT_NOT_SENT);
  tolua_constant(tolua_S,"MA_SMS_RESULT_DELIVERED",MA_SMS_RESULT_DELIVERED);
  tolua_constant(tolua_S,"MA_SMS_RESULT_NOT_DELIVERED",MA_SMS_RESULT_NOT_DELIVERED);
+ tolua_constant(tolua_S,"MA_NETWORK_UNKNOWN",MA_NETWORK_UNKNOWN);
+ tolua_constant(tolua_S,"MA_NETWORK_NO_SERVICE",MA_NETWORK_NO_SERVICE);
+ tolua_constant(tolua_S,"MA_NETWORK_EMERGENCY_ONLY",MA_NETWORK_EMERGENCY_ONLY);
+ tolua_constant(tolua_S,"MA_NETWORK_SEARCHING",MA_NETWORK_SEARCHING);
+ tolua_constant(tolua_S,"MA_NETWORK_BUSY",MA_NETWORK_BUSY);
+ tolua_constant(tolua_S,"MA_NETWORK_HOME",MA_NETWORK_HOME);
+ tolua_constant(tolua_S,"MA_NETWORK_DENIED",MA_NETWORK_DENIED);
+ tolua_constant(tolua_S,"MA_NETWORK_ROAMING",MA_NETWORK_ROAMING);
+ tolua_constant(tolua_S,"MA_IAP_METHOD_STANDARD",MA_IAP_METHOD_STANDARD);
+ tolua_constant(tolua_S,"MA_IAP_METHOD_WLAN",MA_IAP_METHOD_WLAN);
+ tolua_constant(tolua_S,"MA_IAP_FILTER_NOT_WLAN",MA_IAP_FILTER_NOT_WLAN);
+ tolua_constant(tolua_S,"MA_IAP_FILTER_WLAN",MA_IAP_FILTER_WLAN);
+ tolua_constant(tolua_S,"MA_IAP_FILTER_ALL",MA_IAP_FILTER_ALL);
  tolua_constant(tolua_S,"MA_CAMERA_CONST_BACK_CAMERA",MA_CAMERA_CONST_BACK_CAMERA);
  tolua_constant(tolua_S,"MA_CAMERA_CONST_FRONT_CAMERA",MA_CAMERA_CONST_FRONT_CAMERA);
  tolua_constant(tolua_S,"MA_CAMERA_RES_OK",MA_CAMERA_RES_OK);
@@ -12628,6 +13348,15 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"SCREEN_ORIENTATION_LANDSCAPE",SCREEN_ORIENTATION_LANDSCAPE);
  tolua_constant(tolua_S,"SCREEN_ORIENTATION_PORTRAIT",SCREEN_ORIENTATION_PORTRAIT);
  tolua_constant(tolua_S,"SCREEN_ORIENTATION_DYNAMIC",SCREEN_ORIENTATION_DYNAMIC);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_PORTRAIT",MA_SCREEN_ORIENTATION_PORTRAIT);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN",MA_SCREEN_ORIENTATION_PORTRAIT_UPSIDE_DOWN);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_LANDSCAPE_LEFT",MA_SCREEN_ORIENTATION_LANDSCAPE_LEFT);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_LANDSCAPE_RIGHT",MA_SCREEN_ORIENTATION_LANDSCAPE_RIGHT);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_RES_OK",MA_SCREEN_ORIENTATION_RES_OK);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_RES_NOT_SUPPORTED",MA_SCREEN_ORIENTATION_RES_NOT_SUPPORTED);
+ tolua_constant(tolua_S,"MA_SCREEN_ORIENTATION_RES_INVALID_VALUE",MA_SCREEN_ORIENTATION_RES_INVALID_VALUE);
+ tolua_constant(tolua_S,"MA_WAKE_LOCK_ON",MA_WAKE_LOCK_ON);
+ tolua_constant(tolua_S,"MA_WAKE_LOCK_OFF",MA_WAKE_LOCK_OFF);
  tolua_constant(tolua_S,"SENSOR_TYPE_ACCELEROMETER",SENSOR_TYPE_ACCELEROMETER);
  tolua_constant(tolua_S,"SENSOR_TYPE_MAGNETIC_FIELD",SENSOR_TYPE_MAGNETIC_FIELD);
  tolua_constant(tolua_S,"SENSOR_TYPE_ORIENTATION",SENSOR_TYPE_ORIENTATION);
@@ -12735,6 +13464,8 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"MA_ADS_SIZE_RECT",MA_ADS_SIZE_RECT);
  tolua_constant(tolua_S,"MA_ADS_SIZE_IAB_BANNER",MA_ADS_SIZE_IAB_BANNER);
  tolua_constant(tolua_S,"MA_ADS_SIZE_LEADERBOARD",MA_ADS_SIZE_LEADERBOARD);
+ tolua_constant(tolua_S,"MA_ADS_SIZE_WP7_XLARGE",MA_ADS_SIZE_WP7_XLARGE);
+ tolua_constant(tolua_S,"MA_ADS_SIZE_WP7_XXLARGE",MA_ADS_SIZE_WP7_XXLARGE);
  tolua_constant(tolua_S,"MA_ADS_EVENT_FAILED",MA_ADS_EVENT_FAILED);
  tolua_constant(tolua_S,"MA_ADS_EVENT_LOADED",MA_ADS_EVENT_LOADED);
  tolua_constant(tolua_S,"MA_ADS_EVENT_ON_DISMISS",MA_ADS_EVENT_ON_DISMISS);
@@ -12814,6 +13545,59 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"MA_CAPTURE_FLASH_AUTO",MA_CAPTURE_FLASH_AUTO);
  tolua_constant(tolua_S,"MA_CAPTURE_FLASH_ON",MA_CAPTURE_FLASH_ON);
  tolua_constant(tolua_S,"MA_CAPTURE_FLASH_OFF",MA_CAPTURE_FLASH_OFF);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_OK",MA_PURCHASE_RES_OK);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_UNAVAILABLE",MA_PURCHASE_RES_UNAVAILABLE);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_CONNECTION_ERROR",MA_PURCHASE_RES_CONNECTION_ERROR);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_OUT_OF_DATE",MA_PURCHASE_RES_OUT_OF_DATE);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_CLIENT_INVALID",MA_PURCHASE_RES_CLIENT_INVALID);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_NOT_ALLOWED",MA_PURCHASE_RES_NOT_ALLOWED);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_DISABLED",MA_PURCHASE_RES_DISABLED);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_INVALID_HANDLE",MA_PURCHASE_RES_INVALID_HANDLE);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_BUFFER_TOO_SMALL",MA_PURCHASE_RES_BUFFER_TOO_SMALL);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_RECEIPT_NOT_AVAILABLE",MA_PURCHASE_RES_RECEIPT_NOT_AVAILABLE);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_INVALID_FIELD_NAME",MA_PURCHASE_RES_INVALID_FIELD_NAME);
+ tolua_constant(tolua_S,"MA_PURCHASE_RES_MALFORMED_PUBLIC_KEY",MA_PURCHASE_RES_MALFORMED_PUBLIC_KEY);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_INVALID_HANDLE",MA_PURCHASE_ERROR_INVALID_HANDLE);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_CONNECTION_FAILED",MA_PURCHASE_ERROR_CONNECTION_FAILED);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_CANNOT_PARSE_RECEIPT",MA_PURCHASE_ERROR_CANNOT_PARSE_RECEIPT);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_INVALID_PRODUCT",MA_PURCHASE_ERROR_INVALID_PRODUCT);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_INVALID_CLIENT",MA_PURCHASE_ERROR_INVALID_CLIENT);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_CANCELLED",MA_PURCHASE_ERROR_CANCELLED);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_NOT_ALLOWED",MA_PURCHASE_ERROR_NOT_ALLOWED);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_PUBLIC_KEY_NOT_SET",MA_PURCHASE_ERROR_PUBLIC_KEY_NOT_SET);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_UNKNOWN",MA_PURCHASE_ERROR_UNKNOWN);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_INVALID_QUANTITY",MA_PURCHASE_ERROR_INVALID_QUANTITY);
+ tolua_constant(tolua_S,"MA_PURCHASE_ERROR_NO_RECEIPT",MA_PURCHASE_ERROR_NO_RECEIPT);
+ tolua_constant(tolua_S,"MA_PURCHASE_EVENT_PRODUCT_CREATE",MA_PURCHASE_EVENT_PRODUCT_CREATE);
+ tolua_constant(tolua_S,"MA_PURCHASE_EVENT_REQUEST",MA_PURCHASE_EVENT_REQUEST);
+ tolua_constant(tolua_S,"MA_PURCHASE_EVENT_VERIFY_RECEIPT",MA_PURCHASE_EVENT_VERIFY_RECEIPT);
+ tolua_constant(tolua_S,"MA_PURCHASE_EVENT_REFUNDED",MA_PURCHASE_EVENT_REFUNDED);
+ tolua_constant(tolua_S,"MA_PURCHASE_EVENT_RESTORE",MA_PURCHASE_EVENT_RESTORE);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_PRODUCT_VALID",MA_PURCHASE_STATE_PRODUCT_VALID);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_PRODUCT_INVALID",MA_PURCHASE_STATE_PRODUCT_INVALID);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_DISABLED",MA_PURCHASE_STATE_DISABLED);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_DUPLICATE_HANDLE",MA_PURCHASE_STATE_DUPLICATE_HANDLE);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_FAILED",MA_PURCHASE_STATE_FAILED);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_IN_PROGRESS",MA_PURCHASE_STATE_IN_PROGRESS);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_COMPLETED",MA_PURCHASE_STATE_COMPLETED);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_RECEIPT_VALID",MA_PURCHASE_STATE_RECEIPT_VALID);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_RECEIPT_INVALID",MA_PURCHASE_STATE_RECEIPT_INVALID);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_RECEIPT_ERROR",MA_PURCHASE_STATE_RECEIPT_ERROR);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_RESTORE_ERROR",MA_PURCHASE_STATE_RESTORE_ERROR);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_PRODUCT_RESTORED",MA_PURCHASE_STATE_PRODUCT_RESTORED);
+ tolua_constant(tolua_S,"MA_PURCHASE_STATE_PRODUCT_REFUNDED",MA_PURCHASE_STATE_PRODUCT_REFUNDED);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_QUANTITY",MA_PURCHASE_RECEIPT_QUANTITY);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_PRODUCT_ID",MA_PURCHASE_RECEIPT_PRODUCT_ID);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_TRANSACTION_ID",MA_PURCHASE_RECEIPT_TRANSACTION_ID);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_PURCHASE_DATE",MA_PURCHASE_RECEIPT_PURCHASE_DATE);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_ORIGINAL_TRANSACTION_ID",MA_PURCHASE_RECEIPT_ORIGINAL_TRANSACTION_ID);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_APP_ITEM_ID",MA_PURCHASE_RECEIPT_APP_ITEM_ID);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_VERSION_EXTERNAL_IDENTIFIER",MA_PURCHASE_RECEIPT_VERSION_EXTERNAL_IDENTIFIER);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_BID",MA_PURCHASE_RECEIPT_BID);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_BVRS",MA_PURCHASE_RECEIPT_BVRS);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_PRICE",MA_PURCHASE_RECEIPT_PRICE);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_TITLE",MA_PURCHASE_RECEIPT_TITLE);
+ tolua_constant_string(tolua_S,"MA_PURCHASE_RECEIPT_DESCRIPTION",MA_PURCHASE_RECEIPT_DESCRIPTION);
  tolua_constant(tolua_S,"IOCTL_UNAVAILABLE",IOCTL_UNAVAILABLE);
  tolua_function(tolua_S,"maCheckInterfaceVersion",tolua_lua_maapi_mosync_maCheckInterfaceVersion00);
  tolua_function(tolua_S,"maExit",tolua_lua_maapi_mosync_maExit00);
@@ -12969,6 +13753,12 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_function(tolua_S,"maSendToBackground",tolua_lua_maapi_mosync_maSendToBackground00);
  tolua_function(tolua_S,"maBringToForeground",tolua_lua_maapi_mosync_maBringToForeground00);
  tolua_function(tolua_S,"maGetSystemProperty",tolua_lua_maapi_mosync_maGetSystemProperty00);
+ tolua_function(tolua_S,"maIapSave",tolua_lua_maapi_mosync_maIapSave00);
+ tolua_function(tolua_S,"maIapReset",tolua_lua_maapi_mosync_maIapReset00);
+ tolua_function(tolua_S,"maIapShutdown",tolua_lua_maapi_mosync_maIapShutdown00);
+ tolua_function(tolua_S,"maNetworkStatus",tolua_lua_maapi_mosync_maNetworkStatus00);
+ tolua_function(tolua_S,"maIapSetMethod",tolua_lua_maapi_mosync_maIapSetMethod00);
+ tolua_function(tolua_S,"maIapSetFilter",tolua_lua_maapi_mosync_maIapSetFilter00);
  tolua_function(tolua_S,"maCameraFormatNumber",tolua_lua_maapi_mosync_maCameraFormatNumber00);
  tolua_function(tolua_S,"maCameraFormat",tolua_lua_maapi_mosync_maCameraFormat00);
  tolua_function(tolua_S,"maCameraStart",tolua_lua_maapi_mosync_maCameraStart00);
@@ -12992,8 +13782,14 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_function(tolua_S,"maNotificationRemove",tolua_lua_maapi_mosync_maNotificationRemove00);
  tolua_function(tolua_S,"maScreenSetOrientation",tolua_lua_maapi_mosync_maScreenSetOrientation00);
  tolua_function(tolua_S,"maScreenSetFullscreen",tolua_lua_maapi_mosync_maScreenSetFullscreen00);
+ tolua_function(tolua_S,"maAutostartOn",tolua_lua_maapi_mosync_maAutostartOn00);
+ tolua_function(tolua_S,"maAutostartOff",tolua_lua_maapi_mosync_maAutostartOff00);
+ tolua_function(tolua_S,"maScreenSetSupportedOrientations",tolua_lua_maapi_mosync_maScreenSetSupportedOrientations00);
+ tolua_function(tolua_S,"maScreenGetSupportedOrientations",tolua_lua_maapi_mosync_maScreenGetSupportedOrientations00);
+ tolua_function(tolua_S,"maScreenGetCurrentOrientation",tolua_lua_maapi_mosync_maScreenGetCurrentOrientation00);
  tolua_function(tolua_S,"maScreenStateEventsOn",tolua_lua_maapi_mosync_maScreenStateEventsOn00);
  tolua_function(tolua_S,"maScreenStateEventsOff",tolua_lua_maapi_mosync_maScreenStateEventsOff00);
+ tolua_function(tolua_S,"maWakeLock",tolua_lua_maapi_mosync_maWakeLock00);
  tolua_function(tolua_S,"maReportResourceInformation",tolua_lua_maapi_mosync_maReportResourceInformation00);
  tolua_function(tolua_S,"maMessageBox",tolua_lua_maapi_mosync_maMessageBox00);
  tolua_function(tolua_S,"maAlert",tolua_lua_maapi_mosync_maAlert00);
@@ -13052,6 +13848,9 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_function(tolua_S,"maAudioDataCreateFromURL",tolua_lua_maapi_mosync_maAudioDataCreateFromURL00);
  tolua_function(tolua_S,"maAudioDataDestroy",tolua_lua_maapi_mosync_maAudioDataDestroy00);
  tolua_function(tolua_S,"maAudioInstanceCreate",tolua_lua_maapi_mosync_maAudioInstanceCreate00);
+ tolua_function(tolua_S,"maAudioInstanceCreateDynamic",tolua_lua_maapi_mosync_maAudioInstanceCreateDynamic00);
+ tolua_function(tolua_S,"maAudioSubmitBuffer",tolua_lua_maapi_mosync_maAudioSubmitBuffer00);
+ tolua_function(tolua_S,"maAudioGetPendingBufferCount",tolua_lua_maapi_mosync_maAudioGetPendingBufferCount00);
  tolua_function(tolua_S,"maAudioInstanceDestroy",tolua_lua_maapi_mosync_maAudioInstanceDestroy00);
  tolua_function(tolua_S,"maAudioGetLength",tolua_lua_maapi_mosync_maAudioGetLength00);
  tolua_function(tolua_S,"maAudioSetNumberOfLoops",tolua_lua_maapi_mosync_maAudioSetNumberOfLoops00);
@@ -13093,6 +13892,16 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_function(tolua_S,"maCaptureGetImagePath",tolua_lua_maapi_mosync_maCaptureGetImagePath00);
  tolua_function(tolua_S,"maCaptureGetVideoPath",tolua_lua_maapi_mosync_maCaptureGetVideoPath00);
  tolua_function(tolua_S,"maCaptureDestroyData",tolua_lua_maapi_mosync_maCaptureDestroyData00);
+ tolua_function(tolua_S,"maPurchaseSupported",tolua_lua_maapi_mosync_maPurchaseSupported00);
+ tolua_function(tolua_S,"maPurchaseCreate",tolua_lua_maapi_mosync_maPurchaseCreate00);
+ tolua_function(tolua_S,"maPurchaseSetPublicKey",tolua_lua_maapi_mosync_maPurchaseSetPublicKey00);
+ tolua_function(tolua_S,"maPurchaseRequest",tolua_lua_maapi_mosync_maPurchaseRequest00);
+ tolua_function(tolua_S,"maPurchaseVerifyReceipt",tolua_lua_maapi_mosync_maPurchaseVerifyReceipt00);
+ tolua_function(tolua_S,"maPurchaseGetField",tolua_lua_maapi_mosync_maPurchaseGetField00);
+ tolua_function(tolua_S,"maPurchaseSetStoreURL",tolua_lua_maapi_mosync_maPurchaseSetStoreURL00);
+ tolua_function(tolua_S,"maPurchaseGetName",tolua_lua_maapi_mosync_maPurchaseGetName00);
+ tolua_function(tolua_S,"maPurchaseRestoreTransactions",tolua_lua_maapi_mosync_maPurchaseRestoreTransactions00);
+ tolua_function(tolua_S,"maPurchaseDestroy",tolua_lua_maapi_mosync_maPurchaseDestroy00);
  tolua_constant(tolua_S,"MA_GL_TEX_IMAGE_2D_OK",MA_GL_TEX_IMAGE_2D_OK);
  tolua_constant(tolua_S,"MA_GL_TEX_IMAGE_2D_INVALID_IMAGE",MA_GL_TEX_IMAGE_2D_INVALID_IMAGE);
  tolua_constant(tolua_S,"MA_GL_API_GL2",MA_GL_API_GL2);
@@ -13183,6 +13992,16 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant(tolua_S,"MAW_EVENT_WEB_VIEW_CONTENT_LOADING",MAW_EVENT_WEB_VIEW_CONTENT_LOADING);
  tolua_constant(tolua_S,"MAW_EVENT_WEB_VIEW_HOOK_INVOKED",MAW_EVENT_WEB_VIEW_HOOK_INVOKED);
  tolua_constant(tolua_S,"MAW_EVENT_DIALOG_DISMISSED",MAW_EVENT_DIALOG_DISMISSED);
+ tolua_constant(tolua_S,"MAW_EVENT_SCREEN_ORIENTATION_WILL_CHANGE",MAW_EVENT_SCREEN_ORIENTATION_WILL_CHANGE);
+ tolua_constant(tolua_S,"MAW_EVENT_SCREEN_ORIENTATION_DID_CHANGE",MAW_EVENT_SCREEN_ORIENTATION_DID_CHANGE);
+ tolua_constant(tolua_S,"MAW_EVENT_RATING_BAR_VALUE_CHANGED",MAW_EVENT_RATING_BAR_VALUE_CHANGED);
+ tolua_constant(tolua_S,"MAW_EVENT_RADIO_GROUP_ITEM_SELECTED",MAW_EVENT_RADIO_GROUP_ITEM_SELECTED);
+ tolua_constant(tolua_S,"MAW_EVENT_RADIO_BUTTON_STATE_CHANGED",MAW_EVENT_RADIO_BUTTON_STATE_CHANGED);
+ tolua_constant(tolua_S,"MAW_EVENT_OPTIONS_MENU_CLOSED",MAW_EVENT_OPTIONS_MENU_CLOSED);
+ tolua_constant(tolua_S,"MAW_EVENT_OPTIONS_MENU_ITEM_SELECTED",MAW_EVENT_OPTIONS_MENU_ITEM_SELECTED);
+ tolua_constant(tolua_S,"MAW_EVENT_MAP_ZOOM_LEVEL_CHANGED",MAW_EVENT_MAP_ZOOM_LEVEL_CHANGED);
+ tolua_constant(tolua_S,"MAW_EVENT_MAP_REGION_CHANGED",MAW_EVENT_MAP_REGION_CHANGED);
+ tolua_constant(tolua_S,"MAW_EVENT_MAP_PIN_CLICKED",MAW_EVENT_MAP_PIN_CLICKED);
  tolua_constant(tolua_S,"MAW_CONSTANT_MOSYNC_SCREEN_HANDLE",MAW_CONSTANT_MOSYNC_SCREEN_HANDLE);
  tolua_constant(tolua_S,"MAW_CONSTANT_FILL_AVAILABLE_SPACE",MAW_CONSTANT_FILL_AVAILABLE_SPACE);
  tolua_constant(tolua_S,"MAW_CONSTANT_WRAP_CONTENT",MAW_CONSTANT_WRAP_CONTENT);
@@ -13255,6 +14074,52 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_TOGGLE_BUTTON",MAW_TOGGLE_BUTTON);
  tolua_constant_string(tolua_S,"MAW_MODAL_DIALOG",MAW_MODAL_DIALOG);
  tolua_constant_string(tolua_S,"MAW_PANORAMA_VIEW",MAW_PANORAMA_VIEW);
+ tolua_constant_string(tolua_S,"MAW_RADIO_BUTTON",MAW_RADIO_BUTTON);
+ tolua_constant_string(tolua_S,"MAW_RADIO_GROUP",MAW_RADIO_GROUP);
+ tolua_constant_string(tolua_S,"MAW_RATING_BAR",MAW_RATING_BAR);
+ tolua_constant_string(tolua_S,"MAW_MAP",MAW_MAP);
+ tolua_constant_string(tolua_S,"MAW_MAP_PIN",MAW_MAP_PIN);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_ADD",MAW_OPTIONS_MENU_ICON_CONSTANT_ADD);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_AGENDA",MAW_OPTIONS_MENU_ICON_CONSTANT_AGENDA);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_ALWAYS_LANDSCAPE_PORTRAIT",MAW_OPTIONS_MENU_ICON_CONSTANT_ALWAYS_LANDSCAPE_PORTRAIT);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_CALL",MAW_OPTIONS_MENU_ICON_CONSTANT_CALL);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_CAMERA",MAW_OPTIONS_MENU_ICON_CONSTANT_CAMERA);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL",MAW_OPTIONS_MENU_ICON_CONSTANT_CLOSE_CLEAR_CANCEL);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_COMPASS",MAW_OPTIONS_MENU_ICON_CONSTANT_COMPASS);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_CROP",MAW_OPTIONS_MENU_ICON_CONSTANT_CROP);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_DAY",MAW_OPTIONS_MENU_ICON_CONSTANT_DAY);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_DELETE",MAW_OPTIONS_MENU_ICON_CONSTANT_DELETE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_DIRECTIONS",MAW_OPTIONS_MENU_ICON_CONSTANT_DIRECTIONS);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_EDIT",MAW_OPTIONS_MENU_ICON_CONSTANT_EDIT);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_GALLERY",MAW_OPTIONS_MENU_ICON_CONSTANT_GALLERY);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_HELP",MAW_OPTIONS_MENU_ICON_CONSTANT_HELP);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_INFO_DETAILS",MAW_OPTIONS_MENU_ICON_CONSTANT_INFO_DETAILS);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MANAGE",MAW_OPTIONS_MENU_ICON_CONSTANT_MANAGE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MAPMODE",MAW_OPTIONS_MENU_ICON_CONSTANT_MAPMODE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MONTH",MAW_OPTIONS_MENU_ICON_CONSTANT_MONTH);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MORE",MAW_OPTIONS_MENU_ICON_CONSTANT_MORE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MY_CALENDAR",MAW_OPTIONS_MENU_ICON_CONSTANT_MY_CALENDAR);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MYLOCATION",MAW_OPTIONS_MENU_ICON_CONSTANT_MYLOCATION);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_MYPLACES",MAW_OPTIONS_MENU_ICON_CONSTANT_MYPLACES);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_PREFERENCES",MAW_OPTIONS_MENU_ICON_CONSTANT_PREFERENCES);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_RECENT_HISTORY",MAW_OPTIONS_MENU_ICON_CONSTANT_RECENT_HISTORY);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_REPORT_IMAGE",MAW_OPTIONS_MENU_ICON_CONSTANT_REPORT_IMAGE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_REVERT",MAW_OPTIONS_MENU_ICON_CONSTANT_REVERT);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_ROTATE",MAW_OPTIONS_MENU_ICON_CONSTANT_ROTATE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE",MAW_OPTIONS_MENU_ICON_CONSTANT_SAVE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SEARCH",MAW_OPTIONS_MENU_ICON_CONSTANT_SEARCH);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SEND",MAW_OPTIONS_MENU_ICON_CONSTANT_SEND);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SET_AS",MAW_OPTIONS_MENU_ICON_CONSTANT_SET_AS);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SHARE",MAW_OPTIONS_MENU_ICON_CONSTANT_SHARE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SLIDESHOW",MAW_OPTIONS_MENU_ICON_CONSTANT_SLIDESHOW);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SORT_ALPHABETICALLY",MAW_OPTIONS_MENU_ICON_CONSTANT_SORT_ALPHABETICALLY);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_SORT_BY_SIZE",MAW_OPTIONS_MENU_ICON_CONSTANT_SORT_BY_SIZE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_TODAY",MAW_OPTIONS_MENU_ICON_CONSTANT_TODAY);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_UPLOAD",MAW_OPTIONS_MENU_ICON_CONSTANT_UPLOAD);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_UPLOAD_YOU_TUBE",MAW_OPTIONS_MENU_ICON_CONSTANT_UPLOAD_YOU_TUBE);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_VIEW",MAW_OPTIONS_MENU_ICON_CONSTANT_VIEW);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_WEEK",MAW_OPTIONS_MENU_ICON_CONSTANT_WEEK);
+ tolua_constant_string(tolua_S,"MAW_OPTIONS_MENU_ICON_CONSTANT_ZOOM",MAW_OPTIONS_MENU_ICON_CONSTANT_ZOOM);
  tolua_constant_string(tolua_S,"MAW_WIDGET_LEFT",MAW_WIDGET_LEFT);
  tolua_constant_string(tolua_S,"MAW_WIDGET_TOP",MAW_WIDGET_TOP);
  tolua_constant_string(tolua_S,"MAW_WIDGET_WIDTH",MAW_WIDGET_WIDTH);
@@ -13266,6 +14131,7 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_WIDGET_BACKGROUND_GRADIENT",MAW_WIDGET_BACKGROUND_GRADIENT);
  tolua_constant_string(tolua_S,"MAW_SCREEN_TITLE",MAW_SCREEN_TITLE);
  tolua_constant_string(tolua_S,"MAW_SCREEN_ICON",MAW_SCREEN_ICON);
+ tolua_constant_string(tolua_S,"MAW_SCREEN_REMOVE_OPTIONS_MENU",MAW_SCREEN_REMOVE_OPTIONS_MENU);
  tolua_constant_string(tolua_S,"MAW_TAB_SCREEN_TITLE",MAW_TAB_SCREEN_TITLE);
  tolua_constant_string(tolua_S,"MAW_TAB_SCREEN_ICON",MAW_TAB_SCREEN_ICON);
  tolua_constant_string(tolua_S,"MAW_TAB_SCREEN_CURRENT_TAB",MAW_TAB_SCREEN_CURRENT_TAB);
@@ -13328,6 +14194,7 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_LIST_VIEW_ITEM_FONT_COLOR",MAW_LIST_VIEW_ITEM_FONT_COLOR);
  tolua_constant_string(tolua_S,"MAW_LIST_VIEW_ITEM_FONT_SIZE",MAW_LIST_VIEW_ITEM_FONT_SIZE);
  tolua_constant_string(tolua_S,"MAW_LIST_VIEW_ITEM_FONT_HANDLE",MAW_LIST_VIEW_ITEM_FONT_HANDLE);
+ tolua_constant_string(tolua_S,"MAW_LIST_VIEW_REQUEST_FOCUS",MAW_LIST_VIEW_REQUEST_FOCUS);
  tolua_constant_string(tolua_S,"MAW_CHECK_BOX_CHECKED",MAW_CHECK_BOX_CHECKED);
  tolua_constant_string(tolua_S,"MAW_TOGGLE_BUTTON_CHECKED",MAW_TOGGLE_BUTTON_CHECKED);
  tolua_constant_string(tolua_S,"MAW_HORIZONTAL_LAYOUT_CHILD_VERTICAL_ALIGNMENT",MAW_HORIZONTAL_LAYOUT_CHILD_VERTICAL_ALIGNMENT);
@@ -13336,12 +14203,15 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_HORIZONTAL_LAYOUT_PADDING_LEFT",MAW_HORIZONTAL_LAYOUT_PADDING_LEFT);
  tolua_constant_string(tolua_S,"MAW_HORIZONTAL_LAYOUT_PADDING_RIGHT",MAW_HORIZONTAL_LAYOUT_PADDING_RIGHT);
  tolua_constant_string(tolua_S,"MAW_HORIZONTAL_LAYOUT_PADDING_BOTTOM",MAW_HORIZONTAL_LAYOUT_PADDING_BOTTOM);
+ tolua_constant_string(tolua_S,"MAW_RELATIVE_LAYOUT_SCROLLABLE",MAW_RELATIVE_LAYOUT_SCROLLABLE);
+ tolua_constant_string(tolua_S,"MAW_RELATIVE_LAYOUT_CONTENT_OFFSET",MAW_RELATIVE_LAYOUT_CONTENT_OFFSET);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_CHILD_VERTICAL_ALIGNMENT",MAW_VERTICAL_LAYOUT_CHILD_VERTICAL_ALIGNMENT);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_CHILD_HORIZONTAL_ALIGNMENT",MAW_VERTICAL_LAYOUT_CHILD_HORIZONTAL_ALIGNMENT);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_PADDING_TOP",MAW_VERTICAL_LAYOUT_PADDING_TOP);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_PADDING_LEFT",MAW_VERTICAL_LAYOUT_PADDING_LEFT);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_PADDING_RIGHT",MAW_VERTICAL_LAYOUT_PADDING_RIGHT);
  tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_PADDING_BOTTOM",MAW_VERTICAL_LAYOUT_PADDING_BOTTOM);
+ tolua_constant_string(tolua_S,"MAW_VERTICAL_LAYOUT_SCROLLABLE",MAW_VERTICAL_LAYOUT_SCROLLABLE);
  tolua_constant_string(tolua_S,"MAW_SEARCH_BAR_TEXT",MAW_SEARCH_BAR_TEXT);
  tolua_constant_string(tolua_S,"MAW_SEARCH_BAR_PLACEHOLDER",MAW_SEARCH_BAR_PLACEHOLDER);
  tolua_constant_string(tolua_S,"MAW_SEARCH_BAR_SHOW_KEYBOARD",MAW_SEARCH_BAR_SHOW_KEYBOARD);
@@ -13366,7 +14236,13 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_SLIDER_INCREASE_VALUE",MAW_SLIDER_INCREASE_VALUE);
  tolua_constant_string(tolua_S,"MAW_SLIDER_DECREASE_VALUE",MAW_SLIDER_DECREASE_VALUE);
  tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MAX_DATE",MAW_DATE_PICKER_MAX_DATE);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MAX_DATE_YEAR",MAW_DATE_PICKER_MAX_DATE_YEAR);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MAX_DATE_MONTH",MAW_DATE_PICKER_MAX_DATE_MONTH);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MAX_DATE_DAY",MAW_DATE_PICKER_MAX_DATE_DAY);
  tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MIN_DATE",MAW_DATE_PICKER_MIN_DATE);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MIN_DATE_YEAR",MAW_DATE_PICKER_MIN_DATE_YEAR);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MIN_DATE_MONTH",MAW_DATE_PICKER_MIN_DATE_MONTH);
+ tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MIN_DATE_DAY",MAW_DATE_PICKER_MIN_DATE_DAY);
  tolua_constant_string(tolua_S,"MAW_DATE_PICKER_YEAR",MAW_DATE_PICKER_YEAR);
  tolua_constant_string(tolua_S,"MAW_DATE_PICKER_MONTH",MAW_DATE_PICKER_MONTH);
  tolua_constant_string(tolua_S,"MAW_DATE_PICKER_DAY_OF_MONTH",MAW_DATE_PICKER_DAY_OF_MONTH);
@@ -13392,6 +14268,35 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_constant_string(tolua_S,"MAW_MODAL_DIALOG_TITLE",MAW_MODAL_DIALOG_TITLE);
  tolua_constant_string(tolua_S,"MAW_MODAL_DIALOG_ARROW_POSITION",MAW_MODAL_DIALOG_ARROW_POSITION);
  tolua_constant_string(tolua_S,"MAW_MODAL_DIALOG_USER_CAN_DISMISS",MAW_MODAL_DIALOG_USER_CAN_DISMISS);
+ tolua_constant_string(tolua_S,"MAW_RADIO_BUTTON_CHECKED",MAW_RADIO_BUTTON_CHECKED);
+ tolua_constant_string(tolua_S,"MAW_RADIO_BUTTON_TOGGLE",MAW_RADIO_BUTTON_TOGGLE);
+ tolua_constant_string(tolua_S,"MAW_RADIO_BUTTON_TEXT",MAW_RADIO_BUTTON_TEXT);
+ tolua_constant_string(tolua_S,"MAW_RADIO_BUTTON_TEXT_COLOR",MAW_RADIO_BUTTON_TEXT_COLOR);
+ tolua_constant_string(tolua_S,"MAW_RADIO_GROUP_ADD_VIEW",MAW_RADIO_GROUP_ADD_VIEW);
+ tolua_constant_string(tolua_S,"MAW_RADIO_GROUP_CLEAR_CHECK",MAW_RADIO_GROUP_CLEAR_CHECK);
+ tolua_constant_string(tolua_S,"MAW_RADIO_GROUP_SELECTED",MAW_RADIO_GROUP_SELECTED);
+ tolua_constant_string(tolua_S,"MAW_RATING_BAR_NUM_STAR",MAW_RATING_BAR_NUM_STAR);
+ tolua_constant_string(tolua_S,"MAW_RATING_BAR_RATING",MAW_RATING_BAR_RATING);
+ tolua_constant_string(tolua_S,"MAW_RATING_BAR_GRANULARITY",MAW_RATING_BAR_GRANULARITY);
+ tolua_constant(tolua_S,"MAW_MAP_TYPE_ROAD",MAW_MAP_TYPE_ROAD);
+ tolua_constant(tolua_S,"MAW_MAP_TYPE_SATELLITE",MAW_MAP_TYPE_SATELLITE);
+ tolua_constant_string(tolua_S,"MAW_MAP_API_KEY_GOOGLE",MAW_MAP_API_KEY_GOOGLE);
+ tolua_constant_string(tolua_S,"MAW_MAP_API_KEY_BING",MAW_MAP_API_KEY_BING);
+ tolua_constant_string(tolua_S,"MAW_MAP_TYPE",MAW_MAP_TYPE);
+ tolua_constant_string(tolua_S,"MAW_MAP_ZOOM_LEVEL",MAW_MAP_ZOOM_LEVEL);
+ tolua_constant_string(tolua_S,"MAW_MAP_INTERRACTION_ENABLED",MAW_MAP_INTERRACTION_ENABLED);
+ tolua_constant_string(tolua_S,"MAW_MAP_CENTER_LATITUDE",MAW_MAP_CENTER_LATITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_CENTER_LONGITUDE",MAW_MAP_CENTER_LONGITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_CENTER_ZOOM_LEVEL",MAW_MAP_CENTER_ZOOM_LEVEL);
+ tolua_constant_string(tolua_S,"MAW_MAP_CENTERED",MAW_MAP_CENTERED);
+ tolua_constant_string(tolua_S,"MAW_MAP_VISIBLE_AREA_UPPER_LEFT_CORNER_LATITUDE",MAW_MAP_VISIBLE_AREA_UPPER_LEFT_CORNER_LATITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_VISIBLE_AREA_UPPER_LEFT_CORNER_LONGITUDE",MAW_MAP_VISIBLE_AREA_UPPER_LEFT_CORNER_LONGITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_VISIBLE_AREA_LOWER_RIGHT_CORNER_LATITUDE",MAW_MAP_VISIBLE_AREA_LOWER_RIGHT_CORNER_LATITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_VISIBLE_AREA_LOWER_RIGHT_CORNER_LONGITUDE",MAW_MAP_VISIBLE_AREA_LOWER_RIGHT_CORNER_LONGITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_CENTERED_ON_VISIBLE_AREA",MAW_MAP_CENTERED_ON_VISIBLE_AREA);
+ tolua_constant_string(tolua_S,"MAW_MAP_PIN_LATITUDE",MAW_MAP_PIN_LATITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_PIN_LONGITUDE",MAW_MAP_PIN_LONGITUDE);
+ tolua_constant_string(tolua_S,"MAW_MAP_PIN_TEXT",MAW_MAP_PIN_TEXT);
  tolua_function(tolua_S,"maWidgetCreate",tolua_lua_maapi_mosync_maWidgetCreate00);
  tolua_function(tolua_S,"maWidgetDestroy",tolua_lua_maapi_mosync_maWidgetDestroy00);
  tolua_function(tolua_S,"maWidgetAddChild",tolua_lua_maapi_mosync_maWidgetAddChild00);
@@ -13404,6 +14309,7 @@ LUALIB_API int luaopen_lua_maapi (lua_State* tolua_S)
  tolua_function(tolua_S,"maWidgetStackScreenPop",tolua_lua_maapi_mosync_maWidgetStackScreenPop00);
  tolua_function(tolua_S,"maWidgetSetProperty",tolua_lua_maapi_mosync_maWidgetSetProperty00);
  tolua_function(tolua_S,"maWidgetGetProperty",tolua_lua_maapi_mosync_maWidgetGetProperty00);
+ tolua_function(tolua_S,"maWidgetScreenAddOptionsMenuItem",tolua_lua_maapi_mosync_maWidgetScreenAddOptionsMenuItem00);
  tolua_function(tolua_S,"EXTENT",tolua_lua_maapi_mosync_EXTENT00);
  tolua_function(tolua_S,"EXTENT_X",tolua_lua_maapi_mosync_EXTENT_X00);
  tolua_function(tolua_S,"EXTENT_Y",tolua_lua_maapi_mosync_EXTENT_Y00);

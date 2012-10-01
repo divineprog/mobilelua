@@ -34,15 +34,36 @@ def convertCharPointerTypeToVoid(data)
     gsub(", char*", ", void*")
 end
 
-filesToConcatenate = 
+docFiles = 
+  [
+  "lua_maapi.h",
+  "lua_special_bindings.h",
+  "lua_systemapi.h",
+  "lua_internal_functions.h"
+  ]
+  
+# Generate .txt file for use with ZeroBrane Studio
+# documentation generation tool.
+File.open("lua_maapi.txt", "w") do |outFile|
+  data = docFiles.map { |fileName| 
+    IO.read(fileName)
+  }
+  outFile.puts "module mosync"
+  outFile.puts "{"
+  outFile.puts data
+  outFile.puts "}"
+end
+
+pkgFiles = 
   [
   "lua_maapi.h",
   "lua_special_bindings.h", 
   "lua_systemapi.h"
   ]
 
+# Generate .pkg file for use with tolua.
 File.open("lua_maapi.pkg", "w") do |outFile|
-  data = filesToConcatenate.map { |fileName| 
+  data = pkgFiles.map { |fileName| 
     convertCharPointerTypeToVoid(
       convertPointerTypesToVoid(
         IO.read(fileName)))
@@ -53,4 +74,5 @@ File.open("lua_maapi.pkg", "w") do |outFile|
   outFile.puts "}"
 end
 
+# Run tolua.
 sh "../../../tolua/bin/tolua.exe -o lua_maapi.c lua_maapi.pkg"
