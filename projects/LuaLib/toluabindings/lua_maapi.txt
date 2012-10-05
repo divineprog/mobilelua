@@ -2809,13 +2809,13 @@ typedef int MAAudioInstance;
 * \param hash Your hash. Pass #MAIDL_HASH.
 * \returns The runtime's hash.
 */
-int maCheckInterfaceVersion(int hash);
+int maCheckInterfaceVersion(number hash);
 
 /**
 * Shuts down the system. This function does not return.
 * \param result Passed to the operating system, where applicable. Ignored otherwise.
 */
-void maExit(int result);
+void maExit(number result);
 
 /**
 * Displays a message to the user, then shuts down the system.
@@ -2825,13 +2825,13 @@ void maExit(int result);
 * to ensure its visibility on all screen sizes.
 * \see MAPanicReport
 */
-void maPanic(int result, const char* message);
+void maPanic(number result, string message);
 
 /**
-* Sets \a size bytes, starting at \a dst, to the specified value, interpreted as an unsigned char.
+* Sets \a size bytes, starting at \a dst, to the specified value, numbererpreted as an unsigned char.
 * \returns \a dst.
 */
-void* memset(void* dst, int val, ulong size);
+void* memset(lightuserdata dst, number val, ulong size);
 
 /**
 * Copies the values of \a size bytes from the location pointed by \a src directly to the memory
@@ -2848,7 +2848,7 @@ void* memset(void* dst, int val, ulong size);
 * blocks, memmove() is a safe approach).
 * \returns \a dst.
 */
-void* memcpy(void* dst, const void* src, ulong size);
+void* memcpy(lightuserdata dst, lightuserdata src, ulong size);
 
 /**
 * Compares the C string \a str1 to the C string \a str2.
@@ -2862,7 +2862,7 @@ void* memcpy(void* dst, const void* src, ulong size);
 * A value greater than zero indicates that the first character that does not match
 * has a greater value in \a str1 than in \a str2. A value less than zero indicates the opposite.
 */
-int strcmp(const char* str1, const char* str2);
+int strcmp(string str1, string str2);
 
 /**
 * Copies the C string pointed by \a src into the array pointed by \a dst,
@@ -2873,48 +2873,48 @@ int strcmp(const char* str1, const char* str2);
 * character), and should not overlap in memory with \a src.
 * \returns \a dst.
 */
-char* strcpy(char* dst, const char* src);
+char* strcpy(string dst, string src);
 
 /**
 * Returns \a a + \a b.
 */
-double __adddf3(double a, double b);
+double __adddf3(number a, number b);
 
 /**
 * Returns \a a - \a b.
 */
-double __subdf3(double a, double b);
+double __subdf3(number a, number b);
 
 /**
 * Returns \a a * \a b.
 */
-double __muldf3(double a, double b);
+double __muldf3(number a, number b);
 
 /**
 * Returns \a a / \a b.
 * If \a b == 0, a <a href="../panics.html">MoSync Panic</a> is thrown.
 */
-double __divdf3(double a, double b);
+double __divdf3(number a, number b);
 
 /**
 * Returns -\a a.
 */
-double __negdf2(double a);
+double __negdf2(number a);
 
 /**
 * Returns the integer part of \a a.
 */
-int __fixdfsi(double a);
+int __fixdfsi(number a);
 
 /**
 * Returns the unsigned integer part of \a a. Negative values become zero.
 */
-uint __fixunsdfsi(double a);
+uint __fixunsdfsi(number a);
 
 /**
 * Returns the double representation of \a a.
 */
-double __floatsidf(int a);
+double __floatsidf(number a);
 
 /**
 * Returns the double representation of \a a.
@@ -2925,7 +2925,7 @@ double __extendsfdf2(float a);
 * Returns \>0 if \a a \> \a b, 0 if \a a == \a b and \<0 if \a a \< \a b.
 * If either argument is Not a Number, the result is undefined.
 */
-int dcmp(double a, double b);
+int dcmp(number a, number b);
 
 /**
 * Returns \a a + \a b.
@@ -2966,12 +2966,12 @@ uint __fixunssfsi(float a);
 /**
 * Returns the float representation of \a a.
 */
-float __floatsisf(int a);
+float __floatsisf(number a);
 
 /**
 * Returns the float representation of \a a.
 */
-float __truncdfsf2(double a);
+float __truncdfsf2(number a);
 
 /**
 * Returns \>0 if \a a \> \a b, 0 if \a a == \a b and \<0 if \a a \< \a b.
@@ -2983,30 +2983,30 @@ int fcmp(float a, float b);
 * Returns the sine of \a x.
 * \param x An angle in radians.
 */
-double sin(double x);
+double sin(number x);
 
 /**
 * Returns the cosine of \a x.
 * \param x An angle in radians.
 */
-double cos(double x);
+double cos(number x);
 
 /**
 * Returns the tangent of \a x.
 * \param x An angle in radians.
 */
-double tan(double x);
+double tan(number x);
 
 /**
 * Returns the square root of \a x.
 */
-double sqrt(double x);
+double sqrt(number x);
 
 /**
 * Sets the color used by drawing functions. Returns previous color. Initial color is 0 (black).
 * \param rgb A color in RGB8 format (0xRRGGBB). The top byte is ignored.
 */
-int maSetColor(int rgb);
+int maSetColor(number rgb);
 
 /**
 * Sets the clipping rectangle for the current draw target.
@@ -3015,7 +3015,7 @@ int maSetColor(int rgb);
 * The default clipping rectangle covers the entire draw target, so that
 * clipping occurs at the draw target's edges.
 */
-void maSetClipRect(int left, int top, int width, int height);
+void maSetClipRect(number left, number top, number width, number height);
 
 /**
 * Returns the clipping rectangle for the current draw target.
@@ -3026,20 +3026,20 @@ void maGetClipRect(MARect* out);
 * Draws a single pixel using the current color.
 * \see maSetColor()
 */
-void maPlot(int posX, int posY);
+void maPlot(number posX, number posY);
 
 /**
 * Draws a line using the current color.
 * \see maSetColor()
 */
-void maLine(int startX, int startY, int endX, int endY);
+void maLine(number startX, number startY, number endX, number endY);
 
 /**
 * Draws a filled rectangle using the current color.
 * Width and height must be greater than zero.
 * \see maSetColor()
 */
-void maFillRect(int left, int top, int width, int height);
+void maFillRect(number left, number top, number width, number height);
 
 /**
 * Draws a filled triangle strip using the current color.
@@ -3048,7 +3048,7 @@ void maFillRect(int left, int top, int width, int height);
 * \param count The count of vertices in the strip. Must be at least 3.
 * \see maSetColor()
 */
-void maFillTriangleStrip(const MAPoint2d* points, int count);
+void maFillTriangleStrip(const MAPoint2d* points, number count);
 
 /**
 * Draws a filled triangle fan using the current color.
@@ -3057,12 +3057,12 @@ void maFillTriangleStrip(const MAPoint2d* points, int count);
 * \param count The count of vertices in the fan. Must be at least 3.
 * \see maSetColor()
 */
-void maFillTriangleFan(const MAPoint2d* points, int count);
+void maFillTriangleFan(const MAPoint2d* points, number count);
 
 /**
 * Returns the size in pixels of Latin-1 text as it would appear on-screen.
 */
-MAExtent maGetTextSize(const char* str);
+MAExtent maGetTextSize(string str);
 
 /**
 * Returns the size in pixels of Unicode text as it would appear on-screen.
@@ -3074,14 +3074,14 @@ MAExtent maGetTextSizeW(const wchar* str);
 * The coordinates are the top-left corner of the text's bounding box.
 * \see maSetColor()
 */
-void maDrawText(int left, int top, const char* str);
+void maDrawText(number left, number top, string str);
 
 /**
 * Draws Unicode text using the current color.
 * The coordinates are the top-left corner of the text's bounding box.
 * \see maSetColor()
 */
-void maDrawTextW(int left, int top, const wchar* str);
+void maDrawTextW(number left, number top, const wchar* str);
 
 /**
 * Copies the back buffer to the physical screen.
@@ -3108,7 +3108,7 @@ MAExtent maGetScrSize(void);
 * Draws an image.
 * It it placed on the draw target with the top left corner according to the parameters.
 */
-void maDrawImage(MAHandle image, int left, int top);
+void maDrawImage(MAHandle image, number left, number top);
 
 /**
 * Draws an image.
@@ -3118,7 +3118,7 @@ void maDrawImage(MAHandle image, int left, int top);
 * \param srcRect The portion of the source image to be drawn.
 * \param scanlength The width, in pixels, of the image represented by the source array.
 */
-void maDrawRGB(const MAPoint2d* dstPoint, const void* src, const MARect* srcRect, int scanlength);
+void maDrawRGB(const MAPoint2d* dstPoint, lightuserdata src, const MARect* srcRect, number scanlength);
 
 /**
 * Draws a portion of an image using a transformation.
@@ -3129,7 +3129,7 @@ void maDrawRGB(const MAPoint2d* dstPoint, const void* src, const MARect* srcRect
 * \param transformMode One of the \link #TRANS_NONE TRANS \endlink constants.
 * \see maDrawImage
 */
-void maDrawImageRegion(MAHandle image, const MARect* srcRect, const MAPoint2d* dstPoint, int transformMode);
+void maDrawImageRegion(MAHandle image, const MARect* srcRect, const MAPoint2d* dstPoint, number transformMode);
 
 /**
 * Returns the size of an image.
@@ -3147,7 +3147,7 @@ MAExtent maGetImageSize(MAHandle image);
 * \param scanlength The width of the image, in pixels, represented by the destination array.
 * \param srcRect The portion of the source image to be copied.
 */
-void maGetImageData(MAHandle image, void* dst, const MARect* srcRect, int scanlength);
+void maGetImageData(MAHandle image, lightuserdata dst, const MARect* srcRect, number scanlength);
 
 /**
 * Sets the current draw target.
@@ -3164,7 +3164,7 @@ MAHandle maSetDrawTarget(MAHandle image);
  * Finds the label resource with the specified \a name and returns its index.
  * If it is not found, -1 is returned.
  */
-int maFindLabel(const char* name);
+int maFindLabel(string name);
 
 /**
 * Creates an image object using encoded data from a data object.
@@ -3175,7 +3175,7 @@ int maFindLabel(const char* name);
 * \param size The size in bytes of the encoded data.
 * \returns #RES_OK if succeded and #RES_OUT_OF_MEMORY or #RES_BAD_INPUT if failed.
 */
-int maCreateImageFromData(MAHandle placeholder, MAHandle data, int offset, int size);
+int maCreateImageFromData(MAHandle placeholder, MAHandle data, number offset, number size);
 
 /**
 * Creates an image object using raw ARGB data.
@@ -3185,7 +3185,7 @@ int maCreateImageFromData(MAHandle placeholder, MAHandle data, int offset, int s
 * \param alpha Non-zero if the resulting image should have an alpha channel, zero otherwise.
 * \returns #RES_OK if succeded and #RES_OUT_OF_MEMORY if failed.
 */
-int maCreateImageRaw(MAHandle placeholder, const void* src, MAExtent size, int alpha);
+int maCreateImageRaw(MAHandle placeholder, lightuserdata src, MAExtent size, number alpha);
 
 /**
 * Creates a drawable image of the specified size. A drawable image has no alpha channel,
@@ -3198,13 +3198,13 @@ int maCreateImageRaw(MAHandle placeholder, const void* src, MAExtent size, int a
 * \see maSetDrawTarget()
 * \returns #RES_OK if succeded and #RES_OUT_OF_MEMORY if failed.
 */
-int maCreateDrawableImage(MAHandle placeholder, int width, int height);
+int maCreateDrawableImage(MAHandle placeholder, number width, number height);
 
 /**
 * Creates a data object of the specified \a size, in bytes. Its initial contents are undefined.
 * \returns #RES_OK if succeded and #RES_OUT_OF_MEMORY if failed.
 */
-int maCreateData(MAHandle placeholder, int size);
+int maCreateData(MAHandle placeholder, number size);
 
 /**
 *	Creates a new placeholder and returns the handle to it.
@@ -3246,13 +3246,13 @@ int maGetDataSize(MAHandle data);
 * \warning Do not attempt to read zero bytes or out of bounds;
 * it is not supported and will result in a MoSync Panic.
 */
-void maReadData(MAHandle data, void* dst, int offset, int size);
+void maReadData(MAHandle data, lightuserdata dst, number offset, number size);
 
 /**
 * Writes \a size bytes to a data object, starting at \a offset,
 * from memory pointed to by \a src.
 */
-void maWriteData(MAHandle data, const void* src, int offset, int size);
+void maWriteData(MAHandle data, lightuserdata src, number offset, number size);
 
 /**
 * Copies \a size bytes from data object \a src to \a dst, at the specified offsets.
@@ -3271,7 +3271,7 @@ void maCopyData(const MACopyData* params);
 * and must not contain any of the following characters: "/\\:;?*'
 * \param flags A combination of \link #MAS_CREATE_IF_NECESSARY MAS \endlink flags, or zero.
 */
-MAHandle maOpenStore(const char* name, int flags);
+MAHandle maOpenStore(string name, number flags);
 
 /**
 * Writes the contents of a data object to a store. Destroys any data previously in the store.
@@ -3294,7 +3294,7 @@ int maReadStore(MAHandle store, MAHandle placeholder);
 /**
 * Closes a store. Also deletes that store if \a _delete is non-zero.
 */
-void maCloseStore(MAHandle store, int _delete);
+void maCloseStore(MAHandle store, number _delete);
 
 /**
 * Asynchronously opens a connection using the specified URL.
@@ -3388,7 +3388,7 @@ void maCloseStore(MAHandle store, int _delete);
 * \see maGetEvent()
 * \see \ref connApiOverview
 */
-MAHandle maConnect(const char* url);
+MAHandle maConnect(string url);
 
 /**
 * Closes a connection, freeing any resources associated with the handle.
@@ -3408,7 +3408,7 @@ void maConnClose(MAHandle conn);
 * \see maGetEvent
 * \see \ref connApiOverview
 */
-void maConnRead(MAHandle conn, void* dst, int size);
+void maConnRead(MAHandle conn, lightuserdata dst, number size);
 
 /**
 * Asynchronously writes \a size bytes to a connection from memory.
@@ -3422,7 +3422,7 @@ void maConnRead(MAHandle conn, void* dst, int size);
 * \see maGetEvent
 * \see \ref connApiOverview
 */
-void maConnWrite(MAHandle conn, const void* src, int size);
+void maConnWrite(MAHandle conn, lightuserdata src, number size);
 
 /**
 * Asynchronously reads at least one and at most \a size bytes from a connection to
@@ -3437,7 +3437,7 @@ void maConnWrite(MAHandle conn, const void* src, int size);
 * \see maGetEvent
 * \see \ref connApiOverview
 */
-void maConnReadToData(MAHandle conn, MAHandle data, int offset, int size);
+void maConnReadToData(MAHandle conn, MAHandle data, number offset, number size);
 
 /**
 * Asynchronously writes \a size bytes to a connection from a data object,
@@ -3452,7 +3452,7 @@ void maConnReadToData(MAHandle conn, MAHandle data, int offset, int size);
 * \see maGetEvent
 * \see \ref connApiOverview
 */
-void maConnWriteFromData(MAHandle conn, MAHandle data, int offset, int size);
+void maConnWriteFromData(MAHandle conn, MAHandle data, number offset, number size);
 
 /**
 * Retrieves the address of a connection. On server connections,
@@ -3482,7 +3482,7 @@ int maConnGetAddr(MAHandle conn, MAConnAddr* addr);
 * \link #CONNERR_GENERIC CONNERR \endlink value.
 * \see maHttpFinish
 */
-MAHandle maHttpCreate(const char* url, int method);
+MAHandle maHttpCreate(string url, number method);
 
 /**
 * Sets a request header of an HTTP connection.
@@ -3494,7 +3494,7 @@ MAHandle maHttpCreate(const char* url, int method);
 * \param key The name of the header.
 * \param value The new value of the header.
 */
-void maHttpSetRequestHeader(MAHandle conn, const char* key, const char* value);
+void maHttpSetRequestHeader(MAHandle conn, string key, string value);
 
 /**
 * Stores an HTTP response header in the specified buffer.
@@ -3511,7 +3511,7 @@ void maHttpSetRequestHeader(MAHandle conn, const char* key, const char* value);
 * \returns The length of the header value, excluding the terminating zero, or
 * #CONNERR_NOHEADER if the header doesn't exist.
 */
-int maHttpGetResponseHeader(MAHandle conn, const char* key, char* buffer, int bufSize);
+int maHttpGetResponseHeader(MAHandle conn, string key, string buffer, number bufSize);
 
 /**
 * Asynchronously finishes an HTTP connection. This entails making the
@@ -3546,7 +3546,7 @@ int maLoadResources(MAHandle data);
 * \param flag One of the MA_RESOURCE_OPEN, MA_RESOURCE_CLOSE,
 * MA_RESOURCE_OPEN|MA_RESOURCE_CLOSE to control the resource binary.
 */
-int maLoadResource(MAHandle handle, MAHandle placeholder, int flag);
+int maLoadResource(MAHandle handle, MAHandle placeholder, number flag);
 
 int maCountResources(void);
 
@@ -3570,7 +3570,7 @@ int maCountResources(void);
 *
 * \note The \link #EVENT_TYPE_CLOSE close event \endlink will disable the reload mechanism.
 */
-void maLoadProgram(MAHandle data, int reload);
+void maLoadProgram(MAHandle data, number reload);
 
 /**
 * Returns a bitmask consisting of \link #MAKB_LEFT MAKB \endlink flags describing the current
@@ -3611,7 +3611,7 @@ int maGetEvent(MAEvent* event);
 * Use this function rather than idle loops to save CPU/battery power.
 * \see maGetEvent()
 */
-void maWait(int timeout);
+void maWait(number timeout);
 
 /**
 * Returns the number of seconds that have passed since
@@ -3666,7 +3666,7 @@ int maTotalObjectMemory(void);
 * or not is to call this function with a duration of at least 1(one) ms.
 * On iPhone the argument won't be taken into account.
 */
-int maVibrate(int ms);
+int maVibrate(number ms);
 
 /**
 * Starts playing a sound.
@@ -3691,7 +3691,7 @@ int maVibrate(int ms);
 * \param offset The offset in the data object where the mime type and sound data is stored.
 * \param size The size of mime type string and sound data.
 */
-int maSoundPlay(MAHandle sound_res, int offset, int size);
+int maSoundPlay(MAHandle sound_res, number offset, number size);
 
 /**
 * Stops the sound and rewinds it.
@@ -3713,23 +3713,23 @@ int maSoundGetVolume(void);
 * Sets the volume, which is a value in the range 0-100. All other values will be clamped
 * to the allowed range.
 */
-void maSoundSetVolume(int vol);
+void maSoundSetVolume(number vol);
 
 /**
 * Invokes an extension function. Normally you don't call this function directly.
 */
-longlong maExtensionFunctionInvoke(int function, int a, int b, int c);
+longlong maExtensionFunctionInvoke(number function, number a, number b, number c);
 
 // End of header functions.
 /**
 * Loads an extension module. Normally you don't call this function directly.
 */
-MAExtensionModule maExtensionModuleLoad(const char* id, int hash);
+MAExtensionModule maExtensionModuleLoad(string id, number hash);
 
 /**
 * Loads an extension function. Normally you don't call this function directly.
 */
-MAExtensionFunction maExtensionFunctionLoad(MAExtensionModule module, int index);
+MAExtensionFunction maExtensionFunctionLoad(MAExtensionModule module, number index);
 
 /**
 * Returns a handle to one of the default fonts of the device, in the style and size you specify.
@@ -3738,7 +3738,7 @@ MAExtensionFunction maExtensionFunctionLoad(MAExtensionModule module, int index)
 * \param 'size' The size of the font.
 * \return The handle to the font, RES_FONT_NO_TYPE_STYLE_COMBINATION, or RES_FONT_INVALID_SIZE.
 */
-MAHandle maFontLoadDefault(int type, int style, int size);
+MAHandle maFontLoadDefault(number type, number style, number size);
 
 /**
 * Sets the font to be used with maDrawText and maDrawTextW, and returns the handle
@@ -3765,7 +3765,7 @@ int maFontGetCount(void);
 * or RES_FONT_INSUFFICIENT_BUFFER or RES_FONT_LIST_NOT_INITIALIZED.
 * \see maFontGetCount, maFontLoadWithName.
 */
-int maFontGetName(int index, char* buffer, int bufferLen);
+int maFontGetName(number index, string buffer, number bufferLen);
 
 /**
 * Returns a handle to a font with the specific postscript name and size.
@@ -3773,7 +3773,7 @@ int maFontGetName(int index, char* buffer, int bufferLen);
 * \param 'size' The size of the font.
 * \return Handle to the font, RES_FONT_NAME_NONEXISTENT, or RES_FONT_INVALID_SIZE.
 */
-MAHandle maFontLoadWithName(const char* postScriptName, int size);
+MAHandle maFontLoadWithName(string postScriptName, number size);
 
 /**
 * Deletes a loaded font
@@ -3790,7 +3790,7 @@ int maReportCallStack(void);
 /**
 * Dumps a string, an int, and the current call stack to the log file. Returns 0 if succeeded.
 */
-int maDumpCallStackEx(const char* str, int data);
+int maDumpCallStackEx(string str, number data);
 
 /**
 * Protects a piece of the data memory.
@@ -3798,20 +3798,20 @@ int maDumpCallStackEx(const char* str, int data);
 * \param 'start' The start address of the memory piece to protect.
 * \param 'length' The length of the memory piece to protect.
 */
-void maProtectMemory(const void* /* void* */ start, int length);
+void maProtectMemory(lightuserdata /* void* */ start, number length);
 
 /**
 * Unprotects a piece of the data memory.
 * \param 'start' The start address of the memory piece to unprotect.
 * \param 'length' The length of the memory piece to unprotect.
 */
-void maUnprotectMemory(const void* /* void* */ start, int length);
+void maUnprotectMemory(lightuserdata /* void* */ start, number length);
 
 /**
 * Toggles memory protection.
 * \param 'enable' If 1 turns on memory protection, if 0 turns of memory protection.
 */
-void maSetMemoryProtection(int enable);
+void maSetMemoryProtection(number enable);
 
 /**
 * Returns if memory protection is enabled or not.
@@ -3846,7 +3846,7 @@ int maKeypadIsLocked(void);
 * Writes data to the MoSync system log file.
 * Useful only for debugging purposes.
 */
-int maWriteLog(const void* /* void* */ src, int size);
+int maWriteLog(lightuserdata /* void* */ src, number size);
 
 /**
 * Starts a device discovery operation.
@@ -3865,7 +3865,7 @@ int maWriteLog(const void* /* void* */ src, int size);
 * \see maBtCancelDiscovery
 * \see EVENT_TYPE_BT
 */
-int maBtStartDeviceDiscovery(int names);
+int maBtStartDeviceDiscovery(number names);
 
 /**
 * Fills an MABtDevice structure with information about a device.
@@ -3885,7 +3885,7 @@ int maBtStartDeviceDiscovery(int names);
 *
 * \returns 1 if successful, zero if the queue is empty.
 */
-int maBtGetNewDevice(void* /* MABtDevice* */ d);
+int maBtGetNewDevice(lightuserdata /* MABtDevice* */ d);
 
 /**
 * Starts a service discovery operation.
@@ -3903,7 +3903,7 @@ int maBtGetNewDevice(void* /* MABtDevice* */ d);
 * \note Service discovery is not supported on Android. Use MAUtil::BluetoothConnection
 * to connect via service UUID. That method is cross-platform.
 */
-int maBtStartServiceDiscovery(const void* /* MABtAddr* */ address, const void* /* MAUUID* */ uuid);
+int maBtStartServiceDiscovery(lightuserdata /* MABtAddr* */ address, lightuserdata /* MAUUID* */ uuid);
 
 /**
 * Fills an MABtServiceSize structure with meta-data about the next service.
@@ -3912,7 +3912,7 @@ int maBtStartServiceDiscovery(const void* /* MABtAddr* */ address, const void* /
 * \see maBtStartServiceDiscovery
 * \see maBtGetNewService
 */
-int maBtGetNextServiceSize(void* /* MABtServiceSize* */ dst);
+int maBtGetNextServiceSize(lightuserdata /* MABtServiceSize* */ dst);
 
 /**
 * Fills an MABtService structure with information about the next service.
@@ -3920,7 +3920,7 @@ int maBtGetNextServiceSize(void* /* MABtServiceSize* */ dst);
 * \returns \> 0 on success, or zero if the queue is empty.
 * \see maBtGetNextServiceSize
 */
-int maBtGetNewService(void* /* MABtService* */ dst);
+int maBtGetNewService(lightuserdata /* MABtService* */ dst);
 
 /**
 * Cancels any active discovery operation.
@@ -4003,7 +4003,7 @@ int maLocationStop(void);
 * Specifically, the error code #IOCTL_UNAVAILABLE means that the protocol
 * of the request is not supported on the platform.
 */
-int maPlatformRequest(const char* url);
+int maPlatformRequest(string url);
 
 /**
 * Opens a file handle.
@@ -4034,7 +4034,7 @@ int maPlatformRequest(const char* url);
 * the state of the file handle becomes boundedly undefined.
 * This means that any operation on it, other than maFileClose(), may fail.
 */
-MAHandle maFileOpen(const char* path, int mode);
+MAHandle maFileOpen(string path, number mode);
 
 /**
 * Returns 1 if the file exists, 0 if it doesn't, or \< 0 on error.
@@ -4104,7 +4104,7 @@ int maFileDate(MAHandle file);
 *
 * \returns 0 on success, or \< 0 on error.
 */
-int maFileRename(MAHandle file, const char* newName);
+int maFileRename(MAHandle file, string newName);
 
 /**
 * Truncates the file.
@@ -4124,31 +4124,31 @@ int maFileRename(MAHandle file, const char* newName);
 * The file must exist prior to calling this function.
 * Returns 0 on success, or \< 0 on error.
 */
-int maFileTruncate(MAHandle file, int offset);
+int maFileTruncate(MAHandle file, number offset);
 
 /**
 * Write from memory to file.
 * Returns 0 on success, or \< 0 on error.
 */
-int maFileWrite(MAHandle file, const void* /* void* */ src, int len);
+int maFileWrite(MAHandle file, lightuserdata /* void* */ src, number len);
 
 /**
 * Write from data object to file.
 * Returns 0 on success, or \< 0 on error.
 */
-int maFileWriteFromData(MAHandle file, MAHandle data, int offset, int len);
+int maFileWriteFromData(MAHandle file, MAHandle data, number offset, number len);
 
 /**
 * Read from file to memory.
 * Returns 0 on success, or \< 0 on error.
 */
-int maFileRead(MAHandle file, void* /* void* */ dst, int len);
+int maFileRead(MAHandle file, lightuserdata /* void* */ dst, number len);
 
 /**
 * Read from file to data object.
 * Returns 0 on success, or \< 0 on error.
 */
-int maFileReadToData(MAHandle file, MAHandle data, int offset, int len);
+int maFileReadToData(MAHandle file, MAHandle data, number offset, number len);
 
 /**
 * Returns the file's current position, or \< 0 on error.
@@ -4164,7 +4164,7 @@ int maFileTell(MAHandle file);
 * \param whence One of the \link #MA_SEEK_SET MA_SEEK \endlink constants.
 * \returns The new position, or \< 0 on error.
 */
-int maFileSeek(MAHandle file, int offset, int whence);
+int maFileSeek(MAHandle file, number offset, number whence);
 
 /**
 * Creates a listing of names of files and directories, or file systems.
@@ -4187,7 +4187,7 @@ int maFileSeek(MAHandle file, int offset, int whence);
 *
 * \returns A File Listing handle, or \< 0 on error.
 */
-MAHandle maFileListStart(const char* path, const char* filter, int sorting);
+MAHandle maFileListStart(string path, string filter, number sorting);
 
 /**
 * Writes the name of the next file in the list to the specified buffer.
@@ -4203,7 +4203,7 @@ MAHandle maFileListStart(const char* path, const char* filter, int sorting);
 * \returns The length of the name, excluding the terminating zero,
 * or 0 if there are no more files, or \< 0 on error.
 */
-int maFileListNext(MAHandle list, char* nameBuf, int bufSize);
+int maFileListNext(MAHandle list, string nameBuf, number bufSize);
 
 /**
 * Closes a file listing, freeing its resources.
@@ -4227,14 +4227,14 @@ int maFileListClose(MAHandle list);
 *
 * \note Will create a text file on PC platforms, instead of sending anything.
 */
-int maSendTextSMS(const char* dst, const char* msg);
+int maSendTextSMS(string dst, string msg);
 
 /**
  * Get frame buffer info. Use info.sizeInBytes to allocate memory for framebuffer.
  * \param info A pointer to an MAFrameBufferInfo structure, which the information will be written to.
  * \returns \<=0 on error.
  */
-int maFrameBufferGetInfo(void* /* MAFrameBufferInfo* */ info);
+int maFrameBufferGetInfo(lightuserdata /* MAFrameBufferInfo* */ info);
 
 /**
  * Pass a pointer to your framebuffer here. Each time an maUpdateScreen is performed,
@@ -4242,7 +4242,7 @@ int maFrameBufferGetInfo(void* /* MAFrameBufferInfo* */ info);
  * \param data A pointer to the custom framebuffer.
  * \returns \<=0 on error.
  */
-int maFrameBufferInit(const void* /* void* */ data);
+int maFrameBufferInit(lightuserdata /* void* */ data);
 
 /**
  * Close the framebuffer. The graphics sub-system will be set to use the standard framebuffer.
@@ -4327,7 +4327,7 @@ int maBringToForeground(void);
 * If the property did not exist (System.getProperty() returned null),
 * -2 will be returned.
 */
-int maGetSystemProperty(const char* key, char* buf, int size);
+int maGetSystemProperty(string key, string buf, number size);
 
 /**
 * Normally, when the first Internet connection is made in a Symbian application,
@@ -4383,7 +4383,7 @@ int maNetworkStatus(void);
 * \returns \< 0 on error.
 * \note Implemented only on Symbian, 3rd edition and later.
 */
-int maIapSetMethod(int type);
+int maIapSetMethod(number type);
 
 /**
 * Decides which IAPs are visible in the IAP selection dialog.
@@ -4392,7 +4392,7 @@ int maIapSetMethod(int type);
 * \returns \< 0 on error.
 * \note Implemented only on Symbian, 3rd edition and later.
 */
-int maIapSetFilter(int filter);
+int maIapSetFilter(number filter);
 
 /**
 * Returns the number of different output formats supported by the current device's camera.
@@ -4406,7 +4406,7 @@ int maCameraFormatNumber(void);
 * \a index must be \>= 0 and \< the number returned by maCameraFormatNumber().
 * \returns 0.
 */
-int maCameraFormat(int index, void* /* MA_CAMERA_FORMAT* */ fmt);
+int maCameraFormat(number index, lightuserdata /* MA_CAMERA_FORMAT* */ fmt);
 
 /**
 * Starts a fullscreen viewfinder.
@@ -4430,7 +4430,7 @@ int maCameraSetPreview(MAHandle widgetHandle);
 * Selects a Camera from the available ones.
 * Returns 1 for success, \< 0 on error.
 */
-int maCameraSelect(int cameraNumber);
+int maCameraSelect(number cameraNumber);
 
 /**
 * Returns the number of available Camera on the device.
@@ -4444,7 +4444,7 @@ int maCameraNumber(void);
 * stored as a new data object in the supplied placeholder.
 * Returns 0 on success, or \< 0 on error.
 */
-int maCameraSnapshot(int formatIndex, MAHandle placeholder);
+int maCameraSnapshot(number formatIndex, MAHandle placeholder);
 
 /**
 * Starts or stops recording video.
@@ -4452,7 +4452,7 @@ int maCameraSnapshot(int formatIndex, MAHandle placeholder);
 * 1 for start recording and 0 for stop recording.
 * Returns 1 for success, \< 0 on error.
 */
-int maCameraRecord(int stopStartFlag);
+int maCameraRecord(number stopStartFlag);
 
 /**
 * Sets a specified property on the Selected Camera.
@@ -4462,7 +4462,7 @@ int maCameraRecord(int stopStartFlag);
 *
 * \returns 1 for success and <0 for failure.
 */
-int maCameraSetProperty(const char* property, const char* value);
+int maCameraSetProperty(string property, string value);
 
 /**
 * retrives a specified property on the Selected Camera.
@@ -4473,7 +4473,7 @@ int maCameraSetProperty(const char* property, const char* value);
 *
 * \returns 1 for success and <0 for failure.
 */
-int maCameraGetProperty(const char* property, char* value, int bufSize);
+int maCameraGetProperty(string property, string value, number bufSize);
 
 /**
 * Shows the virtual keyboard.
@@ -4513,7 +4513,7 @@ int maShowVirtualKeyboard(void);
 * \link #MA_TB_FLAG_PASSWORD MA_TB_FLAG \endlink constants.
 * \note Some combinations of constraint types and flags are useless or invalid.
 */
-int maTextBox(const void* /* wchar* */ title, const void* /* wchar* */ inText, void* /* wchar* */ outText, int maxSize, int constraints);
+int maTextBox(lightuserdata /* wchar* */ title, lightuserdata /* wchar* */ inText, lightuserdata /* wchar* */ outText, number maxSize, number constraints);
 
 /**
 * Make MoSync send key-events for the specified key, even when
@@ -4523,7 +4523,7 @@ int maTextBox(const void* /* wchar* */ title, const void* /* wchar* */ inText, v
 * @return \< 0 on error.
 * \see maKeyCaptureStop()
 */
-int maKeyCaptureStart(int keyCode);
+int maKeyCaptureStart(number keyCode);
 
 /**
 * Stops any key capture in progress.
@@ -4553,7 +4553,7 @@ int maHomeScreenEventsOff(void);
 * @param name The name (label) of the shortcut to add.
 * @return \< 0 on error.
 */
-int maHomeScreenShortcutAdd(const char* name);
+int maHomeScreenShortcutAdd(string name);
 
 /**
 * Remove shortcut icon from the device home screen.
@@ -4561,7 +4561,7 @@ int maHomeScreenShortcutAdd(const char* name);
 * @param name The name (label) of the shortcut to remove.
 * @return \< 0 on error.
 */
-int maHomeScreenShortcutRemove(const char* name);
+int maHomeScreenShortcutRemove(string name);
 
 /**
  * Add a notification item.
@@ -4579,7 +4579,7 @@ int maHomeScreenShortcutRemove(const char* name);
  * @return \< 0 on error or if the syscall is not available on the
  * current platform.
  */
-int maNotificationAdd(int type, int id, const char* title, const char* text);
+int maNotificationAdd(number type, number id, string title, string text);
 
 /**
  * Remove a notification item.
@@ -4588,7 +4588,7 @@ int maNotificationAdd(int type, int id, const char* title, const char* text);
  * @param id The id of the notification.
  * @return \< 0 on error.
  */
-int maNotificationRemove(int id);
+int maNotificationRemove(number id);
 
 /**
  * Set the screen orientation.
@@ -4598,7 +4598,7 @@ int maNotificationRemove(int id);
  * constants.
  * @return \< 0 on error.
  */
-int maScreenSetOrientation(int orientation);
+int maScreenSetOrientation(number orientation);
 
 /**
  * Enable/disable fullscreen mode.
@@ -4606,7 +4606,7 @@ int maScreenSetOrientation(int orientation);
  * @param fullscreen 1 for fullscreen on, 0 for fullscreen off.
  * @return \< 0 on error.
  */
-int maScreenSetFullscreen(int fullscreen);
+int maScreenSetFullscreen(number fullscreen);
 
 /**
 * Registers this application for autostart on device reboot.
@@ -4633,7 +4633,7 @@ int maAutostartOff(void);
 * - #MA_SCREEN_ORIENTATION_RES_NOT_SUPPORTED
 * - #MA_SCREEN_ORIENTATION_RES_INVALID_VALUE
 */
-int maScreenSetSupportedOrientations(int orientations);
+int maScreenSetSupportedOrientations(number orientations);
 
 /**
 * Get supported screen orientations.
@@ -4674,7 +4674,7 @@ int maScreenStateEventsOff(void);
  * @param flag MA_WAKE_LOCK_ON or MA_WAKE_LOCK_OFF
  * @return \>0 on success, \< 0 on error (-1 if not available).
  */
-int maWakeLock(int flag);
+int maWakeLock(number flag);
 
 /**
  * Logs information about the state of all current resources.
@@ -4688,7 +4688,7 @@ void maReportResourceInformation(void);
  * \param message The message should be short, not more than 40 characters,
  * to ensure its visibility on all screen sizes.
  */
-void maMessageBox(const char* title, const char* message);
+void maMessageBox(string title, string message);
 
 /**
 * Displays a message to the user.
@@ -4703,7 +4703,7 @@ void maMessageBox(const char* title, const char* message);
 * \param button2 The text on the second button. On Android it indicates a neutral selection.
 * \param button3 The text on the third button. On Android it indicates that a negative selection.
 */
-void maAlert(const char* title, const char* message, const char* button1, const char* button2, const char* button3);
+void maAlert(string title, string message, string button1, string button2, string button3);
 
 /**
 * Displays an image picker to the user.
@@ -4724,7 +4724,7 @@ void maImagePickerOpen(void);
 * \param otherButtonTitles The address to the buffer that stores the list of options.
 * \param otherButtonTitlesSize The size of the buffer, in bytes.
 */
-void maOptionsBox(const void* /* wchar* */ title, const void* /* wchar* */ destructiveButtonTitle, const void* /* wchar* */ cancelButtonTitle, const void* /* void* */ otherButtonTitles, int otherButtonTitlesSize);
+void maOptionsBox(lightuserdata /* wchar* */ title, lightuserdata /* wchar* */ destructiveButtonTitle, lightuserdata /* wchar* */ cancelButtonTitle, lightuserdata /* void* */ otherButtonTitles, number otherButtonTitlesSize);
 
 /**
 * \brief Enables a sensor and starts sending events if the sensor is available.
@@ -4739,7 +4739,7 @@ void maOptionsBox(const void* /* wchar* */ title, const void* /* wchar* */ destr
 *            #SENSOR_ERROR_ALREADY_ENABLED if the sensor already was enabled.
 * \see #EVENT_TYPE_SENSOR
 */
-int maSensorStart(int sensor, int interval);
+int maSensorStart(number sensor, number interval);
 
 /**
 * \brief Disables a sensor so that it doesn't send any further events.
@@ -4750,7 +4750,7 @@ int maSensorStart(int sensor, int interval);
 *            #SENSOR_ERROR_CANNOT_DISABLE if there was a problem disabling the sensor.
 * \see #EVENT_TYPE_SENSOR
 */
-int maSensorStop(int sensor);
+int maSensorStop(number sensor);
 
 /**
 * Start listening to NFC events.
@@ -4797,7 +4797,7 @@ void maNFCCloseTag(MAHandle tagHandle);
 * and MA_NFC_INVALID_TAG_TYPE if the tag type is not supported
 * by this platform.
 */
-int maNFCIsType(MAHandle tagHandle, int type);
+int maNFCIsType(MAHandle tagHandle, number type);
 
 /**
 * To be able to call functions tag require the tag to be of
@@ -4810,7 +4810,7 @@ int maNFCIsType(MAHandle tagHandle, int type);
 * \return A handle if the type was convertable to the specified
 * type.
 */
-MAHandle maNFCGetTypedTag(MAHandle tagHandle, int type);
+MAHandle maNFCGetTypedTag(MAHandle tagHandle, number type);
 
 /**
 * Starts a batch operation. No NFC I/O operations will be performed
@@ -4847,7 +4847,7 @@ void maNFCBatchRollback(MAHandle tagHandle);
 * \param len The length of the data to send.
 * \return 0 if the tag can be transceived to, < 0 otherwise.
 */
-int maNFCTransceive(MAHandle tag, const void* /* void* */ src, int srcLen, void* /* void* */ dst, int* dstLen);
+int maNFCTransceive(MAHandle tag, lightuserdata /* void* */ src, number srcLen, lightuserdata /* void* */ dst, number* dstLen);
 
 /**
 * Makes a tag read-only (this operation cannot be reverted).
@@ -4906,7 +4906,7 @@ int maNFCWriteNDEFMessage(MAHandle tag, MAHandle ndefMessage);
 * \return The handle to the created NDEF message; clients are
 * responsible for destroying the message.
 */
-MAHandle maNFCCreateNDEFMessage(int recordCount);
+MAHandle maNFCCreateNDEFMessage(number recordCount);
 
 /**
 * Gets the NDEF message from a tag, which must
@@ -4930,7 +4930,7 @@ int maNFCGetNDEFMessage(MAHandle tag);
 * \return A handle to the ith NDEF record of an NDEF message.
 * If the handle is not an NDEF message, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-MAHandle maNFCGetNDEFRecord(MAHandle ndefMessage, int ix);
+MAHandle maNFCGetNDEFRecord(MAHandle ndefMessage, number ix);
 
 /**
 * \return The number of NDEF records in an NDEF message.
@@ -4946,7 +4946,7 @@ int maNFCGetNDEFRecordCount(MAHandle ndefMessage);
 * \return The number of bytes written.
 * If the handle is not an NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCGetNDEFId(MAHandle ndefRecord, void* /* void* */ dst, int len);
+int maNFCGetNDEFId(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Reads the variable length payload of an NDEF record.
@@ -4956,7 +4956,7 @@ int maNFCGetNDEFId(MAHandle ndefRecord, void* /* void* */ dst, int len);
 * \return The number of bytes written.
 * If the handle is not an NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCGetNDEFPayload(MAHandle ndefRecord, void* /* void* */ dst, int len);
+int maNFCGetNDEFPayload(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Returns the 3-bit TNF of an NDEF record.
@@ -4972,31 +4972,31 @@ int maNFCGetNDEFTnf(MAHandle ndefRecord);
 * \return The number of bytes written.
 * If the handle is not an NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCGetNDEFType(MAHandle ndefRecord, void* /* void* */ dst, int len);
+int maNFCGetNDEFType(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Sets the variable length id of an NDEF record.
 * If the handle is not an NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCSetNDEFId(MAHandle ndefRecord, const void* /* void* */ dst, int len);
+int maNFCSetNDEFId(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Sets the variable length payload of an NDEF record.
 * If the handle is not NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCSetNDEFPayload(MAHandle ndefRecord, const void* /* void* */ dst, int len);
+int maNFCSetNDEFPayload(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Sets the 3-bit TNF of an NDEF record,
 * If the handle is not NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCSetNDEFTnf(MAHandle ndefRecord, int tnf);
+int maNFCSetNDEFTnf(MAHandle ndefRecord, number tnf);
 
 /**
 * Returns the variable length type field of an NDEF record.
 * If the handle is not NDEF message record, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCSetNDEFType(MAHandle ndefRecord, const void* /* void* */ dst, int len);
+int maNFCSetNDEFType(MAHandle ndefRecord, lightuserdata /* void* */ dst, number len);
 
 /**
 * Authenticates a MIFARE Classic tag using the A or B key. Authentication must take place
@@ -5010,7 +5010,7 @@ int maNFCSetNDEFType(MAHandle ndefRecord, const void* /* void* */ dst, int len);
 * \param keyLen The length of the key to authenticate with
 * If the handle is not a Mifare Classic tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCAuthenticateMifareSector(MAHandle tagHandle, int keyType, int sectorIndex, const void* /* void* */ keySrc, int keyLen);
+int maNFCAuthenticateMifareSector(MAHandle tagHandle, number keyType, number sectorIndex, lightuserdata /* void* */ keySrc, number keyLen);
 
 /**
 * \return The number of sectors of a MIFARE Classic tag.
@@ -5024,7 +5024,7 @@ int maNFCGetMifareSectorCount(MAHandle tagHandle);
 * \return The number of blocks in a given sector.
 * If the handle is not a Mifare Classic tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCGetMifareBlockCountInSector(MAHandle tagHandle, int sector);
+int maNFCGetMifareBlockCountInSector(MAHandle tagHandle, number sector);
 
 /**
 * Returns the first block of a sector of a MIFARE Classic tag.
@@ -5032,7 +5032,7 @@ int maNFCGetMifareBlockCountInSector(MAHandle tagHandle, int sector);
 * \return The index of the first block of the sector is returned.
 * If the handle is not a Mifare Classic tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCMifareSectorToBlock(MAHandle tagHandle, int sector);
+int maNFCMifareSectorToBlock(MAHandle tagHandle, number sector);
 
 /**
 * Reads a number of blocks of a MIFARE Classic tag.
@@ -5044,7 +5044,7 @@ int maNFCMifareSectorToBlock(MAHandle tagHandle, int sector);
 * on len (A block is 16 bytes).
 * If the handle is not a Mifare Classic tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCReadMifareBlocks(MAHandle tagHandle, int firstBlock, void* /* void* */ dst, int len);
+int maNFCReadMifareBlocks(MAHandle tagHandle, number firstBlock, lightuserdata /* void* */ dst, number len);
 
 /**
 * Writes a number of blocks to a MIFARE Classic tag.
@@ -5056,7 +5056,7 @@ int maNFCReadMifareBlocks(MAHandle tagHandle, int firstBlock, void* /* void* */ 
 * on len (A block is 16 bytes).
 * If the handle is not a Mifare Classic tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCWriteMifareBlocks(MAHandle tagHandle, int firstBlock, const void* /* void* */ dst, int len);
+int maNFCWriteMifareBlocks(MAHandle tagHandle, number firstBlock, lightuserdata /* void* */ dst, number len);
 
 /**
 * Reads a number of blocks of a MIFARE Ultralight tag.
@@ -5068,7 +5068,7 @@ int maNFCWriteMifareBlocks(MAHandle tagHandle, int firstBlock, const void* /* vo
 * on len (A page is 16 bytes).
 * If the handle is not a Mifare Ultralight tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCReadMifarePages(MAHandle tagHandle, int firstPage, void* /* void* */ dst, int len);
+int maNFCReadMifarePages(MAHandle tagHandle, number firstPage, lightuserdata /* void* */ dst, number len);
 
 /**
 * Writes a number of blocks of a MIFARE Ultralight tag.
@@ -5080,7 +5080,7 @@ int maNFCReadMifarePages(MAHandle tagHandle, int firstPage, void* /* void* */ ds
 * on len (A page is 16 bytes).
 * If the handle is not a Mifare Ultralight tag, MA_NFC_INVALID_TAG_TYPE will be returned.
 */
-int maNFCWriteMifarePages(MAHandle tagHandle, int firstPage, const void* /* void* */ dst, int len);
+int maNFCWriteMifarePages(MAHandle tagHandle, number firstPage, lightuserdata /* void* */ dst, number len);
 
 /**
  * Open a database file. The database is created if it does not exist.
@@ -5089,7 +5089,7 @@ int maNFCWriteMifarePages(MAHandle tagHandle, int firstPage, const void* /* void
  * @param path Absolute path to the database file.
  * @return Handle to the database >0 on success, #MA_DB_ERROR on error.
  */
-MAHandle maDBOpen(const char* path);
+MAHandle maDBOpen(string path);
 
 /**
  * Close a database.
@@ -5107,7 +5107,7 @@ int maDBClose(MAHandle databaseHandle);
  * > 0 if there is a cursor to a query result, in this
  * case the return value is the cursor handle.
  */
-MAHandle maDBExecSQL(MAHandle databaseHandle, const char* sql);
+MAHandle maDBExecSQL(MAHandle databaseHandle, string sql);
 
 /**
  * @copydoc maDBExecSQL()
@@ -5127,7 +5127,7 @@ MAHandle maDBExecSQL(MAHandle databaseHandle, const char* sql);
  *
  * This function is available on iOS, Android, and in MoRE.
  */
-MAHandle maDBExecSQLParams(MAHandle databaseHandle, const char* sql, const void* /* MADBValue* */ params, int paramCount);
+MAHandle maDBExecSQLParams(MAHandle databaseHandle, string sql, lightuserdata /* MADBValue* */ params, number paramCount);
 
 /**
  * Destroys a cursor. You must call this function
@@ -5164,7 +5164,7 @@ int maDBCursorNext(MAHandle cursorHandle);
  * @return #MA_DB_OK on success, #MA_DB_NULL if the column value
  * is NULL, #MA_#MA_DB_ERROR on error.
  */
-int maDBCursorGetColumnData(MAHandle cursorHandle, int columnIndex, MAHandle placeholder);
+int maDBCursorGetColumnData(MAHandle cursorHandle, number columnIndex, MAHandle placeholder);
 
 /**
  * Get the column value at the current row pointed to
@@ -5181,7 +5181,7 @@ int maDBCursorGetColumnData(MAHandle cursorHandle, int columnIndex, MAHandle pla
  * returns #MA_DB_ERROR on other errors, returns #MA_DB_NULL if the
  * column value is NULL.
  */
-int maDBCursorGetColumnText(MAHandle cursorHandle, int columnIndex, void* /* void* */ buffer, int bufferSize);
+int maDBCursorGetColumnText(MAHandle cursorHandle, number columnIndex, lightuserdata /* void* */ buffer, number bufferSize);
 
 /**
  * Get the column value at the current row pointed to
@@ -5193,7 +5193,7 @@ int maDBCursorGetColumnText(MAHandle cursorHandle, int columnIndex, void* /* voi
  * @return #MA_DB_OK on success, #MA_DB_NULL if the column value
  * is NULL, #MA_#MA_DB_ERROR on error.
  */
-int maDBCursorGetColumnInt(MAHandle cursorHandle, int columnIndex, int* value);
+int maDBCursorGetColumnInt(MAHandle cursorHandle, number columnIndex, number* value);
 
 /**
  * Get the column value at the current row pointed to
@@ -5205,7 +5205,7 @@ int maDBCursorGetColumnInt(MAHandle cursorHandle, int columnIndex, int* value);
  * @return #MA_DB_OK on success, #MA_DB_NULL if the column value
  * is NULL, #MA_#MA_DB_ERROR on error.
  */
-int maDBCursorGetColumnDouble(MAHandle cursorHandle, int columnIndex, double* value);
+int maDBCursorGetColumnDouble(MAHandle cursorHandle, number columnIndex, number* value);
 
 /**
 * @brief Creates a MAAudioData handle from a MoSync resource.
@@ -5219,7 +5219,7 @@ int maDBCursorGetColumnDouble(MAHandle cursorHandle, int columnIndex, double* va
 * @attention Windows Phone only supports wave-files (see remarks here: http://msdn.microsoft.com/en-us/library/microsoft.xna.framework.audio.soundeffect.fromstream.aspx).
 * @return A MAAudioData handle or <0 on error.
 */
-MAAudioData maAudioDataCreateFromResource(const char* mime, MAHandle data, int offset, int length, int flags);
+MAAudioData maAudioDataCreateFromResource(string mime, MAHandle data, number offset, number length, number flags);
 
 /**
 * @brief Creates a MAAudioData handle from an URL or file path.
@@ -5232,7 +5232,7 @@ MAAudioData maAudioDataCreateFromResource(const char* mime, MAHandle data, int o
 * @return A MAAudioData handle or <0 on error.
 * @attention iOS Only supports loading local files.
 */
-MAAudioData maAudioDataCreateFromURL(const char* mime, const char* url, int flags);
+MAAudioData maAudioDataCreateFromURL(string mime, string url, number flags);
 
 /**
 * @brief Destroys a MAAudioData handle and releases used memory
@@ -5262,7 +5262,7 @@ MAAudioInstance maAudioInstanceCreate(MAAudioData audioData);
 * @return A MAAudioInstance handle or <0 on error.
 *
 */
-MAAudioInstance maAudioInstanceCreateDynamic(int sampleRate, int numChannels, int bufferSize);
+MAAudioInstance maAudioInstanceCreateDynamic(number sampleRate, number numChannels, number bufferSize);
 
 /**
 * @brief Submits a buffer of samples to a dynamic MAAudioInstance
@@ -5273,7 +5273,7 @@ MAAudioInstance maAudioInstanceCreateDynamic(int sampleRate, int numChannels, in
 * @return <0 on error.
 *
 */
-int maAudioSubmitBuffer(MAAudioInstance instance, const void* /* void* */ buffer, int numBytes);
+int maAudioSubmitBuffer(MAAudioInstance instance, lightuserdata /* void* */ buffer, number numBytes);
 
 /**
 * @brief Gets the pending buffer count for the dynamic MAAudioInstance
@@ -5309,7 +5309,7 @@ int maAudioGetLength(MAAudioInstance audio);
 * -1 means loop forever.
 * @return MA_AUDIO_ERR_OK on success, <0 on error.
 */
-int maAudioSetNumberOfLoops(MAAudioInstance audio, int loops);
+int maAudioSetNumberOfLoops(MAAudioInstance audio, number loops);
 
 /**
 * @brief Prepares an MAAudioInstance before playback.
@@ -5327,7 +5327,7 @@ int maAudioSetNumberOfLoops(MAAudioInstance audio, int loops);
 *	MA_AUDIO_ERR_INVALID_INSTANCE on invalid audio instance
 *	MA_AUDIO_ERR_ALREADY_PREPARED on already prepared audio instance
 */
-int maAudioPrepare(MAAudioInstance audio, int async);
+int maAudioPrepare(MAAudioInstance audio, number async);
 
 /**
 * @brief Plays the current MAAudioInstance.
@@ -5347,7 +5347,7 @@ int maAudioPlay(MAAudioInstance audio);
 * @return MA_AUDIO_ERR_OK on success,
 *	<0 on error.
 */
-int maAudioSetPosition(MAAudioInstance audio, int milliseconds);
+int maAudioSetPosition(MAAudioInstance audio, number milliseconds);
 
 /**
 * @brief Gets the current position in milliseconds.
@@ -5416,7 +5416,7 @@ int maSyscallPanicsDisable(void);
 *  - #MA_ADS_RES_ERROR if a error occurred while creating the banner widget.
 *  - a handle to a new banner widget(the handle value is >= 0).
 */
-int maAdsBannerCreate(int bannerSize, const char* publisherID);
+int maAdsBannerCreate(number bannerSize, string publisherID);
 
 /**
 * \brief Destroy a banner.
@@ -5468,7 +5468,7 @@ int maAdsRemoveBannerFromLayout(MAHandle bannerHandle, MAHandle layoutHandle);
 * - #MA_ADS_RES_INVALID_PROPERTY_NAME if the property name is not valid.
 * - #MA_ADS_RES_INVALID_PROPERTY_VALUE if the property value is not valid.
 */
-int maAdsBannerSetProperty(MAHandle bannerHandle, const char* property, const char* value);
+int maAdsBannerSetProperty(MAHandle bannerHandle, string property, string value);
 
 /**
 * \brief Retrieves a specified property from the given banner.
@@ -5484,7 +5484,7 @@ int maAdsBannerSetProperty(MAHandle bannerHandle, const char* property, const ch
 * - #MA_ADS_RES_INVALID_PROPERTY_NAME if the property name is not valid.
 * - #MA_ADS_RES_INVALID_STRING_BUFFER_SIZE if the buffer size was to small.
 */
-int maAdsBannerGetProperty(MAHandle bannerHandle, const char* property, char* value, int bufSize);
+int maAdsBannerGetProperty(MAHandle bannerHandle, string property, string value, number bufSize);
 
 /**
 * \brief Creates a new local notification object.
@@ -5521,7 +5521,7 @@ int maNotificationLocalDestroy(MAHandle notificationHandle);
 * - #MA_NOTIFICATION_RES_INVALID_PROPERTY_VALUE if the property value is not valid.
 * - #MA_NOTIFICATION_RES_ALREADY_SCHEDULED if the notification is scheduled.
 */
-int maNotificationLocalSetProperty(MAHandle notificationHandle, const char* property, const char* value);
+int maNotificationLocalSetProperty(MAHandle notificationHandle, string property, string value);
 
 /**
 * \brief Retrieves a specified property from the given notification object.
@@ -5537,7 +5537,7 @@ int maNotificationLocalSetProperty(MAHandle notificationHandle, const char* prop
 * - #MA_NOTIFICATION_RES_INVALID_PROPERTY_NAME if the property name is not valid.
 * - #MA_NOTIFICATION_RES_INVALID_STRING_BUFFER_SIZE if the buffer size was to small.
 */
-int maNotificationLocalGetProperty(MAHandle notificationHandle, const char* property, char* value, int bufSize);
+int maNotificationLocalGetProperty(MAHandle notificationHandle, string property, string value, number bufSize);
 
 /**
 * \brief Schedules a local notification for delivery at its encapsulated date and time.
@@ -5599,7 +5599,7 @@ int maNotificationLocalUnschedule(MAHandle notificationHandle);
 * receiving push notifications.
 * - #MA_NOTIFICATION_RES_UNSUPPORTED if notifications are not supported on current platform.
 */
-int maNotificationPushRegister(MAHandle pushNotificationTypes, const char* senderId);
+int maNotificationPushRegister(MAHandle pushNotificationTypes, string senderId);
 
 /**
 * \brief Unregister application for push notifications.
@@ -5621,7 +5621,7 @@ int maNotificationPushUnregister(void);
 * - #MA_NOTIFICATION_RES_REGISTRATION_MESSAGE_BUF_TOO_SMALL if the buffer is too small.
 * - #MA_NOTIFICATION_RES_ERROR if registration has failed.
 */
-int maNotificationPushGetRegistration(char* registrationMesssage, int registrationMessageSize);
+int maNotificationPushGetRegistration(string registrationMesssage, number registrationMessageSize);
 
 /**
 * \brief Fills pushNotificationData struct with the values for a given push notification.
@@ -5636,7 +5636,7 @@ int maNotificationPushGetRegistration(char* registrationMesssage, int registrati
 * - #MA_NOTIFICATION_RES_INVALID_STRING_BUFFER_SIZE if at least one of the buffers from
 * pushNotificationData are too small.
 */
-int maNotificationPushGetData(MAHandle pushNotificationHandle, void* /* MAPushNotificationData* */ pushNotificationData);
+int maNotificationPushGetData(MAHandle pushNotificationHandle, lightuserdata /* MAPushNotificationData* */ pushNotificationData);
 
 /**
 * \brief Destroy a push notification object.
@@ -5656,7 +5656,7 @@ int maNotificationPushDestroy(MAHandle notificationHandle);
 *\param applicationIconBadgeNumber Set to zero to hide the badge number. The default is zero.
 * If this value is negative the syscall will do nothing.
 */
-void maNotificationSetIconBadge(int applicationIconBadgeNumber);
+void maNotificationSetIconBadge(number applicationIconBadgeNumber);
 
 /**
 * \brief Get the number currently set as the badge of the application icon in Springboard.
@@ -5676,7 +5676,7 @@ int maNotificationGetIconBadge(void);
 * - #MA_NOTIFICATION_RES_OK if no error occurred.
 * - #MA_NOTIFICATION_RES_ERROR.
 */
-int maNotificationPushSetTickerText(const char* tickerText);
+int maNotificationPushSetTickerText(string tickerText);
 
 /**
 * \brief Set the  message title in the notification area for incoming push notifications.
@@ -5688,7 +5688,7 @@ int maNotificationPushSetTickerText(const char* tickerText);
 * - #MA_NOTIFICATION_RES_OK if no error occurred.
 * - #MA_NOTIFICATION_RES_ERROR.
 */
-int maNotificationPushSetMessageTitle(const char* messageTitle);
+int maNotificationPushSetMessageTitle(string messageTitle);
 
 /**
 * \brief Set the display flags applied to the incoming push notifications.
@@ -5704,7 +5704,7 @@ int maNotificationPushSetMessageTitle(const char* messageTitle);
 * - #MA_NOTIFICATION_RES_ERROR if push notifications are not supported,
 * or the input value is not valid.
 */
-int maNotificationPushSetDisplayFlag(int displayFlag);
+int maNotificationPushSetDisplayFlag(number displayFlag);
 
 /**
 * \brief Sets the properties to the Native Image Picker.
@@ -5718,7 +5718,7 @@ int maNotificationPushSetDisplayFlag(int displayFlag);
 *  - #MA_CAPTURE_RES_INVALID_PROPERTY_VALUE if the property value is not valid.
 *  - #MA_CAPTURE_RES_MAX_DURATION_NOT_SUPPORTED if the duration limit is not supported ( Android only).
 */
-int maCaptureSetProperty(const char* property, const char* value);
+int maCaptureSetProperty(string property, string value);
 
 /**
 * \brief Retrieves the properties from the Native Image Picker.
@@ -5735,7 +5735,7 @@ int maCaptureSetProperty(const char* property, const char* value);
 * - #MA_CAPTURE_RES_PROPERTY_VALUE_UNDEFINED if the property was not previously set ( Android only).
 * - #MA_CAPTURE_RES_MAX_DURATION_NOT_SUPPORTED if the duration limit is not supported ( Android only).
 */
-int maCaptureGetProperty(const char* property, char* value, int bufSize);
+int maCaptureGetProperty(string property, string value, number bufSize);
 
 /**
 * \brief Performs a capture action.
@@ -5764,7 +5764,7 @@ int maCaptureGetProperty(const char* property, char* value, int bufSize);
 *  - #MA_CAPTURE_RES_VIDEO_NOT_SUPPORTED if video recording is not supported.
 *  - #MA_CAPTURE_RES_PICTURE_NOT_SUPPORTED if camera picture mode is not supported.
 */
-int maCaptureAction(int action);
+int maCaptureAction(number action);
 
 /**
 * \brief Save a image data object to a file.
@@ -5778,7 +5778,7 @@ int maCaptureAction(int action);
 *  - #MA_CAPTURE_RES_FILE_INVALID_NAME if the fullPath param is invalid.
 *  - #MA_CAPTURE_RES_FILE_ALREADY_EXISTS if the file already exists.
 */
-int maCaptureWriteImage(MAHandle handle, const char* fullPath, int fullPathBufSize);
+int maCaptureWriteImage(MAHandle handle, string fullPath, number fullPathBufSize);
 
 /**
 * \brief Get full path to a taken picture.
@@ -5792,7 +5792,7 @@ int maCaptureWriteImage(MAHandle handle, const char* fullPath, int fullPathBufSi
 *  - #MA_CAPTURE_RES_INVALID_HANDLE if the given handle was invalid.
 *  - #MA_CAPTURE_RES_INVALID_STRING_BUFFER_SIZE if the buffer size was to small.
 */
-int maCaptureGetImagePath(MAHandle handle, char* buffer, int bufferSize);
+int maCaptureGetImagePath(MAHandle handle, string buffer, number bufferSize);
 
 /**
 * \brief Get full path to a recorded video.
@@ -5805,7 +5805,7 @@ int maCaptureGetImagePath(MAHandle handle, char* buffer, int bufferSize);
 *  - #MA_CAPTURE_RES_INVALID_HANDLE if the given handle was invalid.
 *  - #MA_CAPTURE_RES_INVALID_STRING_BUFFER_SIZE if the buffer size was to small.
 */
-int maCaptureGetVideoPath(MAHandle handle, char* buffer, int bufferSize);
+int maCaptureGetVideoPath(MAHandle handle, string buffer, number bufferSize);
 
 /**
 * \brief Destroys a image/video data object.
@@ -5853,7 +5853,7 @@ int maPurchaseSupported(void);
 * \param productID String that identifies the product. This string must be used by the
 * App Store / Google Play to identify the product.
 */
-void maPurchaseCreate(MAHandle productHandle, const char* productID);
+void maPurchaseCreate(MAHandle productHandle, string productID);
 
 /**
 * Set your Google Play public key to the application. This enables the application
@@ -5868,7 +5868,7 @@ void maPurchaseCreate(MAHandle productHandle, const char* productID);
 * - #MA_PURCHASE_RES_OK if the key was set.
 * - #MA_PURCHASE_RES_MALFORMED_PUBLIC_KEY if the key is invalid.
 */
-int maPurchaseSetPublicKey(const char* developerPublicKey);
+int maPurchaseSetPublicKey(string developerPublicKey);
 
 /**
 * Request the user to purchase a product.
@@ -5891,7 +5891,7 @@ int maPurchaseSetPublicKey(const char* developerPublicKey);
 * \param quantity How many products to be purchased. Must be a value greater than zero.
 * This param is ignored on Android, as any purchase request can handle only one item.
 */
-void maPurchaseRequest(MAHandle productHandle, int quantity);
+void maPurchaseRequest(MAHandle productHandle, number quantity);
 
 /**
 * Verify if the receipt came from Apple App Store / Google Play.
@@ -5928,14 +5928,14 @@ void maPurchaseVerifyReceipt(MAHandle productHandle);
 * - #MA_PURCHASE_RES_RECEIPT_NOT_AVAILABLE if the product has not been purchased.
 * - #MA_PURCHASE_RES_DISABLED if purchase is not allowed/enabled.
 */
-int maPurchaseGetField(MAHandle productHandle, const char* property, char* buffer, int bufferSize);
+int maPurchaseGetField(MAHandle productHandle, string property, string buffer, number bufferSize);
 
 /**
 * Set the store url used for verifing the receipe on iOS platform.
 * Platform: iOS.
 * \param url Store url.
 */
-void maPurchaseSetStoreURL(const char* url);
+void maPurchaseSetStoreURL(string url);
 
 /**
 * Get product id using a product handle.
@@ -5948,7 +5948,7 @@ void maPurchaseSetStoreURL(const char* url);
 * - #MA_PURCHASE_RES_BUFFER_TOO_SMALL if the given handle is too small.
 * In case of success returns the number of written bytes.
 */
-int maPurchaseGetName(MAHandle productHandle, char* buffer, int bufferSize);
+int maPurchaseGetName(MAHandle productHandle, string buffer, number bufferSize);
 
 /**
 * Restore transactions that were previously finished so that you can process them again.
@@ -6035,7 +6035,7 @@ typedef khronos_ssize_t GLsizeiptr;
  * - #MA_GL_INIT_RES_UNAVAILABLE_API If the OpenGL api version wasn't available.
  * - #MA_GL_INIT_RES_ERROR otherwise.
  */
-int maOpenGLInitFullscreen(int glApi);
+int maOpenGLInitFullscreen(number glApi);
 
 /**
  * Closes full screen OpenGL ES.
@@ -6071,9 +6071,9 @@ void glBindTexture(GLenum target, GLuint texture);
 
 void glBlendFunc(GLenum sfactor, GLenum dfactor);
 
-void glBufferData(GLenum target, GLsizeiptr size, const void* /* void* */ data, GLenum usage);
+void glBufferData(GLenum target, GLsizeiptr size, lightuserdata /* void* */ data, GLenum usage);
 
-void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, const void* /* void* */ data);
+void glBufferSubData(GLenum target, GLintptr offset, GLsizeiptr size, lightuserdata /* void* */ data);
 
 void glClear(GLbitfield mask);
 
@@ -6085,9 +6085,9 @@ void glClearStencil(GLint s);
 
 void glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
 
-void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* /* void* */ data);
+void glCompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, lightuserdata /* void* */ data);
 
-void glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* /* void* */ data);
+void glCompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, lightuserdata /* void* */ data);
 
 void glCopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border);
 
@@ -6095,9 +6095,9 @@ void glCopyTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffse
 
 void glCullFace(GLenum mode);
 
-void glDeleteBuffers(GLsizei n, const void* /* GLuint* */ buffers);
+void glDeleteBuffers(GLsizei n, lightuserdata /* GLuint* */ buffers);
 
-void glDeleteTextures(GLsizei n, const void* /* GLuint* */ textures);
+void glDeleteTextures(GLsizei n, lightuserdata /* GLuint* */ textures);
 
 void glDepthFunc(GLenum func);
 
@@ -6109,7 +6109,7 @@ void glDisable(GLenum cap);
 
 void glDrawArrays(GLenum mode, GLint first, GLsizei count);
 
-void glDrawElements(GLenum mode, GLsizei count, GLenum type, const void* /* void* */ indices);
+void glDrawElements(GLenum mode, GLsizei count, GLenum type, lightuserdata /* void* */ indices);
 
 void glEnable(GLenum cap);
 
@@ -6153,7 +6153,7 @@ void glPixelStorei(GLenum pname, GLint param);
 
 void glPolygonOffset(GLfloat factor, GLfloat units);
 
-void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* /* void* */ pixels);
+void glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, lightuserdata /* void* */ pixels);
 
 void glSampleCoverage(GLclampf value, GLboolean invert);
 
@@ -6165,17 +6165,17 @@ void glStencilMask(GLuint mask);
 
 void glStencilOp(GLenum fail, GLenum zfail, GLenum zpass);
 
-void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* /* void* */ pixels);
+void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, lightuserdata /* void* */ pixels);
 
 void glTexParameterf(GLenum target, GLenum pname, GLfloat param);
 
-void glTexParameterfv(GLenum target, GLenum pname, const void* /* GLfloat* */ params);
+void glTexParameterfv(GLenum target, GLenum pname, lightuserdata /* GLfloat* */ params);
 
 void glTexParameteri(GLenum target, GLenum pname, GLint param);
 
-void glTexParameteriv(GLenum target, GLenum pname, const void* /* GLint* */ params);
+void glTexParameteriv(GLenum target, GLenum pname, lightuserdata /* GLint* */ params);
 
-void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* /* void* */ pixels);
+void glTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, lightuserdata /* void* */ pixels);
 
 void glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
@@ -9414,7 +9414,7 @@ typedef int MAWidgetHandle;
 * \code
 *   maWidgetSetProperty(mapHandle, MAW_MAP_INTERRACTION_ENABLED, "true");
 *   char interractionEnabled[BUF_SIZE];
-*   maWidgetGetProperty(mapHandle, MAW_MAP_INTERRACTION_ENABLED, interractionEnabled, BUF_SIZE);
+*   maWidgetGetProperty(mapHandle, MAW_MAP_INTERRACTION_ENABLED, numbererractionEnabled, BUF_SIZE);
 * \endcode
 */
 #define MAW_MAP_INTERRACTION_ENABLED "interraction_enabled"
@@ -9594,7 +9594,7 @@ typedef int MAWidgetHandle;
 * - #MAW_RES_FEATURE_NOT_AVAILABLE if the widget type is not supported by the curent framework version.
 
 */
-MAWidgetHandle maWidgetCreate(const char* widgetType);
+MAWidgetHandle maWidgetCreate(string widgetType);
 
 /**
 * Frees the memory and resources held by the given widget. Destryoing a widget
@@ -9644,7 +9644,7 @@ int maWidgetAddChild(MAWidgetHandle parent, MAWidgetHandle child);
 * - #MAW_RES_CANNOT_INSERT_DIALOG if the child is a modal dialog.
 * - #MAW_RES_ERROR if it could not be added for some other reason.
 */
-int maWidgetInsertChild(MAWidgetHandle parent, MAWidgetHandle child, int index);
+int maWidgetInsertChild(MAWidgetHandle parent, MAWidgetHandle child, number index);
 
 /**
 * Removes a child widget from its parent (but does not destroy it).
@@ -9741,7 +9741,7 @@ int maWidgetStackScreenPop(MAWidgetHandle stackScreen);
 * - #MAW_RES_FEATURE_NOT_AVAILABLE if the property is not supported by the curent framework version.
 * - #MAW_RES_ERROR otherwise.
 */
-int maWidgetSetProperty(MAWidgetHandle widget, const char* property, const char* value);
+int maWidgetSetProperty(MAWidgetHandle widget, string property, string value);
 
 /**
 * Retrieves a specified property from the given widget.
@@ -9759,7 +9759,7 @@ int maWidgetSetProperty(MAWidgetHandle widget, const char* property, const char*
 * - #MAW_RES_FEATURE_NOT_AVAILABLE if the property is not supported by the curent framework version.
 * - #MAW_RES_ERROR otherwise.
 */
-int maWidgetGetProperty(MAWidgetHandle widget, const char* property, char* value, int bufSize);
+int maWidgetGetProperty(MAWidgetHandle widget, string property, string value, number bufSize);
 
 /**
 * Add an item to the Options Menu associated to a screen.
@@ -9785,7 +9785,7 @@ int maWidgetGetProperty(MAWidgetHandle widget, const char* property, char* value
 * - #MAW_RES_ERROR
 * - #MAW_RES_INVALID_HANDLE
 */
-int maWidgetScreenAddOptionsMenuItem(MAWidgetHandle widget, const char* title, const char* iconPath, int iconPredefined);
+int maWidgetScreenAddOptionsMenuItem(MAWidgetHandle widget, string title, string iconPath, number iconPredefined);
 
 // End of IOCtls.
 // These functions are already defined as macros
@@ -9800,7 +9800,7 @@ int maWidgetScreenAddOptionsMenuItem(MAWidgetHandle widget, const char* title, c
  * @param y The width value of the extent.
  * @return An extent object (a 32-bit int with x and y packed as 16-bit values).
  */
-MAExtent EXTENT(int x, int y);
+MAExtent EXTENT(number x, number y);
 
 /**
  * Get the width part of an extent.
@@ -9858,7 +9858,7 @@ int EXTENT_Y(MAExtent extent);
  * @return 1 on success, 0 on error (not enough memory to
  * create destination image).
  */
-int SysImageScale(MAHandle sourceImage, MARect* sourceRect, MAHandle destImagePlaceholder, int scaledImageWidth, int scaledImageHeight, int scaleType);
+int SysImageScale(MAHandle sourceImage, MARect* sourceRect, MAHandle destImagePlaceholder, number scaledImageWidth, number scaledImageHeight, number scaleType);
 
 /**
  * Scale an image proportionally by a scale factor.
@@ -9872,28 +9872,28 @@ int SysImageScale(MAHandle sourceImage, MARect* sourceRect, MAHandle destImagePl
  * @return 1 on success, 0 on error (not enough memory to
  * create destination image).
  */
-int SysImageScaleProportionally(MAHandle sourceImage, MARect* sourceRect, MAHandle destImagePlaceholder, double scaleFactor, int scaleType);
+int SysImageScaleProportionally(MAHandle sourceImage, MARect* sourceRect, MAHandle destImagePlaceholder, number scaleFactor, number scaleType);
 
 // Font and text support.
 
-void* SysTextCreate(int fontHandle);
-void SysTextDelete(void* textObj);
-void SysTextSetString(void* textObj, char* str);
-void SysTextSetLineSpacing(void* textObj, int lineSpacing);
-int SysTextGetStringSize(void* textObj, int extent);
-void SysTextDrawString(void* textObj, int x, int y, int extent);
+void* SysTextCreate(number fontHandle);
+void SysTextDelete(lightuserdata textObj);
+void SysTextSetString(lightuserdata textObj, string str);
+void SysTextSetLineSpacing(lightuserdata textObj, number lineSpacing);
+int SysTextGetStringSize(lightuserdata textObj, number extent);
+void SysTextDrawString(lightuserdata textObj, number x, number y, number extent);
 
 /**
  * Allocate data.
  */
-void* SysAlloc(int size);
+void* SysAlloc(number size);
 
 /**
  * Free allocated data.
  * This function is used to free allocated data, and
  * also data structures like Events, Points and Rects.
  */
-void SysFree(void* buffer);
+void SysFree(lightuserdata buffer);
 
 /**
  * Get an int value in a memory block.
@@ -9902,7 +9902,7 @@ void SysFree(void* buffer);
  * memory block was an array of ints).
  * @return The int at the given index.
  */
-int SysBufferGetInt(void* buffer, int index);
+int SysBufferGetInt(lightuserdata buffer, number index);
 
 /**
  * Set an int value in a memory block.
@@ -9910,7 +9910,7 @@ int SysBufferGetInt(void* buffer, int index);
  * @param index Offset to an integer index (as if the
  * memory block was an array of ints).
  */
-void SysBufferSetInt(void* buffer, int index, int value);
+void SysBufferSetInt(lightuserdata buffer, number index, number value);
 
 /**
  * Get a byte value in a memory block.
@@ -9919,7 +9919,7 @@ void SysBufferSetInt(void* buffer, int index, int value);
  * memory block was an array of bytes).
  * @return The byte value at the given index.
  */
-int SysBufferGetByte(void* buffer, int index);
+int SysBufferGetByte(lightuserdata buffer, number index);
 
 /**
  * Set a byte value in a memory block.
@@ -9927,7 +9927,7 @@ int SysBufferGetByte(void* buffer, int index);
  * @param index Offset to a byte index (as if the
  * memory block was an array of bytes).
  */
-void SysBufferSetByte(void* buffer, int index, int value);
+void SysBufferSetByte(lightuserdata buffer, number index, number value);
 
 /**
  * Get an float value in a memory block.
@@ -9936,7 +9936,7 @@ void SysBufferSetByte(void* buffer, int index, int value);
  * memory block was an array of floats).
  * @return The float value at the given index.
  */
-float SysBufferGetFloat(void* buffer, int index);
+float SysBufferGetFloat(lightuserdata buffer, number index);
 
 /**
  * Get an double value in a memory block.
@@ -9945,7 +9945,7 @@ float SysBufferGetFloat(void* buffer, int index);
  * memory block was an array of doubles).
  * @return The double value at the given index.
  */
-double SysBufferGetDouble(void* buffer, int index);
+double SysBufferGetDouble(lightuserdata buffer, number index);
 
 /**
  * Copy bytes from one memory block to another. The number of bytes
@@ -9959,7 +9959,7 @@ double SysBufferGetDouble(void* buffer, int index);
  * @param numberOfBytesToCopy Number of bytes that will be copied
  * from source to destination.
  */
-void SysBufferCopyBytes(void* sourceBuffer, int sourceIndex, void* destBuffer, int destIndex, int numberOfBytesToCopy);
+void SysBufferCopyBytes(lightuserdata sourceBuffer, number sourceIndex, lightuserdata destBuffer, number destIndex, number numberOfBytesToCopy);
 
 /**
  * Return a pointer to a byte at an index in a buffer.
@@ -9969,7 +9969,7 @@ void SysBufferCopyBytes(void* sourceBuffer, int sourceIndex, void* destBuffer, i
  * @param index Offset to a byte index.
  * @return A pointer to the byte at the given index.
  */
-void* SysBufferGetBytePointer(void* buffer, int index);
+void* SysBufferGetBytePointer(lightuserdata buffer, number index);
 
 /**
  * Get the size of an int in bytes.
@@ -9990,11 +9990,11 @@ int SysSizeOfFloat();
 int SysSizeOfDouble();
 
 // Bit manipulation functions.
-int SysBitAnd(int a, int b);
-int SysBitOr(int a, int b);
-int SysBitXor(int a, int b);
-int SysBitShiftLeft(int a, int bits);
-int SysBitShiftRight(int a, int bits);
+int SysBitAnd(number a, number b);
+int SysBitOr(number a, number b);
+int SysBitXor(number a, number b);
+int SysBitShiftLeft(number a, number bits);
+int SysBitShiftRight(number a, number bits);
 
 // MAEvent access functions that make it easier to access event data.
 MAEvent* SysEventCreate();
@@ -10022,19 +10022,19 @@ double SysEventLocationGetLon(MAEvent* event);
 double SysEventLocationGetHorzAcc(MAEvent* event);
 double SysEventLocationGetVertAcc(MAEvent* event);
 float SysEventLocationGetAlt(MAEvent* event);
-int SysWidgetEventGetType(void* widgetEvent);
-int SysWidgetEventGetHandle(void* widgetEvent);
-int SysWidgetEventGetListItemIndex(void* widgetEvent);
-int SysWidgetEventGetChecked(void* widgetEvent);
-int SysWidgetEventGetTabIndex(void* widgetEvent);
-int SysWidgetEventGetUrlData(void* widgetEvent);
+int SysWidgetEventGetType(lightuserdata widgetEvent);
+int SysWidgetEventGetHandle(lightuserdata widgetEvent);
+int SysWidgetEventGetListItemIndex(lightuserdata widgetEvent);
+int SysWidgetEventGetChecked(lightuserdata widgetEvent);
+int SysWidgetEventGetTabIndex(lightuserdata widgetEvent);
+int SysWidgetEventGetUrlData(lightuserdata widgetEvent);
 
 // MAPoint2d
 MAPoint2d* SysPointCreate();
 int SysPointGetX(MAPoint2d* point);
 int SysPointGetY(MAPoint2d* point);
-void SysPointSetX(MAPoint2d* point, int x);
-void SysPointSetY(MAPoint2d* point, int y);
+void SysPointSetX(MAPoint2d* point, number x);
+void SysPointSetY(MAPoint2d* point, number y);
 
 // MARect
 MARect* SysRectCreate();
@@ -10042,17 +10042,17 @@ int SysRectGetLeft(MARect* rect);
 int SysRectGetTop(MARect* rect);
 int SysRectGetWidth(MARect* rect);
 int SysRectGetHeight(MARect* rect);
-void SysRectSetLeft(MARect* rect, int left);
-void SysRectSetTop(MARect* rect, int top);
-void SysRectSetWidth(MARect* rect, int width);
-void SysRectSetHeight(MARect* rect, int height);
+void SysRectSetLeft(MARect* rect, number left);
+void SysRectSetTop(MARect* rect, number top);
+void SysRectSetWidth(MARect* rect, number width);
+void SysRectSetHeight(MARect* rect, number height);
 
 // Create struct MACopyData.
-MACopyData* SysCopyDataCreate(MAHandle dst, int dstOffset, MAHandle src, int srcOffset, int size);
+MACopyData* SysCopyDataCreate(MAHandle dst, number dstOffset, MAHandle src, number srcOffset, number size);
 
 // Screen functions.
-void SysScreenSetColor(int red, int green, int blue);
-void SysScreenDrawText(const char* text, int x, int y, void* font);
+void SysScreenSetColor(number red, number green, number blue);
+void SysScreenDrawText(string text, number x, number y, lightuserdata font);
 
 // String functions.
 
@@ -10061,7 +10061,7 @@ void SysScreenDrawText(const char* text, int x, int y, void* font);
  * It is the responsibility of the caller to deallocate the
  * returned string with SysFree.
  */
-void* SysStringCharToWideChar(const char* str);
+void* SysStringCharToWideChar(string str);
 
 /**
  * Convert a wchar string to a char string.
@@ -10070,7 +10070,7 @@ void* SysStringCharToWideChar(const char* str);
  * will be returned.
  * Conversion only supports basic 256 char set.
  */
-char* SysStringWideCharToChar(const void* wstr);
+char* SysStringWideCharToChar(lightuserdata wstr);
 
 /**
  * Helper method that reads a text string from resource file.
@@ -10095,7 +10095,7 @@ char* SysLoadStringResource(MAHandle handle);
  * @param y The width value of the extent.
  * @return An extent object (a 32-bit int with x and y packed as 16-bit values).
  */
-MAExtent EXTENT(int x, int y);
+MAExtent EXTENT(number x, number y);
 
 /**
  * Create a new Lua string from a null-terminated
@@ -10103,7 +10103,7 @@ MAExtent EXTENT(int x, int y);
  * @param buffer Buffer that contains string data.
  * @return Lua string on success, nil on error.
  */
-char* SysBufferToString(void* buffer);
+char* SysBufferToString(lightuserdata buffer);
 
 /**
  * Copy contents of a Lua string to a C-buffer
@@ -10113,7 +10113,7 @@ char* SysBufferToString(void* buffer);
  * @param buffer Buffer to receive string data.
  * @return true on success, false on error.
  */
-int SysStringToBuffer(char* string, void* buffer);
+int SysStringToBuffer(string string, lightuserdata buffer);
 
 /**
  * Search from back of string for substring until
@@ -10124,7 +10124,7 @@ int SysStringToBuffer(char* string, void* buffer);
  * @return The index of the start of the last occurence
  * of subStr.
  */
-int SysStringFindLast(char* str, char* subStr);
+int SysStringFindLast(string str, string subStr);
 
 /**
  * Decodes a "percent encoded" Lua string (like
@@ -10132,7 +10132,7 @@ int SysStringFindLast(char* str, char* subStr);
  * @param string String to unescape.
  * @return Decoded string.
  */
-char* SysStringUnescape(char* string);
+char* SysStringUnescape(string string);
 
 /**
  * Encodes a Lua string using "percent encoding" (like
@@ -10140,7 +10140,7 @@ char* SysStringUnescape(char* string);
  * @param string String to escape.
  * @return Encoded string.
  */
-char* SysStringEscape(char* string);
+char* SysStringEscape(string string);
 
 /**
  * Create a new instance of the Lua engine.
@@ -10154,7 +10154,7 @@ void* SysLuaEngineCreate();
  * Note: Experimental function, not tested.
  * @param engine Pointer to the engine object.
  */
-void* SysLuaEngineDelete(void* engine);
+void* SysLuaEngineDelete(lightuserdata engine);
 
 /**
  * Evaluate Lua code in a Lua engine.
@@ -10163,5 +10163,5 @@ void* SysLuaEngineDelete(void* engine);
  * @param code String with Lua code to eval. 
  * @return true on suvvecc, false on error.
  */
-int SysLuaEngineEval(void* engine, char* code);
+int SysLuaEngineEval(lightuserdata engine, string code);
 }

@@ -12,6 +12,52 @@ def sh(cmd)
   end
 end
 
+###########################################################
+# Code for generating ZeroBrane Studio doc file.
+###########################################################
+
+def convertCTypesToLuaTypes(data)
+  data.
+    gsub("(const char*", "(string").
+    gsub("(char*", "(string").
+    gsub("(void*", "(lightuserdata").
+    gsub("(const void*", "(lightuserdata").
+    gsub("(int", "(number").
+    gsub("(long", "(number").
+    gsub("(double", "(number").
+    gsub(", const char*", ", string").
+    gsub(", char*", ", string").
+    gsub(", const void*", ", lightuserdata").
+    gsub(", void*", ", lightuserdata").
+    gsub(", int", ", number").
+    gsub(", long", ", number").
+    gsub(", double", ", number")
+end
+
+docFiles = 
+  [
+  "lua_maapi.h",
+  "lua_special_bindings.h",
+  "lua_systemapi.h",
+  "lua_internal_functions.h"
+  ]
+  
+# Generate .txt file for use with ZeroBrane Studio
+# documentation generation tool.
+File.open("lua_maapi.txt", "w") do |outFile|
+  data = docFiles.map { |fileName| 
+    convertCTypesToLuaTypes(IO.read(fileName))
+  }
+  outFile.puts "module mosync"
+  outFile.puts "{"
+  outFile.puts data
+  outFile.puts "}"
+end
+
+###########################################################
+# Code for generating tolua binding file.
+###########################################################
+
 # Use void* for all pointer types (except const char*)
 # We do not want the user defined Lua types, because
 # they cause problems).
@@ -32,26 +78,6 @@ def convertCharPointerTypeToVoid(data)
   data.
     gsub("(char*", "(void*").
     gsub(", char*", ", void*")
-end
-
-docFiles = 
-  [
-  "lua_maapi.h",
-  "lua_special_bindings.h",
-  "lua_systemapi.h",
-  "lua_internal_functions.h"
-  ]
-  
-# Generate .txt file for use with ZeroBrane Studio
-# documentation generation tool.
-File.open("lua_maapi.txt", "w") do |outFile|
-  data = docFiles.map { |fileName| 
-    IO.read(fileName)
-  }
-  outFile.puts "module mosync"
-  outFile.puts "{"
-  outFile.puts data
-  outFile.puts "}"
 end
 
 pkgFiles = 

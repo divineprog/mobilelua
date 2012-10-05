@@ -1,6 +1,6 @@
 /*
 ** Lua binding: lua_maapi
-** Generated automatically by tolua 5.1.4 on Mon Oct  1 17:58:54 2012.
+** Generated automatically by tolua 5.1.4 on Fri Oct  5 10:53:05 2012.
 */
 
 #include "tolua.h"
