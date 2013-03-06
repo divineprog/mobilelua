@@ -409,10 +409,10 @@ public class Server
 //			// Hack to make Lua return a value we can display.
 //			// data must be a variable.
 //			String s = data.trim();
-//			boolean isExpr = 
-//				s.contains(" ") || 
-//				s.contains("=") || 
-//				s.contains("(") || 
+//			boolean isExpr =
+//				s.contains(" ") ||
+//				s.contains("=") ||
+//				s.contains("(") ||
 //				s.contains(")");
 //			if (!isExpr)
 //			{
@@ -426,6 +426,7 @@ public class Server
 		private void sendEvalJavaScript(OutputStream out, String data)
 			throws IOException
 		{
+			Log.i("@@ sendEvalJavaScript: " + data);
 			writeIntToStream(out, COMMAND_EVAL_JAVASCRIPT);
 			writeStringToStream(out, data);
 			out.flush();

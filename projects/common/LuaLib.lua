@@ -53,7 +53,61 @@ mosync.SysStringFindLast = function(str, subStr)
     startPos = b + 1
   end
 end
-      
+
+mosync.SysOpenTextBox = function(
+  textBoxTitle,
+  textBoxText,
+  textBoxType, -- e.g. mosync.MA_TB_TYPE_ANY
+  resultMaxSize,
+  resultFun)
+  
+  -- Allocate buffers.
+  local titleBuf = mosync.SysStringCharToWideChar(textBoxTitle)
+  local textBuf = mosync.SysStringCharToWideChar(textBoxText)
+  local resultBuf = mosync.SysAlloc(resultMaxSize * 2)
+  
+  -- Call maTextBox.
+  local success = mosync.maTextBox(
+    titleBuf,
+    textBuf,
+    resultBuf,
+    resultMaxSize,
+    textBoxType)
+  
+  -- Clean up and return if maTextBox is not available.
+  if success < 0 then
+    -- Free buffers.
+    mosync.SysFree(titleBuf)
+    mosync.SysFree(textBuf)
+    mosync.SysFree(resultBuf)
+    -- Call result fun with error value.
+    resultFun(nil)
+    return
+  end
+
+  -- If successful we continue to register a callback
+  -- function to handle the result and pass it to
+  -- the function resultFun.
+  mosync.EventMonitor:OnTextBox(function(event)
+    local result = mosync.SysEventGetTextBoxResult(event)
+    if mosync.MA_TB_RES_OK == result then
+      --local length = SysEventGetTextBoxLength(event)
+      local text = mosync.SysStringWideCharToChar(resultBuf)
+      -- Call result fun.
+      resultFun(text)
+    else
+      -- Call result fun with empty value (will happen on CANCEL).
+      resultFun(nil)
+    end
+    -- Free buffers.
+    mosync.SysFree(titleBuf)
+    mosync.SysFree(textBuf)
+    mosync.SysFree(resultBuf)
+    -- Remove the callback function (remove this function).
+    mosync.EventMonitor:OnTextBox(nil)
+  end)
+end
+
 -- Create the global mosync.EventMonitor object.
 mosync.EventMonitor = (function ()
 
@@ -66,12 +120,17 @@ mosync.EventMonitor = (function ()
   local sensorFun = nil
   local locationFun = nil
   local widgetFun = nil
+  local textBoxFun = nil
   local anyFun = nil
   local connectionFuns = {}
+  local timerFun = nil
+  local timerInterval = 0
+  local timerNextTime = 0
   local isRunning = false
 
   -- The time to wait in mosync.maWait. Can be changed by the
   -- application by setting mosync.EventMonitor.WaitTime = <value>
+  -- TODO: This should not be used really. Consider removing it.
   self.WaitTime = 0
 
   self.OnTouchDown = function(self, fun)
@@ -106,6 +165,14 @@ mosync.EventMonitor = (function ()
     widgetFun = fun
   end
 
+  self.OnTextBox = function(self, fun)
+    textBoxFun = fun
+  end
+  
+  self.OnAny = function(self, fun)
+    anyFun = fun
+  end
+
   self.SetConnectionFun = function(self, connection, fun)
     connectionFuns[connection] = fun
   end
@@ -114,8 +181,42 @@ mosync.EventMonitor = (function ()
     connectionFuns[connection] = nil
   end
 
-  self.OnAny = function(self, fun)
-    anyFun = fun
+  -- Set timer interval and function to call on
+  -- timer events. There is support for one timer
+  -- at the basic level. More timers could be added
+  -- on top of this mechanism in the application,
+  -- or the basic support could be extened to handle
+  -- multiple timers.
+  self.SetTimerFun = function(self, interval, fun)
+    timerInterval = interval
+    timerFun = fun
+    timerNextTime = mosync.maGetMilliSecondCount() + timerInterval
+  end
+
+  self.TriggerTimerOrWait = function(self)
+    -- If no timer function is set we wait for
+    -- the next event.
+    if nil == timerFun then
+      mosync.maWait(self.WaitTime)
+      return
+    end
+
+    -- If we have a timer function, check if it
+    -- is time to trigger a timer event.
+    local now = mosync.maGetMilliSecondCount()
+
+    if now >= timerNextTime then
+      -- Trigger timer.
+      timerFun()
+      timerNextTime = timerNextTime + timerInterval
+    else
+      -- Wait until time to trigger timer or
+      -- an event appears in the event queue.
+      local timeToWait = timerNextTime - now
+      if timeToWait > 0 then
+        mosync.maWait(timeToWait)
+      end
+    end
   end
 
   self.HandleEvent = function(self, event)
@@ -180,6 +281,10 @@ mosync.EventMonitor = (function ()
       if nil ~= widgetFun then
         widgetFun(mosync.SysEventGetData(event))
       end
+    elseif mosync.EVENT_TYPE_TEXTBOX == eventType then
+      if nil ~= textBoxFun then
+        textBoxFun(event)
+      end
     end -- End of ifs
 
     -- Always pass the event to the any function.
@@ -187,7 +292,7 @@ mosync.EventMonitor = (function ()
       anyFun(event)
     end
   end
-  
+
   self.RunEventLoop = function(self)
 
     -- Create a MoSync event object.
@@ -198,10 +303,10 @@ mosync.EventMonitor = (function ()
 
     -- This is the event loop.
     while isRunning do
-      mosync.maWait(self.WaitTime)
       while isRunning and 0 ~= mosync.maGetEvent(event) do
         self:HandleEvent(event)
       end -- End of inner event loop
+      self:TriggerTimerOrWait()
     end -- End of outer event loop
 
     -- Free the event object.
@@ -212,7 +317,7 @@ mosync.EventMonitor = (function ()
   self.ExitEventLoop = function(self)
     isRunning = false
   end
-  
+
   return self
 
 end)()
@@ -440,7 +545,7 @@ mosync.NativeUI = (function()
     -- Create the Native UI widget and check that it went ok.
     local mWidgetHandle = mosync.maWidgetCreate(proplist.type)
     if mWidgetHandle < 0 then
-      mosync.maPanic(0, 
+      mosync.maPanic(0,
         "NativeUI is not supported. Widget type: " .. proplist.type)
       return nil
     end
@@ -461,7 +566,7 @@ mosync.NativeUI = (function()
       -- Make sure value is always a string.
       mosync.maWidgetSetProperty(self:GetHandle(), property, ""..value)
     end
-    
+
     -- Utility method that gets a widget property value.
     -- The bufferSize param is optional, default is 1024.
     widget.GetProp = function(self, property, bufferSize)
@@ -487,7 +592,7 @@ mosync.NativeUI = (function()
     widget.EventFun = function(self, eventFun)
       mWidgetHandleToEventFun[self:GetHandle()] = eventFun
     end
-    
+
     -- Evaluate JavaScript in a WebView widget.
     -- Only valid for WebView widgets!
     widget.EvalJS = function(self, script)
@@ -496,11 +601,11 @@ mosync.NativeUI = (function()
     end
 
     --[[
-    
+
       This is old code used to evaluate Lua scripts from JavaScript by
       calling: window.location = "lua://..."; This method is not supported
       on Windows Phone. Use the new method supported by EnableLuaMessages.
-    
+
     -- Evaluate a Lua script in respose to a HOOK_INVOKED event.
     -- Only valid for WebView widgets!
     widget.EvalLuaOnHookInvoked = function(self, widgetEvent)
@@ -569,7 +674,7 @@ mosync.NativeUI = (function()
     if nil ~= parent then
         mosync.maWidgetAddChild(parent:GetHandle(), mWidgetHandle)
     end
-    
+
     return widget
   end -- End of CreateWidget
 
@@ -578,7 +683,7 @@ mosync.NativeUI = (function()
     proplist.type = "Screen"
     return self:CreateWidget(proplist)
   end
-  
+
   -- Method that creates a vertical layout.
   uiManager.CreateVerticalLayout = function(self, proplist)
     proplist.type = "VerticalLayout"
@@ -630,7 +735,7 @@ mosync.NativeUI = (function()
   -- or an error message.
   uiManager.EvalLuaOnHookInvokedEvent = function(
     self, widgetEvent, callbackFun, freeDataHandle)
-    
+
     -- If this is a HOOK_INVOKED event then evaluate the
     -- data as a Lua script.
     if mosync.MAW_EVENT_WEB_VIEW_HOOK_INVOKED ==
@@ -647,7 +752,7 @@ mosync.NativeUI = (function()
       if freeDataHandle then
         mosync.maDestroyPlaceholder(dataHandle)
       end
-      
+
       -- Unescape the script data.
       local script = mosync.SysStringUnescape(data)
 
@@ -668,7 +773,7 @@ mosync.NativeUI = (function()
       end
     end
   end
-  
+
   -- Deprecated - use EvalLuaOnHookInvokedEvent instead.
   -- TODO: Remove this function.
   -- Returns a function that evaluates Lua code sent from JavaScript.
@@ -828,7 +933,7 @@ mosync.NativeUI = (function()
       })();
     ]==]
   end
-    
+
   return uiManager
 
 end)()
@@ -884,7 +989,7 @@ mosync.FileSys = (function()
     return true
   end
   --]]
-  
+
   fileObj.CreatePath = function(self, fullPath)
     -- Walk path and create parts that do not exist.
     -- Assume path begins with a slash.
@@ -893,7 +998,7 @@ mosync.FileSys = (function()
       --log("CreatePath path exists: "..fullPath)
       return true -- Success
     end
-    
+
     -- Handle case when fullPath ends with a slash.
     local path = fullPath
     local length = path:len()
@@ -901,14 +1006,14 @@ mosync.FileSys = (function()
     if "/" == lastChar then
       path = path:sub(0, -2);
     end
-    
+
     -- Try parent path.
     local pos = mosync.SysStringFindLast(path, "/")
     if -1 == pos then
       return false -- Error
     end
     local parentPath = path:sub(1, pos)
-    
+
     -- Create parent path recursively.
     --log("CreatePath parentPath: "..parentPath)
     local result = self:CreatePath(parentPath)
@@ -922,7 +1027,7 @@ mosync.FileSys = (function()
     else
       log("Error in CreatePath 2")
     end
-   
+
     -- File should exist now.
     if self:FileExists(fullPath) then
       --log("Success CreatePath: "..fullPath)
@@ -932,7 +1037,7 @@ mosync.FileSys = (function()
       return false
     end
   end
-  
+
   -- Returns true if file exists, false if not.
   fileObj.FileExists = function(self, fullPath)
     local file = mosync.maFileOpen(fullPath, mosync.MA_ACCESS_READ_WRITE)
@@ -943,7 +1048,7 @@ mosync.FileSys = (function()
     mosync.maFileClose(file)
     return 1 == exists
   end
-  
+
   -- Create a file/directory. Parent directory must exist.
   -- CreateFile returns true even when the file exists.
   fileObj.CreateFile = function(self, fullPath)
@@ -952,7 +1057,7 @@ mosync.FileSys = (function()
       log("Error in CreateFile file: "..file)
       return false
     end
-    
+
     local result = 1
     if mosync.maFileExists(file) < 1 then
       -- If the file does not exist, try to create it.
@@ -961,7 +1066,7 @@ mosync.FileSys = (function()
     end
 
     mosync.maFileClose(file)
-    
+
     if result < 0 then
       log("Error in CreateFile result: "..result)
       return false
@@ -1091,7 +1196,7 @@ mosync.FileSys = (function()
     -- Create buffer to hold string data.
     -- TODO: Add error checking.
     local buffer = mosync.SysAlloc(size)
-    
+
     -- Copy string to buffer.
     mosync.SysStringToBuffer(text, buffer)
 
@@ -1228,7 +1333,7 @@ mosync.FileSys = (function()
     -- Create buffer to hold string data.
     -- TODO: Add error checking.
     local buffer = mosync.SysAlloc(size)
-    
+
     -- Copy string to buffer.
     mosync.SysStringToBuffer(text, buffer)
 
@@ -1268,7 +1373,7 @@ mosync.FileSys = (function()
 
     -- Close store and free temporary objects.
     self:CloseStore(store)
-    
+
     -- TODO: Bug on Windows Phone, use maDestroyObject
     -- until there is a new build with this fixed:
     -- http://jira.mosync.com/browse/MOSYNC-2015
@@ -1277,17 +1382,17 @@ mosync.FileSys = (function()
 
     return text
   end
-  
+
   -- Load and run the given Lua source file.
   -- Returns success (boolean), errorMessageOrResult
   fileObj.LoadAndRunLuaFile = function(self, path)
     print("LoadAndRunLuaFile: "..path)
-    
+
     local script = self:ReadTextFromFile(path)
     if nil == script then
       return false, "Could not read file: "..path
     end
-    
+
     -- Add ending space as a fix for the bug that
     -- causes statements like "return 10" to fail.
     -- "return 10 " will succeed.
@@ -1304,7 +1409,7 @@ mosync.FileSys = (function()
       return success, resultOrErrorMessage
     end
   end
-  
+
   -- Load and run the given Lua source file.
   -- Path is relative to the application local file system.
   -- Returns success (boolean), errorMessageOrResult

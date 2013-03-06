@@ -1,0 +1,7 @@
+.res LUALIB
+.bin
+.include "../../common/LuaLib.lua"
+
+.res LUAAPP
+.bin
+.include "LuaNativeUIBasic.lua"

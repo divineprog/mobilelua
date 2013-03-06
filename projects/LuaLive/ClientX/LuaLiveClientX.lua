@@ -398,17 +398,20 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
   end
   
   self.EvalJavaScript = function(buffer, result)
+    log("EvalJavaScript")
     -- Process the result.
     if result > 0 then
       -- Convert buffer to string.
       local script = mosync.SysBufferToString(buffer)
+      log("  "..script)
       
       mosync.maWidgetSetProperty(
         self.WebView,
         mosync.MAW_WEB_VIEW_URL,
-        "javascript:"..script)
+        "javascript:"..script) -- void(expr) ??
       
       -- Write response.
+      log("Write response")
       self.WriteResponse("JavaScript Evaluated")
     end
     

@@ -28,7 +28,7 @@ Date: 2011-08-31
 Very simple paint demo application. Supports multi-touch.
 
 Tested in MoRE and on Android.
-]]
+--]]
 
 -- Fill mosync.Screen with background color.
 mosync.Screen:SetColor(255, 255, 255)

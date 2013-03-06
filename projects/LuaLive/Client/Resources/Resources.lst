@@ -9,3 +9,6 @@
 .res LUALIVECLIENT
 .bin
 .include "../LuaLiveClient.lua"
+
+.res IMAGE
+.image "image.png"

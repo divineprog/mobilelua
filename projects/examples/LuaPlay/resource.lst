@@ -1,0 +1,19 @@
+.res SPRITE1
+.image "SpriteRubyHeart.png"
+
+.res SPRITE2
+.image "SpriteGhost.png"
+
+.res SPRITE3
+.image "SpriteBat.png"
+
+.res SPRITE4
+.image "SpriteFaewynBalloons.png"
+
+.res LUALIB
+.bin
+.include "../../common/LuaLib.lua"
+
+.res LUAPLAY
+.bin
+.include "LuaPlay.lua"

@@ -3,7 +3,6 @@
 	<name>LuaPaint</name>
 	<comment></comment>
 	<projects>
-		<project>LuaLib</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

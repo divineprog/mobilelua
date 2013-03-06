@@ -97,7 +97,8 @@ LuaLive = (function()
   -- When running in the Android emulator, use 10.0.2.2 for localhost.
   --self.SERVER_DEFAULT_ADDRESS = "127.0.0.1"
   --self.SERVER_DEFAULT_ADDRESS = "192.168.0.145"
-  self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
+  --self.SERVER_DEFAULT_ADDRESS = "10.0.2.2"
+  self.SERVER_DEFAULT_ADDRESS = "192.168.0.164"
   self.SERVER_PORT = ":55555"
   
   -- The Connection object.
@@ -113,8 +114,8 @@ LuaLive = (function()
   -- use the same ip-address every time.
   -- Default is to use mosync.NativeUI to display a start
   -- screen where you can enter the ip-address.
-  self.USE_NATIVE_UI = true
-  --self.USE_NATIVE_UI = false
+  --self.USE_NATIVE_UI = true
+  self.USE_NATIVE_UI = false
   
   self.Main = function()
     mosync.EventMonitor:OnKeyDown(self.OnKeyDown)
@@ -201,6 +202,21 @@ EvalLua("LuaLive.ReadServerIPAddressAndSetTextBox()")
 </body>
 </html>
 ]==])
+  end
+  
+  -- TODO: Experimental, use this to enter url,
+  -- also read/save url.
+  self.OpenTextBoxUI = function()
+    mosync.SysOpenTextBox(
+      "Server IP",
+      "192.168.0.100", mosync.MA_TB_TYPE_URL, 255,
+      function(result)
+        if nil == result then
+          print("TextBox result: nil")
+        else
+          print("TextBox result: " .. result)
+        end
+      end)
   end
   
   self.OnKeyDown = function(key)
