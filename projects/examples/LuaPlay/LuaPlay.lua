@@ -478,6 +478,52 @@ function OnTouchDrag(x, y)
 	Game.onTouchDrag(x, y)
 end
 
+
+function OnInitGame()
+  -- Resource ids for images.
+	local HEART = 1
+	local GHOST = 2
+	local BAT = 3
+	local FAEWYN = 4
+  
+  -- Set virtual screen size and background color.
+	Game.setVirtualScreenSize(240,320)
+	Game.setBackgroundColor(34, 136, 255)
+  
+  -- Create sprites.
+	Game.createSprite()
+    .setImage(HEART)
+    .setPosition(90,20)
+	Game.createSprite()
+    .setImage(HEART)
+    .setPosition(20,230)
+	Game.createSprite()
+    .setImage(HEART)
+    .setPosition(180,250)
+	Game.createSprite()
+    .setImage(HEART)
+    .setPosition(120,140)
+	Game.createSprite()
+    .setImage(GHOST)
+    .setPosition(0,100)
+		.setSpeed(3,0)
+    .followPointerX()
+	Game.createSprite()
+    .setImage(BAT)
+    .setPosition(0,250)
+		.setSpeed(5,-1)
+	local sprite = Game.createSprite()
+    .setImage(FAEWYN)
+    .setPosition(50,100)
+		.followPointerX()
+    .followPointerY()
+  Game.setMainSprite(sprite)
+	Game.createSprite()
+    .setImage(BAT)
+    .setPosition(0,70)
+		.setSpeed(7,0)
+end
+
 function Main()
 	-- Global instance of the game object.
 	Game = CreateGame()
@@ -489,7 +535,7 @@ function Main()
   mosync.EventMonitor:OnTouchDown(OnTouchDown)
   mosync.EventMonitor:OnTouchDrag(OnTouchDrag)
   mosync.EventMonitor:OnKeyDown(OnKeyDown)
-    
+  
   -- Start timer
   mosync.EventMonitor:SetTimerFun(50, OnClockTick) 
 end
@@ -540,51 +586,6 @@ function OnInitGameNetworkTest2()
 	Game.createSprite()
 		.setImageURL("http://comikit.se/MagicWords/Actors/SpriteBat.png")
 		.setPosition(0,100)
-		.setSpeed(7,0)
-end
-
-function OnInitGame()
-  -- Resource ids for images.
-	local HEART = 1
-	local GHOST = 2
-	local BAT = 3
-	local FAEWYN = 4
-  
-  -- Set virtual screen size and background color.
-	Game.setVirtualScreenSize(240,320)
-	Game.setBackgroundColor(34, 136, 255)
-  
-  -- Create sprites.
-	Game.createSprite()
-    .setImage(HEART)
-    .setPosition(90,20)
-	Game.createSprite()
-    .setImage(HEART)
-    .setPosition(20,230)
-	Game.createSprite()
-    .setImage(HEART)
-    .setPosition(180,250)
-	Game.createSprite()
-    .setImage(HEART)
-    .setPosition(120,140)
-	Game.createSprite()
-    .setImage(GHOST)
-    .setPosition(0,100)
-		.setSpeed(3,0)
-    .followPointerX()
-	Game.createSprite()
-    .setImage(BAT)
-    .setPosition(0,250)
-		.setSpeed(5,-1)
-	local sprite = Game.createSprite()
-    .setImage(FAEWYN)
-    .setPosition(50,100)
-		.followPointerX()
-    .followPointerY()
-  Game.setMainSprite(sprite)
-	Game.createSprite()
-    .setImage(BAT)
-    .setPosition(0,70)
 		.setSpeed(7,0)
 end
 --]]

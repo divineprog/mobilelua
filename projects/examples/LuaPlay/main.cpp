@@ -24,11 +24,39 @@
 #include "LuaEngine.h"
 #include "MAHeaders.h"
 
+#include <conprint.h>
+
 // Define the global variable errno.
 LUA_DEFINE_ERRNO
 
+// Lua interpreter takes some time to load,
+// so we draw a splash screen initially.
+//
+void ShowSplashScreen()
+{
+	int screenSize = maGetScrSize();
+	int screenWidth = EXTENT_X(screenSize);
+	int screenHeight = EXTENT_Y(screenSize);
+
+	int imageSize = maGetImageSize(SPLASH);
+	int imageWidth = EXTENT_X(imageSize);
+	int imageHeight = EXTENT_Y(imageSize);
+
+	int imageX = (screenWidth - imageWidth) / 2;
+	int imageY = (screenHeight - imageHeight) / 2;
+
+	maSetColor(0x2288FF);
+	maFillRect(0, 0, screenWidth, screenHeight);
+
+	maDrawImage(SPLASH, imageX, imageY);
+
+	maUpdateScreen();
+}
+
 extern "C" int MAMain()
 {
+	ShowSplashScreen();
+
 	// Create the Lua engine.
 	MobileLua::LuaEngine engine;
 	if (!engine.initialize())

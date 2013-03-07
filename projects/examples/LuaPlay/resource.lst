@@ -10,10 +10,13 @@
 .res SPRITE4
 .image "SpriteFaewynBalloons.png"
 
+.res SPLASH
+.image "SpashScreen.png"
+
 .res LUALIB
-.bin
+.ubin
 .include "../../common/LuaLib.lua"
 
 .res LUAPLAY
-.bin
+.ubin
 .include "LuaPlay.lua"
