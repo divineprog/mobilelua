@@ -54,3 +54,49 @@ mosync.EventMonitor:OnTouchDrag(Paint)
 mosync.EventMonitor:OnKeyDown(function(keyCode)
   mosync.EventMonitor:ExitEventLoop()
 end)
+
+--[[ 
+-- Used to test HTTP download.
+function DownloadTest()
+  print("DownloadTest")
+  local connection = mosync.Connection:HttpCreate()
+  connection:WhenDone(function(data, result)
+    if nil == data then
+      print("Data is nil, result: "..result)
+    else
+      print("Data is ok, result: "..result)
+      mosync.SysBufferSetByte(data, result, 0)
+      local s = mosync.SysBufferToString(data)
+      print("Data length: " .. #s)
+      --print("Data: " .. s)
+      mosync.SysFree(data)
+    end
+    connection:Close()
+  end)
+  connection:Get("http://swedroid.se/")
+end
+
+mosync.EventMonitor:OnTouchUp(DownloadTest)
+--]]
+
+--[[ 
+-- Used to test HTTP image download.
+function DownloadTest()
+  local connection = mosync.Connection:HttpCreate()
+  connection:WhenDone(function(image, result)
+    if nil == image then
+      print("Image is nil, result: "..result)
+    else
+      log("image: "..image)
+      log("result: "..result)
+      mosync.maDrawImage(image, 0, 0)
+      mosync.maUpdateScreen()
+      mosync.maDestroyPlaceholder(image)
+    end
+    connection:Close()
+  end)
+  connection:GetImage("http://www.lua.org/images/logo.gif")
+end
+
+mosync.EventMonitor:OnTouchUp(DownloadTest)
+--]]

@@ -24,8 +24,6 @@
 #include "LuaEngine.h"
 #include "MAHeaders.h"
 
-#include <conprint.h>
-
 // Define the global variable errno.
 LUA_DEFINE_ERRNO
 

@@ -32,11 +32,15 @@ Call mosync.EventMonitor:RunEventLoop() to enter the MoSync event loop.
 This can be done from Lua or from C/C++ by evaluating Lua code.
 ]]
 
+-- ========== GLOBALS  ==========
+
 -- Create the global "mosync" object if it does not exist.
 -- (It should exist, but still in case...)
 if nil == mosync then
   mosync = {}
 end
+
+-- ========== HELPERS  ==========
 
 -- Search from back of string for substring until
 -- end of string. Return last found start index.
@@ -60,12 +64,12 @@ mosync.SysOpenTextBox = function(
   textBoxType, -- e.g. mosync.MA_TB_TYPE_ANY
   resultMaxSize,
   resultFun)
-  
+
   -- Allocate buffers.
   local titleBuf = mosync.SysStringCharToWideChar(textBoxTitle)
   local textBuf = mosync.SysStringCharToWideChar(textBoxText)
   local resultBuf = mosync.SysAlloc(resultMaxSize * 2)
-  
+
   -- Call maTextBox.
   local success = mosync.maTextBox(
     titleBuf,
@@ -73,7 +77,7 @@ mosync.SysOpenTextBox = function(
     resultBuf,
     resultMaxSize,
     textBoxType)
-  
+
   -- Clean up and return if maTextBox is not available.
   if success < 0 then
     -- Free buffers.
@@ -107,6 +111,8 @@ mosync.SysOpenTextBox = function(
     mosync.EventMonitor:OnTextBox(nil)
   end)
 end
+
+-- ========== EVENT SYSTEM  ==========
 
 -- Create the global mosync.EventMonitor object.
 mosync.EventMonitor = (function ()
@@ -168,7 +174,7 @@ mosync.EventMonitor = (function ()
   self.OnTextBox = function(self, fun)
     textBoxFun = fun
   end
-  
+
   self.OnAny = function(self, fun)
     anyFun = fun
   end
@@ -322,6 +328,8 @@ mosync.EventMonitor = (function ()
 
 end)()
 
+-- ========== SCREEN  ==========
+
 -- Create the global mosync.Screen object
 mosync.Screen = (function()
 
@@ -355,9 +363,12 @@ mosync.Screen = (function()
 
 end)()
 
+-- ========== CONNECTION  ==========
+
 -- Global mosync.Connection object. Data that is read is zero terminated.
 mosync.Connection = {}
 
+-- Create a socket connection.
 mosync.Connection.Create = function(selfIsNotUsed)
   -- Table holding the object's methods.
   local self = {}
@@ -370,7 +381,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
   local mReadDoneFun
   local mWriteDoneFun
 
-  -- Input buffer and read status.
+  -- In buffer and read status.
   local mInBuffer
   local mNumberOfBytesToRead
   local mNumberOfBytesRead
@@ -381,15 +392,14 @@ mosync.Connection.Create = function(selfIsNotUsed)
   -- Is the connection open flag.
   local mOpen = false
 
-  -- Private connection listener callback function. Used internally by
-  -- the connection object. Do not call this function in your code.
-  self.__ConnectionListener__ = function(connection, opType, result)
+  -- Private connection listener callback function.
+  function connectionListener(connection, opType, result)
     if mosync.CONNOP_CONNECT == opType then
       -- First we get an event that confirms that the connection is created.
       --log("mosync.CONNOP_CONNECT result: " .. result)
       mConnectedFun(result)
     elseif mosync.CONNOP_READ == opType then
-      -- This is a confirm of a read or write operation.
+      -- This is a confirm of a read operation.
       --log("mosync.CONNOP_READ result: " .. result)
       if result > 0 then
         -- Update byte counters.
@@ -413,6 +423,7 @@ mosync.Connection.Create = function(selfIsNotUsed)
         mReadDoneFun(nil, result)
       end
     elseif mosync.CONNOP_WRITE == opType then
+      -- This is a confirm of a write operation.
       --log("mosync.CONNOP_WRITE result: " .. result)
       mWriteDoneFun(mOutBuffer, result)
     end
@@ -431,23 +442,13 @@ mosync.Connection.Create = function(selfIsNotUsed)
     if mConnectionHandle > 0 then
       mosync.EventMonitor:SetConnectionFun(
         mConnectionHandle,
-        self.__ConnectionListener__)
+        connectionListener)
       return true
     else
       -- Error
       mConnectedFun(-1)
       return false
     end
-  end
-
-  -- Close a connection.
-  self.Close = function(self)
-    -- The connection must be open.
-    if not mOpen then return false end
-    mOpen = false
-    mosync.EventMonitor:RemoveConnectionFun(mConnectionHandle)
-    mosync.maConnClose(mConnectionHandle)
-    return true
   end
 
   -- Kicks off reading to a byte buffer. The connection
@@ -479,11 +480,276 @@ mosync.Connection.Create = function(selfIsNotUsed)
     return true
   end
 
+  -- Close the connection.
+  self.Close = function(self)
+    -- The connection must be open.
+    if not mOpen then return false end
+    mOpen = false
+    mosync.EventMonitor:RemoveConnectionFun(mConnectionHandle)
+    mosync.maConnClose(mConnectionHandle)
+    return true
+  end
+
   return self
 end
 
 -- For backwards compatibility.
 mosync.SysConnectionCreate = mosync.Connection.Create
+
+-- Create an HTTP/HTTPS connection.
+-- Posting (writing) data is not yet supported.
+mosync.Connection.HttpCreate = function(unused)
+  -- Table holding the object's methods.
+  local self = {}
+
+  -- Data types for downloaded data.
+  self.TYPE_BUFFER = 1 -- C buffer
+  self.TYPE_DATA = 2 -- Data object
+  self.TYPE_IMAGE = 3 -- Image object
+
+  -- Type of downloaded data.
+  local mStoreDataType = self.TYPE_BUFFER
+
+  -- Callback functions.
+  local mHttpDoneFun
+
+  -- MoSync connection handle.
+  local mConnectionHandle
+
+  -- In buffer and read status.
+  local mChunks = {}
+  local mChunkSizes = {}
+  local mChunkMaxSize = 4096
+
+  -- Is the connection open flag.
+  local mOpen = false
+
+  function totalChunkSize()
+    local size = 0
+    for i = 1, #mChunkSizes do
+      size = size + mChunkSizes[i]
+    end
+    return size
+  end
+
+  function assembleChunks()
+    if mStoreDataType == self.TYPE_BUFFER then
+      return assembleChunksToBuffer()
+    elseif mStoreDataType == self.TYPE_DATA then
+      return assembleChunksToData()
+    elseif mStoreDataType == self.TYPE_IMAGE then
+      return assembleChunksToImage()
+    end
+  end
+
+  -- Return a handle to a data object.
+  function assembleChunksToData()
+    log("assembleChunksToData totalChunkSize: " .. totalChunkSize())
+    log("maCreatePlaceholder: " .. mosync.maCreatePlaceholder())
+    local handle = mosync.maCreatePlaceholder()
+    local result = mosync.maCreateData(handle, totalChunkSize())
+    if mosync.RES_OK == result then
+      local index = 0
+      for i = 1, #mChunkSizes do
+        log("assembleChunks i: "..i)
+        local chunk = mChunks[i]
+        local chunkSize = mChunkSizes[i]
+        mosync.maWriteData(handle, chunk, index, chunkSize)
+        index = index + chunkSize
+      end
+      log("return handle: " .. handle)
+      return handle
+    else
+      return nil
+    end
+  end
+
+  -- Return a handle to an image object.
+  function assembleChunksToImage()
+    log("assembleChunksToImage")
+    local data = assembleChunksToData()
+    if nil == data then
+      return nil
+    else
+      local image = mosync.maCreatePlaceholder()
+      local result = mosync.maCreateImageFromData(
+        image, data, 0, mosync.maGetDataSize(data))
+      mosync.maDestroyPlaceholder(data)
+      if mosync.RES_OK == result then
+        return image
+      else
+        mosync.maDestroyPlaceholder(image)
+        return nil
+      end
+    end
+  end
+
+  -- Return a pointer to a C buffer with the data.
+  -- TODO: Enable malloc fail check and check allocation.
+  function assembleChunksToBuffer()
+    -- TODO: Check allocation result.
+    log("assembleChunksToBuffer totalChunkSize: " .. totalChunkSize())
+    -- Allocate one extra byte to make it convinient to zero terminate
+    -- the buffer. The buffer size (result) passed to the done
+    -- function will be the size of the data excluding this extra byte.
+    local buffer = mosync.SysAlloc(totalChunkSize() + 1)
+    local index = 0
+    for i = 1, #mChunkSizes do
+      log("assembleChunks i: "..i)
+      local chunk = mChunks[i]
+      local chunkSize = mChunkSizes[i]
+      local p = mosync.SysBufferGetBytePointer(buffer, index)
+      mosync.SysBufferCopyBytes(chunk, 0, buffer, index, chunkSize)
+      index = index + chunkSize
+    end
+    return buffer
+  end
+
+  function freeChunks()
+    for i = 1, #mChunks do
+      mosync.SysFree(mChunks[i])
+    end
+  end
+
+  -- Read the body of the response in chunks.
+  function readChunks()
+    mChunks = {}
+    mChunkSizes = {}
+    -- Allocate and read first chunk.
+    allocateAndReadChunk()
+  end
+
+  function allocateAndReadChunk()
+    local chunk = mosync.SysAlloc(mChunkMaxSize)
+    table.insert(mChunks, chunk)
+    mosync.maConnRead(mConnectionHandle, chunk, mChunkMaxSize)
+  end
+
+  -- HTTP connection callback function.
+  function httpConnectionListener(connection, opType, result)
+    log("httpConnectionListener connection: " .. connection)
+    if mosync.CONNOP_READ == opType then
+      log("CONNOP_READ result: " .. result)
+      if result > 0 then
+        -- We have read a chunk of data, store its size.
+        table.insert(mChunkSizes, result)
+        log("table.insert(mChunkSizes, result) "..result)
+        -- Allocate and read next chunk.
+        allocateAndReadChunk()
+      elseif mosync.CONNERR_CLOSED == result then
+        -- If the connection is closed, we have reached the end of data.
+        -- Assemble chunks and call the read done function.
+        mHttpDoneFun(assembleChunks(), totalChunkSize())
+        freeChunks()
+      else
+        -- There was an error, free chunks and call
+        -- the read done function with error value.
+        freeChunks()
+        mHttpDoneFun(nil, result)
+      end
+    elseif mosync.CONNOP_WRITE == opType then
+      log("CONNOP_WRITE is not supported")
+    elseif mosync.CONNOP_FINISH == opType then
+      log("CONNOP_FINISH result: " .. result)
+      -- Result is HTTP response code
+      -- TODO: Store the HTTP response code so that it can be inspected.
+      if 200 == result or 201 == result then
+        readChunks()
+      else
+        mHttpDoneFun(nil, result)
+      end
+    else
+      log("unsupported opType: " .. opType)
+    end
+  end
+
+  -- Public protocol.
+
+  -- Set a request header. Call multiple times
+  -- to set several headers.
+  -- TODO: Not supported, move to parameter (table) in create function.
+  self.SetRequestHeader = function(self, key, value)
+    -- The connection must not be open yet.
+    if mOpen then return false end
+    maHttpSetRequestHeader(mConnectionHandle, key, value)
+  end
+
+  -- The function doneFun is called when the
+  -- response and body has been read.
+  -- Form: doneFun(buffer, result)
+  -- On success buffer is a pointer to a data buffer,
+  -- and result is the length of the data.
+  -- On error buffer is nil and result is an error code
+  -- (HTTP response code or MoSync internal error code).
+  self.WhenDone = function(self, doneFun)
+    log("WhenDone")
+    mHttpDoneFun = doneFun
+  end
+
+  -- Perform a GET HTTP request.
+  -- TODO: The headers param is not yet supported.
+  -- This will be a table of key:value request headers.
+  self.BasicGet = function(self, url, dataType, headers)
+    -- The connection must not be open yet.
+    if mOpen then return false end
+
+    if nil == dataType then
+      mStoreDataType = self.TYPE_BUFFER
+    else
+      mStoreDataType = dataType
+    end
+
+    -- Create the MoSync HTTP connection.
+    mConnectionHandle = mosync.maHttpCreate(url, mosync.HTTP_GET)
+    if mConnectionHandle > 0 then
+      mosync.EventMonitor:SetConnectionFun(
+        mConnectionHandle,
+        httpConnectionListener)
+    else
+      -- Report error.
+      mHttpDoneFun(nil, -1)
+      return
+    end
+
+    mOpen = true
+
+    -- TODO: Set request headers here.
+
+    mosync.maHttpFinish(mConnectionHandle)
+  end
+
+  -- Perform a GET HTTP to fetch data to a buffer.
+  -- TODO: The headers param is not yet supported.
+  self.Get = function(self, url, headers)
+    self:BasicGet(url, self.TYPE_BUFFER)
+  end
+
+  -- Perform a GET HTTP to fetch data to a data object.
+  -- TODO: The headers param is not yet supported.
+  self.GetData = function(self, url, headers)
+    self:BasicGet(url, self.TYPE_DATA)
+  end
+
+  -- Perform a GET HTTP to fetch an image.
+  -- TODO: The headers param is not yet supported.
+  self.GetImage = function(self, url, headers)
+    self:BasicGet(url, self.TYPE_IMAGE)
+  end
+
+  -- Close the connection.
+  self.Close = function(self)
+    -- The connection must be open.
+    if not mOpen then return false end
+    mOpen = false
+    mosync.EventMonitor:RemoveConnectionFun(mConnectionHandle)
+    mosync.maConnClose(mConnectionHandle)
+    return true
+  end
+
+  return self
+end
+
+-- ========== NATIVE UI  ==========
 
 -- Widget size values as strings (the mosync.MAW_CONSTANT_* values
 -- are integers and cannot be used with mosync.maWidgetSetProperty).
@@ -937,6 +1203,8 @@ mosync.NativeUI = (function()
   return uiManager
 
 end)()
+
+-- ========== FILE SYSTEM  ==========
 
 -- Create the global mosync.FileSys object.
 mosync.FileSys = (function()
@@ -1422,6 +1690,8 @@ mosync.FileSys = (function()
   -- Return the file system object.
   return fileObj
 end)()
+
+-- ========== TIME  ==========
 
 -- Add missing functions in the built-in os module.
 -- Thanks to Paul Kulchenko (github.com/pkulchenko)
