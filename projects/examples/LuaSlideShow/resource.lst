@@ -1,0 +1,31 @@
+.res IMAGE1
+.ubin
+.include "image1.png"
+
+.res IMAGE2
+.ubin
+.include "image2.png"
+
+.res IMAGE3
+.ubin
+.include "image3.png"
+
+.res IMAGE4
+.ubin
+.include "image4.png"
+
+.res IMAGE5
+.ubin
+.include "image5.png"
+
+.res IMAGE6
+.ubin
+.include "image6.png"
+
+.res LUALIB
+.ubin
+.include "../../common/LuaLib.lua"
+
+.res LUASLIDESHOW
+.bin
+.include "LuaSlideShow.lua"
