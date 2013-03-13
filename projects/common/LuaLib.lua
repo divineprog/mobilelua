@@ -574,6 +574,7 @@ mosync.Connection.HttpCreate = function(unused)
       local image = mosync.maCreatePlaceholder()
       local result = mosync.maCreateImageFromData(
         image, data, 0, mosync.maGetDataSize(data))
+      log("maCreateImageFromData returned " .. result)
       mosync.maDestroyPlaceholder(data)
       if mosync.RES_OK == result then
         return image

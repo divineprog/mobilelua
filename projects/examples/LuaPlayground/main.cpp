@@ -21,40 +21,30 @@
  */
 
 #include <ma.h>
-#include <MAInterpreter/LuaInterpreter.h>
-#include <MAInterpreter/InterpreterMoblet.h>
-#include <MAInterpreter/System.h>
-#include <conprint.h>
+#include "LuaEngine.h"
 #include "MAHeaders.h"
 
-using namespace MAInterpreter;
+// Define the global variable errno.
+LUA_DEFINE_ERRNO
 
 extern "C" int MAMain()
 {
-	LuaInterpreter* interpreter = new LuaInterpreter();
-	if (!interpreter->initialize())
+	// Create the Lua engine.
+	MobileLua::LuaEngine engine;
+	if (!engine.initialize())
 	{
 		return -1;
 	}
 
-	InterpreterMoblet* moblet = new InterpreterMoblet(interpreter);
-	if (!moblet)
-	{
-		return -1;
-	}
+	// Load Lua library functions.
+	engine.eval(LUALIB);
 
-	// Important to evaluate the Lua program after the Moblet
-	// has been created. The Lua code might do networking or
-	// other tasks that require a Moblet to be created.
-	int success = interpreter->evalResource(SCRIPT);
-	if (!success)
-	{
-		return -1;
-	}
+	// Load and run the application.
+	engine.eval(LUAPLAYGROUND);
 
-	moblet->mainLoop();
-
-	delete moblet;
+	// Enter the MoSync event loop.
+	// RunEventLoop is defined in LuaLib.lua.
+	engine.eval("mosync.EventMonitor:RunEventLoop()");
 
 	return 0;
-};
+}

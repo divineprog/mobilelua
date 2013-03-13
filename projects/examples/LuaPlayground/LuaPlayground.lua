@@ -1,3 +1,104 @@
+print("Hello World")
+
+---[[
+-- Application object.
+local app = {}
+
+app.Url = ""
+
+print("1")
+
+-- Open TextBox to enter URL to Lua code to run.
+app.OpenUrlTextBox = function(self)
+  mosync.SysOpenTextBox(
+    "Enter URL",
+    "http://divineprog.se/", mosync.MA_TB_TYPE_URL, 255,
+    function(url)
+      if nil == url then
+        print("URL: nil!")
+      else
+        print("URL: " .. url)
+        self.Url = url
+        self:LoadAndRun()
+      end
+    end)
+end
+print("2")
+
+
+-- Load and run Lua code from current URL.
+app.LoadAndRun = function(self)
+  -- Check that Url has some data.
+  if #self.Url < 4 then
+    return
+  end
+  
+  -- Load the code and evaluate it.
+  self:LoadUrl(self.Url, function(code) 
+    if nil == code then
+      print("Could not get Lua code")
+    else
+      self:EvalLuaCode(code)
+    end
+  end)
+end
+print("3")
+
+app.LoadUrl = function(self, url, callbackFun)
+  local connection = mosync.Connection:HttpCreate()
+  connection:WhenDone(function(data, result)
+    if nil == data then
+      print("Could not download data from:")
+      print(url)
+      callbackFun(nil)
+    else
+      -- Zero terminate C string buffer and get a Lua string.
+      mosync.SysBufferSetByte(data, result, 0)
+      local text = mosync.SysBufferToString(data)
+      mosync.SysFree(data)
+      callbackFun(text)
+    end
+    connection:Close()
+  end)
+  connection:Get(url)
+end
+print("4")
+
+app.EvalLuaCode = function(self, code)
+  local fun, parseError = loadstring(code)
+  if nil == fun then
+    print("Lua Parse Error:")
+    print(parseError)
+    mosync.maMessageBox("Lua Error", parseError)
+    return
+  end
+  
+  -- Hide the native UI and show the MoSync drawing screen.
+  maWidgetScreenShow(MAW_CONSTANT_MOSYNC_SCREEN_HANDLE)
+  -- Evaluate the code using a protected call.
+  local result, runtimeError = pcall(fun)
+  if false == result then
+    print("Lua Runtime Error:")
+    print(runtimeError)
+    mosync.maMessageBox("Lua Error", runtimeError)
+  end
+end
+
+print("5")
+----[[
+mosync.EventMonitor:OnKeyDown(function(key)
+  if mosync.MAK_BACK == key or mosync.MAK_0 == key then
+    mosync.EventMonitor:ExitEventLoop()
+  elseif mosync.MAK_1 == key then
+    app:OpenUrlTextBox()
+  elseif mosync.MAK_2 == key then
+    app:LoadAndRun()
+  end
+end)
+print("6")
+--]]
+
+--[[
 ProgramInfo = {
   ProgramName = "LuaPlayground",
   Version = 1,
@@ -132,5 +233,5 @@ end
 function CreateLoadProgramScreen()
 end
 
-
+--]]
 

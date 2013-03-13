@@ -1,3 +1,7 @@
-.res SCRIPT
+.res LUALIB
+.bin
+.include "../../common/LuaLib.lua"
+
+.res LUAPLAYGROUND
 .bin
 .include "LuaPlayground.lua"

@@ -95,7 +95,7 @@ function DownloadTest()
     end
     connection:Close()
   end)
-  connection:GetImage("http://www.lua.org/images/logo.gif")
+  connection:GetImage("http://www.mosync.com/sites/all/themes/mosync/css/img/reload3.png")
 end
 
 mosync.EventMonitor:OnTouchUp(DownloadTest)
