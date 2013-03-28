@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 
 import javax.swing.JComponent;
@@ -54,7 +55,7 @@ public class UIFileTree extends JTree
 			}
 	    });
 	    mPopupMenu.add(menuItem);
-
+/*
 	    menuItem = new JMenuItem("Select To Run");
 	    menuItem.addActionListener(new ActionListener()
 	    {
@@ -71,14 +72,14 @@ public class UIFileTree extends JTree
 			}
 	    });
 	    mPopupMenu.add(menuItem);
-
-	    menuItem = new JMenuItem("Run");
+*/
+	    menuItem = new JMenuItem("Eval File");
 	    menuItem.addActionListener(new ActionListener()
 	    {
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Log.i("Run");
+				Log.i("Eval File");
 				FileModel model =
 					(FileModel) mSelectedTreePath.getLastPathComponent();
 				if (model.isFile())
@@ -87,6 +88,9 @@ public class UIFileTree extends JTree
 				}
 			}
 	    });
+	    mPopupMenu.add(menuItem);
+
+	    menuItem = new JMenuItem("Send File(s)");
 	    mPopupMenu.add(menuItem);
 	}
 
@@ -193,7 +197,7 @@ public class UIFileTree extends JTree
 
 		public int getChildCount()
 		{
-			File[] children = mFile.listFiles();
+			File[] children = getFiles(mFile);
 			return null != children ? children.length : 0;
 		}
 
@@ -201,7 +205,7 @@ public class UIFileTree extends JTree
 		{
 			try
 			{
-				File[] children = mFile.listFiles();
+				File[] children = getFiles(mFile);
 				if ((null == children) || (index >= children.length))
 				{
 					return null;
@@ -237,12 +241,34 @@ public class UIFileTree extends JTree
 			String name = mFile.getName();
 			return (null == name || name.length() <= 0) ? "FileSystem" : name;
 		}
+        
+        File[] getFiles(File file)
+        {
+            return file.listFiles(new FilenameFilter()
+            {
+                public boolean accept(File dir, String name)
+                {
+                    return !name.startsWith(".");
+                }
+            });
+        }
 	}
 
 	class FileTreeMouseListener extends MouseAdapter
 	{
 		@Override
 		public void mouseReleased(MouseEvent e)
+		{
+			showPopupMenu(e);
+		}
+        
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			showPopupMenu(e);
+		}
+        
+		void showPopupMenu(MouseEvent e)
 		{
 			if (e.isPopupTrigger())
 			{
@@ -255,13 +281,10 @@ public class UIFileTree extends JTree
 
 					setSelectedThreePath(treePath);
 
-					if (e.isPopupTrigger())
-					{
-			            mPopupMenu.show(
+					mPopupMenu.show(
 			            	e.getComponent(),
 			                e.getX(),
 			                e.getY());
-			        }
 
 					// Perhaps useful for something.
 					//if (mFileTree.isExpanded(treePath)) ...

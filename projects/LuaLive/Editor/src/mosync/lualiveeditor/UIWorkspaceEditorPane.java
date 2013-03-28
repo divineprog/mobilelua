@@ -76,11 +76,16 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 
 		JButton button;
 
-		button = new JButton("Eval Lua");
+		button = new JButton("Eval Selection");
 		button.addActionListener(mMainUI.new CommandEvalLua());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
 
+		button = new JButton("Eval File");
+		button.addActionListener(mMainUI.new CommandEvalLua());
+		button.setAlignmentX(LEFT_ALIGNMENT);
+		buttonPanel.add(button);
+/*
 		button = new JButton("Eval JS");
 		button.addActionListener(mMainUI.new CommandEvalJavaScript());
 		button.setAlignmentX(LEFT_ALIGNMENT);
@@ -95,7 +100,7 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 		button.addActionListener(mMainUI.new CommandRunSelected());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
-
+*/
 		button = new JButton("Close");
 		button.addActionListener(new CommandClose());
 		button.setAlignmentX(RIGHT_ALIGNMENT);
