@@ -7,6 +7,8 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
@@ -40,7 +42,7 @@ public class UIFileTree extends JTree
 
 	    // Create popup menu.
 	    mPopupMenu = new JPopupMenu();
-	    JMenuItem menuItem = new JMenuItem("Open");
+	    JMenuItem menuItem = new JMenuItem("Open In Editor");
 	    menuItem.addActionListener(new ActionListener()
 	    {
 			@Override
@@ -84,13 +86,27 @@ public class UIFileTree extends JTree
 					(FileModel) mSelectedTreePath.getLastPathComponent();
 				if (model.isFile())
 				{
-					mMainUI.runFile(model.getFile());
+					mMainUI.evalFile(model.getFile());
 				}
 			}
 	    });
 	    mPopupMenu.add(menuItem);
 
-	    menuItem = new JMenuItem("Send File(s)");
+	    menuItem = new JMenuItem("Send File");
+	    menuItem.addActionListener(new ActionListener()
+	    {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Log.i("Send File");
+				FileModel model =
+					(FileModel) mSelectedTreePath.getLastPathComponent();
+				if (model.isFile())
+				{
+					mMainUI.sendFile(model.getFile());
+				}
+			}
+	    });
 	    mPopupMenu.add(menuItem);
 	}
 
@@ -244,13 +260,23 @@ public class UIFileTree extends JTree
         
         File[] getFiles(File file)
         {
-            return file.listFiles(new FilenameFilter()
-            {
-                public boolean accept(File dir, String name)
-                {
-                    return !name.startsWith(".");
-                }
-            });
+        	File[] files = file.listFiles(new FilenameFilter()
+	        {
+	            public boolean accept(File dir, String name)
+	            {
+	                return !name.startsWith(".");
+	            }
+	        });
+        	
+        	Arrays.sort(files, new Comparator<File>()
+        	{
+        		public int compare(File f1, File f2)
+        		{
+        			return f1.getName().compareToIgnoreCase(f2.getName());
+        		}
+        	});
+	        
+            return files;
         }
 	}
 

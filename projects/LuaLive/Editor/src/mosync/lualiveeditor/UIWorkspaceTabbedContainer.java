@@ -45,13 +45,9 @@ public class UIWorkspaceTabbedContainer extends JTabbedPane
 			+ "-- the LuaLive client app and enter the IP-address of the editor:\n"
 			+ "-- IP_ADDRESS (use 10.0.2.2 for localhost in the Android emulator).\n"
 			+ "-- \n"
-			+ "-- Note that there are two variations of the LuaLive client,\n"
-			+ "-- LuaLiveClient and LuaLiveClienX. The X-version is experimental\n"
-			+ "-- and supports the MoSync Wormhole system, much like MoSync Reload.\n"
-			+ "-- The code below assumes you use the LuaLiveClient version (non-X).\n"
-			+ "-- \n"
+			
 			+ "-- Now we can try out some Lua code. Evaluate this snippet\n"
-			+ "-- by selecting it in the editor, then press button [Eval Lua]:\n"
+			+ "-- by selecting it in the editor, then press button [Eval Selection]:\n"
 			+ "\n"
 			+ "mosync.Screen:SetColor(255, 255, 255)\n"
 			+ "mosync.Screen:Fill()\n"
@@ -61,7 +57,8 @@ public class UIWorkspaceTabbedContainer extends JTabbedPane
 			+ "\n"
 			+ "-- The above code displays a colored rectangle.\n"
 			+ "\n"
-			+ "-- Next, lets make a NativeUI in Lua. Select the evaluate\n"
+			
+			+ "-- Next, lets make a NativeUI in Lua. Select and evaluate\n"
 			+ "-- the following code:\n"
 			+ "\n"
 			+ "Screen = mosync.NativeUI:CreateWidget\n"
@@ -76,10 +73,13 @@ public class UIWorkspaceTabbedContainer extends JTabbedPane
 			+ "  height = mosync.FILL_PARENT,\n"
 			+ "  text = \"Click Me\",\n"
 			+ "  eventFun = function(self, widgetEvent)\n"
-			+ "    Counter = Counter + 1\n"
-			+ "    Button:SetProp(\n"
-			+ "      \"text\", \n"
-			+ "      \"You Clicked Me \"..Counter..\"Times\")\n"
+			+ "    if mosync.SysWidgetEventGetType(widgetEvent) ==\n"
+			+ "       mosync.MAW_EVENT_CLICKED then\n"
+			+ "      Counter = Counter + 1\n"
+			+ "      Button:SetProp(\n"
+			+ "        \"text\", \n"
+			+ "        \"You Clicked Me \"..Counter..\" Times\")\n"
+			+ "    end\n"
 			+ "  end\n"
 			+ "}\n"
 			+ "\n"
@@ -106,28 +106,34 @@ public class UIWorkspaceTabbedContainer extends JTabbedPane
 			+ "\n"
 			+ "mosync.NativeUI:ShowScreen(Screen)\n"
 			+ "\n"
-			+ "-- Next, we will do some experiments with JavaScript and HTML.\n"
-			+ "-- Do you remember the LuaLive client's start screen? It is still\n"
-			+ "-- around. Show it by evaluating this line of code:\n"
+			
+			+ "-- Next, we will do some experiments with JavaScript and HTML\n"
+			+ "-- in a WebView.\n"
+			+ "-- Evaluate this code to create a Screen with a WebView:\n"
 			+ "\n"
-			+ "mosync.NativeUI:ShowScreen(LuaLive.Screen)\n"
+			+ "WebScreen = mosync.NativeUI:CreateWidget\n"
+			+ "{\n"
+			+ "  type = \"Screen\"\n"
+			+ "}\n"
+			+ "\n"
+			+ "WebView = mosync.NativeUI:CreateWebView\n"
+			+ "{\n"
+			+ "  parent = WebScreen,\n"
+			+ "}\n"
+			+ "\n"
+			+ "mosync.NativeUI:ShowScreen(WebScreen)\n"
 			+ "\n"
 			+ "-- Now we have a WebView to play with. Lets set the HTML of the body "
-			+ "-- of that WebView. Evaluate this code, but now press [Eval JS] because"
-			+ "-- this is JavaScript:\n"
+			+ "-- of that WebView. Evaluate this code (note the multi-line string):\n"
 			+ "\n"
-			+ "savedHTML = document.body.innerHTML\n"
-			+ "document.body.innerHTML = \"<h1>Hello World</h1>\"\n"
-			+ "document.body.style.backgroundColor = \"red\"\n"
+			+ "WebView:EvalJS([==[\n"
+			+ "  document.body.innerHTML = \"<h1>Hello World</h1>\"\n"
+			+ "  document.body.style.backgroundColor = \"red\"\n"
+			+ "  ]==])\n"
 			+ "\n"
-			+ "-- Since we saved the original HTML, we can restore the page:\n"
+			+ "-- Directly set the HTML of the WebView:\n"
 			+ "\n"
-			+ "document.body.innerHTML = savedHTML\n"
-			+ "\n"
-
-			+ "-- Set the HTML of the WebView. This is Lua code, eval with [Eval Lua]:\n"
-			+ "\n"
-			+ "LuaLive.WebView:SetProp(\n"
+			+ "WebView:SetProp(\n"
 			+ "  mosync.MAW_WEB_VIEW_HTML,\n"
 			+ "  -- This is a Lua multiline string.\n"
 			+ "  [==[\n"
@@ -284,6 +290,13 @@ public class UIWorkspaceTabbedContainer extends JTabbedPane
 		return pane.getSelectedText();
 	}
 
+	public String getText()
+	{
+		int i = getSelectedIndex();
+		UIWorkspaceAbstractPane pane = (UIWorkspaceAbstractPane) getComponentAt(i);
+		return pane.getText();
+	}
+	
 	public void setFontForAllEditors(Font font)
 	{
 		for (int i = 0; i < getTabCount(); ++i)

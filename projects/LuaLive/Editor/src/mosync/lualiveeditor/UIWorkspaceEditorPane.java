@@ -25,6 +25,11 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 	{
 		mEditor.setText(data);
 	}
+	
+	public String getText()
+	{
+		return mEditor.getText();
+	}
 
 	public void openFile(File file)
 	{
@@ -82,7 +87,7 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 		buttonPanel.add(button);
 
 		button = new JButton("Eval File");
-		button.addActionListener(mMainUI.new CommandEvalLua());
+		button.addActionListener(mMainUI.new CommandEvalLuaAll());
 		button.setAlignmentX(LEFT_ALIGNMENT);
 		buttonPanel.add(button);
 /*
@@ -121,7 +126,7 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 			mMainUI.closeCurrentTab();
 		}
 	}
-
+/*
 	class CommandSelectToRun implements ActionListener
 	{
 		@Override
@@ -133,4 +138,5 @@ public class UIWorkspaceEditorPane extends UIWorkspaceAbstractPane
 			}
 		}
 	}
+*/
 }

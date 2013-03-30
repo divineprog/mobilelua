@@ -82,6 +82,11 @@ class UIEditor extends RTextScrollPane
 		mEditor.setText(text);
 	}
 
+	public String getText()
+	{
+		return mEditor.getText();
+	}
+	
 	public String getSelectedText()
 	{
 		return mEditor.getSelectedText();

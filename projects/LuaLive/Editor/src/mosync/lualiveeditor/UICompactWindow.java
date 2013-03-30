@@ -24,6 +24,9 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+/**
+ * This class is NOT USED!
+ */
 @SuppressWarnings("serial")
 public class UICompactWindow extends JFrame
 {

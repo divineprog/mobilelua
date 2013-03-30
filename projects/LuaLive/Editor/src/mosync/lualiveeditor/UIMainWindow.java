@@ -9,8 +9,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Enumeration;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -37,7 +40,7 @@ public class UIMainWindow extends JFrame
 	private UIMessagePane mMessagePane;
 	private UIFileTree mFileTree;
 	private UIWorkspaceTabbedContainer mWorkspaceTabPane;
-	private File mRunFile; // File to run (reload)
+	//private File mRunFile; // File to run (reload)
 	private File mLastFile = sDefaultDirectory;
 
 	public UIMainWindow()
@@ -72,7 +75,7 @@ public class UIMainWindow extends JFrame
 	{
 		mWorkspaceTabPane.closeCurrentTab();
 	}
-
+/*
 	public void selectFileToRun()
 	{
 		File file = null != mRunFile ? mRunFile : sDefaultDirectory;
@@ -88,13 +91,33 @@ public class UIMainWindow extends JFrame
 		// Sets window title to show the filename.
 		mMainUI.setRunFile(selectedFile);
 	}
+*/
+	public void evalFile(File file)
+	{
+		Log.i("Eval File");
+		
+		mWorkspaceTabPane.saveAll();
 
+		String code = Server.FileData.readFileAsString(file);
+		if (null != code)
+		{
+			mServer.postMessage(new Message("CommandEvalLua", code));
+		}
+	}
+	
+	public void sendFile(File file)
+	{
+		Log.i("Send File");
+		mWorkspaceTabPane.saveAll();
+		mServer.postMessage(new Message("CommandSendFile", file));
+	}
+/*
 	public void runFile(File file)
 	{
 		mWorkspaceTabPane.saveAll();
 		mServer.postMessage(new Message("CommandRun", file));
 	}
-
+	
 	public void setRunFile(File file)
 	{
 		try
@@ -109,7 +132,7 @@ public class UIMainWindow extends JFrame
 			ex.printStackTrace();
 		}
 	}
-
+*/
 	public void showMessage(final String message)
 	{
 		mMessagePane.showMessage(message);
@@ -226,22 +249,21 @@ public class UIMainWindow extends JFrame
 		});
 
 		// Create the Run menu.
-		JMenu runMenu = new JMenu("Run");
+		JMenu runMenu = new JMenu("Eval");
 
-		JMenuItem mMenuItemRun = runMenu.add("Run Selected File");
+		JMenuItem evalLuaItem = runMenu.add("Eval Selection");
+		evalLuaItem.setAccelerator(KeyStroke.getKeyStroke(
+			KeyEvent.VK_E, InputEvent.CTRL_MASK));
+		evalLuaItem.addActionListener(new CommandEvalLua());
+        
+		JMenuItem mMenuItemRun = runMenu.add("Eval All (Run)");
 		mMenuItemRun.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_R, InputEvent.CTRL_MASK));
-		mMenuItemRun.addActionListener(new CommandRunSelected());
-
-		JMenuItem runFileSelectItem = runMenu.add("Select File To Run...");
-		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
-
-		JMenuItem clearFileTrackerItem = runMenu.add("Reset File Tracker");
-		clearFileTrackerItem.addActionListener(new CommandResetFileTracker());
-
+		mMenuItemRun.addActionListener(new CommandEvalLuaAll());
+/*
 		runMenu.addSeparator();
 
-		JMenuItem runTabItem = runMenu.add("Open Run Button Tab");
+		JMenuItem runTabItem = runMenu.add("Open Eval All Button Tab");
 		runTabItem.addActionListener(new ActionListener()
 		{
 			@Override
@@ -251,18 +273,19 @@ public class UIMainWindow extends JFrame
 			}
 		});
 
-		runMenu.addSeparator();
+		JMenuItem runFileSelectItem = runMenu.add("Select File To Run...");
+		runFileSelectItem.addActionListener(new CommandSelectFileToRun());
 
-		JMenuItem evalLuaItem = runMenu.add("Eval Lua");
-		evalLuaItem.setAccelerator(KeyStroke.getKeyStroke(
-			KeyEvent.VK_E, InputEvent.CTRL_MASK));
-		evalLuaItem.addActionListener(new CommandEvalLua());
+		JMenuItem clearFileTrackerItem = runMenu.add("Reset File Tracker");
+		clearFileTrackerItem.addActionListener(new CommandResetFileTracker());
+
+		runMenu.addSeparator();
 
 		JMenuItem evalJavaScriptItem = runMenu.add("Eval JavaScript");
 		evalJavaScriptItem.setAccelerator(KeyStroke.getKeyStroke(
 			KeyEvent.VK_J, InputEvent.CTRL_MASK));
 		evalJavaScriptItem.addActionListener(new CommandEvalJavaScript());
-
+*/
 		// Create the Font menu.
 		JMenu fontMenu = new JMenu("Font");
 		for (int fontSize = 12; fontSize <= 30; fontSize += 2)
@@ -321,7 +344,7 @@ public class UIMainWindow extends JFrame
 			{
 				JOptionPane.showMessageDialog(
 					null,
-					"<html>LuaLive Editor, 2012-04-14<br/>"
+					"<html>LuaLive Editor, 2013-03-30<br/>"
 					+ "Built with MoSync Technology<br/>"
 					+ "Author: Mikael Kindborg<br/>",
 					"About",
@@ -370,6 +393,35 @@ public class UIMainWindow extends JFrame
 
 	public String getIpAddress()
 	{
+		String ipAddress = "unknown";
+		try
+		{
+			for (NetworkInterface networkInterface : Collections.list(
+					NetworkInterface.getNetworkInterfaces()))
+			{
+				if (networkInterface.isUp() && !networkInterface.isLoopback())
+				{
+		 	        for (InetAddress inetAddress : Collections.list(
+		 	        		networkInterface.getInetAddresses())) 
+		 	        {
+		 	        	if (inetAddress.isSiteLocalAddress())
+		 	        	{
+							ipAddress = inetAddress.getHostAddress();
+							break;
+		 	        	}
+		 	        }
+		 	    }
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+        return ipAddress;
+    }
+/*
+	public String OLD_getIpAddress()
+	{
 		String ipAddress = null;
 		try
 		{
@@ -378,11 +430,13 @@ public class UIMainWindow extends JFrame
 			InetAddress addresses[] = InetAddress.getAllByName(hostName);
 			for (InetAddress address : addresses)
 			{
+				Log.i("address.getHostName " + address.getHostName());
+				Log.i("address.getHostAddress " + address.getHostAddress());
 				if (!address.isLoopbackAddress()
 					&& address.isSiteLocalAddress())
 				{
 					ipAddress = address.getHostAddress();
-					break;
+					//break;
 				}
 			}
 		}
@@ -392,7 +446,7 @@ public class UIMainWindow extends JFrame
 		}
 		return ipAddress;
 	}
-
+*/
 	class CommandServerStart implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
@@ -416,7 +470,7 @@ public class UIMainWindow extends JFrame
 			}
 		}
 	}
-
+/*
 	class CommandRunSelected implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
@@ -447,7 +501,7 @@ public class UIMainWindow extends JFrame
 			mServer.postMessage(new Message("CommandResetFileTracker", null));
 		}
 	}
-
+*/
 	class CommandEvalLua implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
@@ -461,6 +515,19 @@ public class UIMainWindow extends JFrame
 		}
 	}
 
+	class CommandEvalLuaAll implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			Log.i("CommandEvalLuaAll");
+			String code = mWorkspaceTabPane.getSelectedText();
+			if (null != code)
+			{
+				mServer.postMessage(new Message("CommandEvalLuaAll", code));
+			}
+		}
+	}
+/*
 	class CommandEvalJavaScript implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
@@ -473,7 +540,7 @@ public class UIMainWindow extends JFrame
 			}
 		}
 	}
-
+*/
 	class CommandResetClient implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)

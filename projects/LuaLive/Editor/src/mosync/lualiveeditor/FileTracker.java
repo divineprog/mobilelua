@@ -22,7 +22,7 @@ public class FileTracker
 	{
 		return mRootPath;
 	}
-
+	
 	public ArrayList<String> getUpdatedFiles()
 	{
 		File dir = new File(mRootPath);

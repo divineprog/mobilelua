@@ -24,7 +24,7 @@ public class Server
 	public static final int COMMAND_RESET = 1;
 	public static final int COMMAND_REPLY = 2;
 	public static final int COMMAND_EVAL_LUA = 3;
-	public static final int COMMAND_EVAL_JAVASCRIPT = 4;
+	//public static final int COMMAND_EVAL_JAVASCRIPT = 4;
 	public static final int COMMAND_STORE_BINARY_FILE = 5;
 
 	// Instance variables.
@@ -33,7 +33,7 @@ public class Server
 	private ArrayList<ClientConnection> mClientConnections;
 	private ClientAcceptor mClientAcceptor;
 	private MessageQueue mServerInBox;
-	private FileTracker mFileTracker;
+	//private FileTracker mFileTracker;
 
 	public Server(UIMainWindow mainWindow)
 	{
@@ -117,6 +117,64 @@ public class Server
 				// Inform user that a client connection is closed.
 				mMainWindow.showMessage("Client has disconnected: " + connection.getHostName());
 			}
+			else if ("CommandEvalLua".equals(message.getMessage()))
+			{
+				for (ClientConnection connection : mClientConnections)
+				{
+					connection.postMessage(
+						new Message("CommandEvalLua", message.getObject()));
+				}
+			}
+			else if ("CommandSendFile".equals(message.getMessage()))
+			{
+				
+				File file = (File) message.getObject();
+				String filePath = FileData.unixPath(file);
+				//String rootPath = FileData.basePath(filePath);
+				
+				Log.i("CommandSendFile");
+				Log.i("filePath: " + filePath);
+				//Log.i("rootPath: " + rootPath);
+
+				// Collect files (we may have a directory).
+				ArrayList<String> files = new FileWalker().collectFiles(filePath);
+				mMainWindow.showMessage("Sending " + files.size() + " file(s)");
+				Log.i("Number of files to send: " + files.size());
+
+				// Send update message.
+				for (ClientConnection connection : mClientConnections)
+				{
+					//Log.i("Sending CommandSendFile to client connection: " + connection);
+					connection.postMessage(
+						new Message(
+							"CommandSendFile",
+							new FileData(filePath, files)));
+				}
+			}
+			// CommandResetClient not used for now.
+			else if ("CommandResetClient".equals(message.getMessage()))
+			{
+				for (ClientConnection connection : mClientConnections)
+				{
+					connection.postMessage(
+						new Message("CommandResetClient", message.getObject()));
+				}
+			}
+			else if ("MessageFromClient".equals(message.getMessage()))
+			{
+				mMainWindow.showMessage(message.getObject().toString());
+			}
+			else if ("CommandServerStop".equals(message.getMessage()))
+			{
+				stopServer();
+			}
+			// TODO: How is this used?
+			else if("ServerAddressReceived".equals(message.getMessage()))
+			{
+				Log.i("ServerAddressReceived: " + message.getObject());
+				mMainWindow.showMessage(message.getObject().toString());
+			}
+			/*
 			else if ("CommandRun".equals(message.getMessage()))
 			{
 				File runFile = (File) message.getObject();
@@ -151,14 +209,6 @@ public class Server
 								updatedFiles)));
 				}
 			}
-			else if ("CommandEvalLua".equals(message.getMessage()))
-			{
-				for (ClientConnection connection : mClientConnections)
-				{
-					connection.postMessage(
-						new Message("CommandEvalLua", message.getObject()));
-				}
-			}
 			else if ("CommandEvalJavaScript".equals(message.getMessage()))
 			{
 				for (ClientConnection connection : mClientConnections)
@@ -171,29 +221,7 @@ public class Server
 			{
 				mFileTracker = null;
 			}
-			// CommandResetClient not used for now.
-			else if ("CommandResetClient".equals(message.getMessage()))
-			{
-				for (ClientConnection connection : mClientConnections)
-				{
-					connection.postMessage(
-						new Message("CommandResetClient", message.getObject()));
-				}
-			}
-			else if ("MessageFromClient".equals(message.getMessage()))
-			{
-				mMainWindow.showMessage(message.getObject().toString());
-			}
-			else if ("CommandServerStop".equals(message.getMessage()))
-			{
-				stopServer();
-			}
-			// TODO: How is this used?
-			else if("ServerAddressReceived".equals(message.getMessage()))
-			{
-				Log.i("ServerAddressReceived: " + message.getObject());
-				mMainWindow.showMessage(message.getObject().toString());
-			}
+			*/
 		}
 	}
 
@@ -378,20 +406,14 @@ public class Server
 
 					out.flush();
 				}
-				else if ("CommandRun".equals(message.getMessage()))
-				{
-					// Send files to client, then reload main file.
-					sendUpdatedFilesAndRunFile(out, (FileData) message.getObject());
-				}
 				else if ("CommandEvalLua".equals(message.getMessage()))
 				{
 					String data = message.getObject().toString();
 					sendEvalLua(out, data);
 				}
-				else if ("CommandEvalJavaScript".equals(message.getMessage()))
+				else if ("CommandSendFile".equals(message.getMessage()))
 				{
-					String data = message.getObject().toString();
-					sendEvalJavaScript(out, data);
+					sendFile(out, (FileData) message.getObject());
 				}
 				else if ("CommandCloseClientConnection".equals(message.getMessage()))
 				{
@@ -399,7 +421,18 @@ public class Server
 					mSocket.close();
 					mRunning = false;
 				}
-
+				/* NOT USED
+				else if ("CommandEvalJavaScript".equals(message.getMessage()))
+				{
+					String data = message.getObject().toString();
+					sendEvalJavaScript(out, data);
+				}
+				else if ("CommandRun".equals(message.getMessage()))
+				{
+					// Send files to client, then reload main file.
+					sendUpdatedFilesAndRunFile(out, (FileData) message.getObject());
+				}
+				*/
 			} // while
 		}
 
@@ -422,7 +455,7 @@ public class Server
 			writeStringToStream(out, data);
 			out.flush();
 		}
-
+/*
 		private void sendEvalJavaScript(OutputStream out, String data)
 			throws IOException
 		{
@@ -431,7 +464,8 @@ public class Server
 			writeStringToStream(out, data);
 			out.flush();
 		}
-
+*/
+/*
 		private void sendUpdatedFilesAndRunFile(OutputStream out, FileData fileData)
 			throws IOException
 		{
@@ -452,7 +486,21 @@ public class Server
 
 			sendEvalLua(out, "LuaLive.LoadFile('" + localPath + "')");
 		}
+*/
+		private void sendFile(OutputStream out, FileData fileData)
+				throws IOException
+		{
+			String rootPath = fileData.getRootPath();
 
+			// Send files to device.
+			for (String path : fileData.getFiles())
+			{
+				String localPath = FileData.deviceLocalPath(rootPath, path);
+				Log.i("Sending file - localPath: " + localPath);
+				sendFileData(out, path, localPath);
+			}
+		}
+		
 		private void sendFileData(OutputStream out, String filePath, String localPath)
 			throws IOException
 		{
@@ -727,28 +775,39 @@ public class Server
 			}
 		}
 
-		private String mRunFilePath;
-		private ArrayList<String> mUpdatedFiles;
+		// Path of selected file.
+		private String mBaseFilePath;
+		
+		// All files (selected file may be a directory).
+		private ArrayList<String> mFiles;
 
-		public FileData(String runFilePath, ArrayList<String> updatedFiles)
+		public FileData(String baseFilePath, ArrayList<String> files)
 		{
-			mRunFilePath = runFilePath;
-			mUpdatedFiles = updatedFiles;
+			mBaseFilePath = baseFilePath;
+			mFiles = files;
 		}
-
+		
+		/*
 		public String getRunFilePath()
 		{
-			return mRunFilePath;
+			return mBaseFilePath;
 		}
-
-		public String getRootPath()
-		{
-			return FileData.basePath(mRunFilePath);
-		}
-
+		
 		public ArrayList<String> getUpdatedFiles()
 		{
-			return mUpdatedFiles;
+			return mFiles;
+		}
+		*/
+		
+		// Base path of files to be sent to the device.
+		public String getRootPath()
+		{
+			return FileData.basePath(mBaseFilePath);
+		}
+
+		public ArrayList<String> getFiles()
+		{
+			return mFiles;
 		}
 	}
 }

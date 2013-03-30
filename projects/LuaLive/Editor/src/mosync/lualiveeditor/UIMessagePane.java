@@ -35,7 +35,7 @@ public class UIMessagePane extends JComponent
 
 		// Add label with host address.
 		JLabel label = new JLabel();
-		label.setText("File To Run: (None Selected)");
+		//label.setText("File To Run: (None Selected)");
 		label.setAlignmentX(LEFT_ALIGNMENT);
 
 		mStatusLabel = label;

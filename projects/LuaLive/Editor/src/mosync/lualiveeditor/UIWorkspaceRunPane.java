@@ -18,7 +18,8 @@ public class UIWorkspaceRunPane extends UIWorkspaceAbstractPane
 	{
 		JButton button = new JButton("Run");
 		button.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 100));
-        button.addActionListener(mMainUI.new CommandRunSelected());
+		// TODO: Fix this if the Run button should be supported.
+        //button.addActionListener(mMainUI.new CommandRunSelected());
 		this.setLayout(new BorderLayout());
         this.add(button, BorderLayout.CENTER);
 	}

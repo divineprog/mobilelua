@@ -40,6 +40,11 @@ public class UIWorkspaceAbstractPane  extends JComponent
 	{
 		return null;
 	}
+	
+	public String getText()
+	{
+		return null;
+	}
 
 	public void setEditorFont(Font font)
 	{
