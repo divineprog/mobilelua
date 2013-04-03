@@ -114,8 +114,8 @@ LuaLive = (function()
   -- use the same ip-address every time.
   -- Default is to use mosync.NativeUI to display a start
   -- screen where you can enter the ip-address.
-  --self.USE_NATIVE_UI = true
-  self.USE_NATIVE_UI = false
+  self.USE_NATIVE_UI = true
+  --self.USE_NATIVE_UI = false
   
   self.Main = function()
     mosync.EventMonitor:OnKeyDown(self.OnKeyDown)
