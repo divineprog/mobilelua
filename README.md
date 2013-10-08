@@ -1,12 +1,20 @@
 MobileLua
 =========
 
+Update October 8, 2013
+----------------------
+
+I no longer actively develop MobileLua. I will keep this repositry here, because it contains code that could be useful for future implementations of Lua on mobile devices.
+
+Description
+-----------
+
 MobileLua is a port of Lua to [MoSync](http://mosync.com/), a C/C++ 
 cross-platform development system for mobile devices. This enables Lua 
 to be used on a wide range of mobile devices.
 
-News
-----
+News (old)
+----------
 
 MobileLua now wraps all functions and constants in the "mosync" namespace.
 
